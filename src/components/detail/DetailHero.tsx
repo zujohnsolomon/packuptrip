@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { HeroCarousel } from "./HeroCarousel";
 
 export function DetailHero({
   images,
@@ -17,21 +17,10 @@ export function DetailHero({
   backHref: string;
   backLabel: string;
 }) {
-  const main = images[0];
   return (
     <section className="relative isolate w-full overflow-hidden">
       <div className="relative h-[55vh] min-h-[380px] w-full bg-stone-200">
-        {main && (
-          <Image
-            src={main}
-            alt={title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-black/30" />
+        <HeroCarousel images={images} title={title} />
       </div>
 
       <div className="absolute inset-x-0 bottom-0">
