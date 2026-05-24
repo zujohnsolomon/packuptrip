@@ -47,7 +47,7 @@ export default async function HostTripsPage({
       <Header />
       <main className="flex-1 bg-stone-50 pt-20">
         <div className="border-b border-stone-200 bg-white">
-          <div className="mx-auto flex max-w-5xl items-baseline justify-between gap-4 px-6 py-6 lg:px-8">
+          <div className="mx-auto flex max-w-5xl items-baseline justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
                 Hosting

@@ -49,7 +49,7 @@ export default async function AccountPage() {
       <Header />
       <main className="flex-1 bg-cream pt-20">
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-ink">
+          <h1 className="break-words text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
             Welcome, {profile?.name ?? user.email}
           </h1>
           <p className="mt-1 text-stone-600">
@@ -179,22 +179,22 @@ function StatusChip({ status }: { status: string }) {
 
 function EmptyBookings() {
   return (
-    <div className="mt-5 rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+    <div className="mt-5 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center sm:p-10">
       <div className="text-base font-semibold text-ink">No bookings yet</div>
       <p className="mt-1 text-sm text-stone-600">
         Find a curated package or join a community trip - both are one click
         away.
       </p>
-      <div className="mt-5 flex justify-center gap-3">
+      <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
         <Link
           href="/packages"
-          className="inline-flex h-10 items-center rounded-full bg-amber-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-amber-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
         >
           Browse packages
         </Link>
         <Link
           href="/trips"
-          className="inline-flex h-10 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
         >
           Community trips
         </Link>
