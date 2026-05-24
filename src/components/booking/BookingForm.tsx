@@ -68,7 +68,7 @@ export function BookingForm({
       <dl className="mt-5 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
         <Row label="Trip price" value={formatINR(basePrice)} />
         <Row
-          label={`Packuptrip service fee (${Math.round(SERVICE_FEE_RATE * 100)}%)`}
+          label={`Service fee (${Math.round(SERVICE_FEE_RATE * 100)}%)`}
           value={formatINR(serviceFee)}
         />
         <div className="my-1 h-px bg-stone-200" />

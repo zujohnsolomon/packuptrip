@@ -36,7 +36,7 @@ export default async function BookingDetailPage({
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <ConfirmationBanner reference={reference} accent={accent} />
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
+          <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr] md:gap-12">
             <BookingSummary
               variant={item.type === "package" ? "originals" : "community"}
               title={item.item.title}
@@ -62,7 +62,7 @@ export default async function BookingDetailPage({
                   value={formatINR(Number(booking.base_price))}
                 />
                 <Row
-                  label="Packuptrip service fee"
+                  label="Service fee"
                   value={formatINR(Number(booking.service_fee))}
                 />
                 <div className="my-1 h-px bg-stone-200" />

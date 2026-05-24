@@ -53,7 +53,7 @@ export default async function BookTripPage({
               : "Reserve your share. No payment today."}
           </p>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
+          <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr] md:gap-12">
             <BookingSummary
               variant="community"
               title={trip.title}
