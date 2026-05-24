@@ -74,9 +74,9 @@ export default async function HostTripsPage({
           {rows.length === 0 ? (
             <EmptyState />
           ) : (
-            <ul className="grid gap-3">
+            <ul className="flex flex-col gap-3">
               {rows.map((trip) => (
-                <li key={trip.id}>
+                <li key={trip.id} className="min-w-0">
                   <TripRow trip={trip} highlight={sp.submitted === trip.id || sp.draft === trip.id} />
                 </li>
               ))}
@@ -123,18 +123,20 @@ function TripRow({ trip, highlight }: { trip: Trip; highlight: boolean }) {
             </span>
           )}
         </div>
-        <div className="mt-1 truncate font-semibold text-ink">{trip.title}</div>
+        <div className="mt-1 line-clamp-2 break-words font-semibold text-ink">
+          {trip.title}
+        </div>
         <div className="mt-0.5 truncate text-xs text-stone-500">
           {trip.location} · {formatHumanDate(trip.start_date)} · {trip.days} days
         </div>
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-stone-500">
-          <span>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-stone-500">
+          <span className="whitespace-nowrap">
             {trip.spots_left}/{trip.spots_total} spots
           </span>
-          <span className="font-medium text-ink">
+          <span className="whitespace-nowrap font-medium text-ink">
             {formatINR(Number(trip.price_per_share))} per share
           </span>
-          <span>
+          <span className="whitespace-nowrap">
             Created{" "}
             {formatDistanceToNow(new Date(trip.created_at), { addSuffix: true })}
           </span>
@@ -147,7 +149,7 @@ function TripRow({ trip, highlight }: { trip: Trip; highlight: boolean }) {
   return (
     <Link
       href={href}
-      className={`group flex items-stretch gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] ${
+      className={`group flex w-full min-w-0 items-stretch gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] sm:gap-4 sm:p-4 ${
         highlight ? "ring-2 ring-inset ring-teal-300" : ""
       }`}
     >
