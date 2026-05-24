@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
+
+type ProfileMini = {
+  name: string;
+  avatar_url: string | null;
+  role: string;
+  has_trips: boolean;
+};
 
 const NAV_LINKS = [
   { href: "/packages", label: "Packages" },
@@ -54,7 +62,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Don't keep transparent when the menu is open — drawer needs a solid bg
+  // Don't stay transparent when the mobile menu is open
   const transparent = overlay && !scrolled && !menuOpen;
 
   return (
@@ -85,7 +93,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
         <div className="flex items-center gap-2">
           {!authReady ? null : user ? (
-            <AuthedActions transparent={transparent} />
+            <AvatarMenu user={user} transparent={transparent} />
           ) : (
             <GuestActions transparent={transparent} />
           )}
@@ -136,27 +144,170 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
   );
 }
 
-function NavLink({
-  href,
+// ─── Avatar button + dropdown ─────────────────────────────────────────────────
+
+function AvatarMenu({
+  user,
   transparent,
+}: {
+  user: User;
+  transparent: boolean;
+}) {
+  const [profile, setProfile] = useState<ProfileMini | null>(null);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Close on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Close on outside pointer-down
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: PointerEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  // Fetch profile + trip count once we know the user
+  useEffect(() => {
+    const supabase = createClient();
+    Promise.all([
+      supabase
+        .from("profiles")
+        .select("name, avatar_url, role")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("trips")
+        .select("id", { count: "exact", head: true })
+        .eq("host_id", user.id),
+    ]).then(([{ data: p }, { count }]) => {
+      if (p) {
+        setProfile({
+          name: p.name as string,
+          avatar_url: p.avatar_url as string | null,
+          role: p.role as string,
+          has_trips: (count ?? 0) > 0,
+        });
+      }
+    });
+  }, [user.id]);
+
+  const initial = (profile?.name ?? user.email ?? "?")[0].toUpperCase();
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Avatar button */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Account menu"
+        aria-expanded={open}
+        className={cn(
+          "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-2 transition focus-visible:outline-none",
+          transparent
+            ? "ring-white/40 hover:ring-white/60"
+            : "ring-stone-200 hover:ring-amber-300",
+          open && !transparent && "ring-amber-400",
+        )}
+      >
+        {profile?.avatar_url ? (
+          <Image
+            src={profile.avatar_url}
+            alt={profile.name}
+            fill
+            sizes="36px"
+            className="rounded-full object-cover"
+          />
+        ) : (
+          <span
+            className={cn(
+              "flex h-full w-full select-none items-center justify-center rounded-full text-sm font-bold",
+              transparent
+                ? "bg-white/20 text-white"
+                : "bg-amber-100 text-amber-800",
+            )}
+          >
+            {initial}
+          </span>
+        )}
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_8px_32px_-4px_rgba(0,0,0,0.14),0_2px_8px_-2px_rgba(0,0,0,0.08)]">
+          {/* Identity strip */}
+          <div className="border-b border-stone-100 px-4 py-3">
+            <div className="truncate text-sm font-semibold text-ink">
+              {profile?.name ?? user.email}
+            </div>
+            <div className="truncate text-xs text-stone-400">{user.email}</div>
+          </div>
+
+          {/* Navigation items */}
+          <div className="py-1.5">
+            <DropdownLink href="/account">My bookings</DropdownLink>
+            {profile?.has_trips && (
+              <DropdownLink href="/host/trips">My trips</DropdownLink>
+            )}
+            <DropdownLink href="/account">Profile</DropdownLink>
+            {profile?.role === "admin" && (
+              <DropdownLink href="/admin" accent>
+                Admin panel
+              </DropdownLink>
+            )}
+          </div>
+
+          {/* Log out */}
+          <div className="border-t border-stone-100 py-1.5">
+            <form action="/auth/logout" method="post">
+              <button
+                type="submit"
+                className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+              >
+                Log out
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DropdownLink({
+  href,
   children,
+  accent = false,
 }: {
   href: string;
-  transparent: boolean;
   children: React.ReactNode;
+  accent?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "transition-colors",
-        transparent ? "hover:text-white" : "hover:text-ink",
+        "block px-4 py-2.5 text-sm font-medium transition hover:bg-stone-50",
+        accent ? "text-amber-700 hover:text-amber-800" : "text-stone-700 hover:text-ink",
       )}
     >
       {children}
     </Link>
   );
 }
+
+// ─── Guest actions ────────────────────────────────────────────────────────────
 
 function GuestActions({ transparent }: { transparent: boolean }) {
   return (
@@ -187,9 +338,44 @@ function GuestActions({ transparent }: { transparent: boolean }) {
   );
 }
 
+// ─── Shared nav link ──────────────────────────────────────────────────────────
+
+function NavLink({
+  href,
+  transparent,
+  children,
+}: {
+  href: string;
+  transparent: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "transition-colors",
+        transparent ? "hover:text-white" : "hover:text-ink",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// ─── Icons ────────────────────────────────────────────────────────────────────
+
 function MenuIcon() {
   return (
-    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="18"
+      height="18"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <line x1="3" y1="6" x2="21" y2="6" />
       <line x1="3" y1="12" x2="21" y2="12" />
       <line x1="3" y1="18" x2="21" y2="18" />
@@ -199,25 +385,18 @@ function MenuIcon() {
 
 function XIcon() {
   return (
-    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="18"
+      height="18"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
-  );
-}
-
-function AuthedActions({ transparent }: { transparent: boolean }) {
-  return (
-    <Link
-      href="/account"
-      className={cn(
-        "inline-flex h-9 items-center rounded-full px-4 text-sm font-medium transition shadow-sm",
-        transparent
-          ? "bg-white text-ink hover:bg-stone-100"
-          : "bg-amber-600 text-white hover:bg-amber-700",
-      )}
-    >
-      Your account
-    </Link>
   );
 }
