@@ -289,6 +289,27 @@ create policy "bookings_own_read"
   on public.bookings for select
   using (user_id = auth.uid());
 
+-- bookings: admins can read all (applied via migration after initial schema)
+create policy "bookings_admin_read_all"
+  on public.bookings for select
+  using (exists (
+    select 1 from public.profiles
+     where profiles.id = auth.uid()
+       and profiles.role = 'admin'
+  ));
+
+-- bookings: host can read bookings on their own trips (T6.3)
+create policy "bookings_host_read"
+  on public.bookings for select
+  using (
+    item_type = 'trip'
+    and exists (
+      select 1 from public.trips
+       where trips.id = item_id
+         and trips.host_id = auth.uid()
+    )
+  );
+
 create policy "bookings_own_insert"
   on public.bookings for insert
   with check (user_id = auth.uid());
@@ -352,3 +373,40 @@ create policy "messages_recipient_mark_read"
        and auth.uid() <> sender_id
   ))
   with check (true);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- host_cancel_booking RPC  (T6.3)
+-- Atomically cancels a joiner's booking and restores the freed spot.
+-- SECURITY DEFINER so it can write bookings even though the host doesn't
+-- own the booking row; auth.uid() is still the logged-in host.
+-- ──────────────────────────────────────────────────────────────────────────
+create or replace function public.host_cancel_booking(p_booking_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_booking record;
+begin
+  select * into v_booking from public.bookings where id = p_booking_id;
+  if not found then
+    raise exception 'booking_not_found';
+  end if;
+  if v_booking.item_type <> 'trip' then
+    raise exception 'not_a_trip_booking';
+  end if;
+  if v_booking.status = 'cancelled' then
+    raise exception 'already_cancelled';
+  end if;
+  if not exists (
+    select 1 from public.trips
+     where id = v_booking.item_id
+       and host_id = auth.uid()
+  ) then
+    raise exception 'not_authorized';
+  end if;
+  update public.bookings set status = 'cancelled' where id = p_booking_id;
+  update public.trips set spots_left = spots_left + 1 where id = v_booking.item_id;
+end;
+$$;

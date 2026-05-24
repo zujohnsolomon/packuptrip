@@ -14,11 +14,10 @@
 Everything below ships before public launch. No work from `roadmap.md`
 phases 1+ begins until launch is done.
 
-**Build order (decided 22 May 2026):** Epics 1–4 done. Next: **5 → 9 → 6 → 7**.
-Bookings first to generate real data, then admin so the founder can operate
-the platform, then host flow so submissions flow through the admin approval
-queue, then payments last (needs registered business). Reviews + messaging +
-ID verification (Epic 8) is sequenced after Epic 7.
+**Build order (decided 22 May 2026):** Epics 1–5 done. Epic 9 (admin launch slice) done.
+Epic 6 done (T6.1 ✅ T6.2 ✅ T6.3 ✅). Next: **Epic 7 (Payments)**.
+Host flow complete; payments last (needs registered business).
+Reviews + messaging + ID verification (Epic 8) is sequenced after Epic 7.
 
 **Locked business numbers (23 May 2026):**
 - Traveller service fee: **8%**
@@ -65,20 +64,20 @@ calculation; changing one requires a migration that updates both.
 - [x] `/account` protected page with placeholder bookings/hosted panels
 - [ ] Custom Supabase SMTP via Resend (still on default mailer — rate-limited)
 
-### Epic 5 — Booking / join flow ⏳
+### Epic 5 — Booking / join flow ✅
 
-- [ ] `/book/package/[id]` and `/book/trip/[id]` checkout pages
-- [ ] Review + confirm UI: price breakdown (base + 7% service fee), traveller count, contact
-- [ ] Booking submit creates a `bookings` row with status `requested`, decrements `spots_left`
-- [ ] Confirmation page with booking reference
-- [ ] "My bookings" panel on `/account` reads real bookings
-- [ ] No live payment — Razorpay/Cashfree wiring deferred to Epic 7
+- [x] `/book/package/[id]` and `/book/trip/[id]` checkout pages
+- [x] Review + confirm UI: price breakdown (base + 8% service fee), traveller count, contact
+- [x] Booking submit creates a `bookings` row with status `requested`, decrements `spots_left`
+- [x] Confirmation page with booking reference (`/bookings/[id]`)
+- [x] "My bookings" panel on `/account` reads real bookings
+- [x] No live payment — Razorpay/Cashfree wiring deferred to Epic 7
 
 ### Epic 6 — Host flow 🚧
 
-- [ ] **T6.1** — Post a trip. `/host` landing (what hosting is, expectations, commission) + `/host/new` create form (basics, description, images, includes, tags, itinerary, pricing, spots). Saves as `draft`; submit flips to `pending` (lands in T9.3 approval queue). Anyone signed in can host for v1; admin can revoke via T9.6.
-- [ ] **T6.2** — Host dashboard. `/host/trips` list of host's own trips grouped by status (draft / pending / live / completed / cancelled). Edit drafts, view admin notes / rejection reasons, resubmit after changes.
-- [ ] **T6.3** — Manage join requests. Host opens a trip → sees the list of travellers who booked, contact info, ability to cancel a join request, basic stats. (Real messaging comes in Epic 8.)
+- [x] **T6.1** — Post a trip. `/host` landing (what hosting is, expectations, commission) + `/host/new` create form (basics, description, images, includes, tags, itinerary, pricing, spots). Saves as `draft`; submit flips to `pending` (lands in T9.3 approval queue). Anyone signed in can host for v1; admin can revoke via T9.6.
+- [x] **T6.2** — Host dashboard. `/host/trips` list of host's own trips grouped by status (draft / pending / live / completed / cancelled). Edit drafts, view admin notes / rejection reasons, resubmit after changes. (`/host/trips/[id]` detail + edit + `HostTripActions` — cancel, resubmit.)
+- [x] **T6.3** — Manage join requests. `/host/trips/[id]/joiners` — joiner list with name/email/status/amount, stats strip (total/requested/confirmed/spots left), cancel-join flow (host_cancel_booking RPC atomically cancels + restores spot). BookingsTease card on trip detail now links here. (Real messaging comes in Epic 8.)
 - [ ] *(Deferred)* Host application gate — anyone can host or only verified? Default for launch: anyone can host but trips don't go live without admin approval.
 
 ### Epic 7 — Payments (Razorpay Route / Cashfree Easy Split) ⏳
@@ -98,21 +97,20 @@ calculation; changing one requires a migration that updates both.
 - [ ] In-app messaging: thread per booking pair, message list, send form
 - [ ] ID verification flow: upload, manual approval queue in admin (T9.6)
 
-### Epic 9 — Admin Dashboard
+### Epic 9 — Admin Dashboard ✅ (launch slice)
 
-Build **after Epic 4 (auth)**, **before launch**. Role-gated at `role = 'admin'`
-on the `profiles` table. The admin role + RLS hooks for it are already in the
-schema; this epic builds the UI.
+Built after Epic 4 (auth). Role-gated at `role = 'admin'` on the `profiles`
+table. The admin role + RLS hooks for it are already in the schema.
 
 **Launch slice** (must ship before public launch):
 
-- [ ] **T9.1** — Role-protected `/admin` area, accessible only to users with `role = 'admin'`. Sidebar layout.
-- [ ] **T9.2** — Admin Overview page: key metrics (bookings, revenue, active trips), revenue split Originals vs Community, recent activity feed, a "needs attention" panel (pending approvals, reports, payouts).
-- [ ] **T9.3** — Trip Review & Approval queue: list pending host trips, full preview, approve / reject with reason / request changes / edit before approving.
-- [ ] **T9.4** — Manage Originals: create, edit, delete, publish/unpublish packages; see bookings per package.
-- [ ] **T9.6** — Users admin: searchable user list, view profiles + booking history, ID verification approval queue, suspend/ban, change roles.
-- [ ] **T9.8** — Bookings admin: all bookings, filter by status / trip / user / date, manual cancel/refund.
-- [ ] **T9.9** — Reports & Safety: user-submitted reports and incident log, status tracking (open / investigating / resolved). Must be prominent.
+- [x] **T9.1** — Role-protected `/admin` area, accessible only to users with `role = 'admin'`. Sidebar layout (`/admin/layout.tsx`).
+- [x] **T9.2** — Admin Overview page: key metrics (bookings, revenue, active trips), revenue split Originals vs Community, recent activity feed, a "needs attention" panel (pending approvals, reports, payouts).
+- [x] **T9.3** — Trip Review & Approval queue: list pending host trips, full preview, approve / reject with reason / request changes / edit before approving. (`/admin/approvals/[id]/edit` for pre-approve edits.)
+- [x] **T9.4** — Manage Originals: create, edit, delete, publish/unpublish packages; see bookings per package. (`PackageEditor` component.)
+- [x] **T9.6** — Users admin: searchable user list, view profiles + booking history, ID verification approval queue, suspend/ban, change roles.
+- [x] **T9.8** — Bookings admin: all bookings, filter by status / trip / user / date, manual cancel/refund.
+- [x] **T9.9** — Reports & Safety: user-submitted reports and incident log, status tracking (open / investigating / resolved). User-facing `/report` form (+ `/report/sent`) feeds this queue.
 
 **Deferred to post-launch:**
 

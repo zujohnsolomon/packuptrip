@@ -2,15 +2,29 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
 
+const NAV_LINKS = [
+  { href: "/packages", label: "Packages" },
+  { href: "/trips", label: "Community trips" },
+  { href: "/host", label: "Host a trip" },
+];
+
 export function Header({ overlay = false }: { overlay?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   // Scroll behaviour
   useEffect(() => {
@@ -40,7 +54,8 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const transparent = overlay && !scrolled;
+  // Don't keep transparent when the menu is open — drawer needs a solid bg
+  const transparent = overlay && !scrolled && !menuOpen;
 
   return (
     <header
@@ -54,21 +69,18 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Logo light={transparent} />
 
+        {/* Desktop nav */}
         <nav
           className={cn(
             "hidden items-center gap-8 text-sm font-medium md:flex transition-colors",
             transparent ? "text-white/90" : "text-stone-700",
           )}
         >
-          <NavLink href="/packages" transparent={transparent}>
-            Packages
-          </NavLink>
-          <NavLink href="/trips" transparent={transparent}>
-            Community trips
-          </NavLink>
-          <NavLink href="/host" transparent={transparent}>
-            Host a trip
-          </NavLink>
+          {NAV_LINKS.map(({ href, label }) => (
+            <NavLink key={href} href={href} transparent={transparent}>
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -77,8 +89,49 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
           ) : (
             <GuestActions transparent={transparent} />
           )}
+
+          {/* Mobile hamburger — hidden on md+ */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className={cn(
+              "inline-flex h-9 w-9 items-center justify-center rounded-full transition md:hidden",
+              transparent
+                ? "text-white hover:bg-white/10"
+                : "text-stone-700 hover:bg-stone-100",
+            )}
+          >
+            {menuOpen ? <XIcon /> : <MenuIcon />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile nav drawer */}
+      {menuOpen && (
+        <div className="border-t border-stone-200/70 bg-cream/95 px-4 pb-4 pt-2 backdrop-blur md:hidden">
+          <nav className="flex flex-col">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="rounded-xl px-3 py-3 text-sm font-medium text-stone-700 hover:bg-stone-100"
+              >
+                {label}
+              </Link>
+            ))}
+            {authReady && !user && (
+              <Link
+                href="/login"
+                className="mt-1 rounded-xl px-3 py-3 text-sm font-medium text-stone-500 hover:bg-stone-100"
+              >
+                Log in
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
@@ -131,6 +184,25 @@ function GuestActions({ transparent }: { transparent: boolean }) {
         Sign up
       </Link>
     </>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
   );
 }
 

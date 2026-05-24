@@ -221,6 +221,26 @@ export async function submitMyDraft(formData: FormData) {
   redirect(`/host/trips?submitted=${id}`);
 }
 
+/** Host cancels a single joiner's booking on their trip.
+ *  Delegates to the host_cancel_booking RPC which atomically cancels the
+ *  booking and restores the freed spot. Payment refunds are Epic 7. */
+export async function cancelJoinerBooking(formData: FormData) {
+  const { supabase } = await requireAuth();
+  const bookingId = String(formData.get("booking_id") ?? "");
+  const tripId = String(formData.get("trip_id") ?? "");
+  if (!bookingId || !tripId) throw new Error("Missing required fields.");
+
+  const { error } = await supabase.rpc("host_cancel_booking", {
+    p_booking_id: bookingId,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/host/trips/${tripId}/joiners`);
+  revalidatePath(`/host/trips/${tripId}`);
+  revalidatePath(`/trips/${tripId}`);
+  redirect(`/host/trips/${tripId}/joiners?cancelled=1`);
+}
+
 /** Host-initiated cancellation. v1: flip status; payment refunds are
  *  Epic 7 territory. */
 export async function cancelMyTrip(formData: FormData) {

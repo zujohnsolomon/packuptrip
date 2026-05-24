@@ -47,12 +47,13 @@ export default async function HostTripDetailPage({
   // Belt-and-braces: refuse to show another host's trip even if RLS would let it through.
   if (trip.host_id !== user.id) notFound();
 
-  // How many real bookings (for the "manage join requests" tease - full UI in T6.3).
+  // Active joiners (requested + confirmed only) shown on the joiners card.
   const { count: bookingsCount } = await supabase
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq("item_type", "trip")
-    .eq("item_id", trip.id);
+    .eq("item_id", trip.id)
+    .in("status", ["requested", "confirmed"]);
 
   return (
     <>
@@ -359,19 +360,12 @@ function BookingsTease({
           ? "No one has joined yet"
           : `${bookingsCount} ${bookingsCount === 1 ? "joiner" : "joiners"} so far`}
       </div>
-      <p className="mt-2 text-xs text-stone-500">
-        Manage join requests, contact joiners, and see stats - coming with{" "}
-        <strong className="font-semibold text-stone-700">T6.3</strong>.
-      </p>
-      {/* No link yet - page doesn't exist. T6.3 will wire this. */}
-      <div
-        aria-disabled
-        className="mt-3 inline-flex h-9 w-full cursor-not-allowed items-center justify-center rounded-xl bg-stone-100 px-4 text-xs font-semibold text-stone-400"
+      <Link
+        href={`/host/trips/${tripId}/joiners`}
+        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-700"
       >
-        Manage joiners (coming with T6.3)
-      </div>
-      {/* Reference tripId so eslint doesn't whine about unused. */}
-      <span data-trip-id={tripId} className="sr-only" />
+        Manage joiners
+      </Link>
     </div>
   );
 }

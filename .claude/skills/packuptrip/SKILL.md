@@ -98,9 +98,9 @@ Work in this sequence — do not build everything at once.
 3. Auth (signup / login / sessions) ✅
 4. Browse pages (packages + community trips) with filters ✅
 5. Detail pages ✅
-6. **Booking / join flow** (without live payment first) — in progress
-7. **Admin Dashboard** launch slice (after #6 — gives admin real bookings to test against). T9.1, T9.2, T9.3, T9.4, T9.6, T9.8, T9.9 per `tasks.md` Epic 9.
-8. **Host flow** (post + manage a trip) — after admin so the approval queue exists when hosts submit.
+6. **Booking / join flow** (without live payment first) ✅ — `/book/package/[id]`, `/book/trip/[id]`, `/bookings/[id]` confirmation, real "my bookings" on `/account`
+7. **Admin Dashboard** launch slice ✅ — T9.1–T9.4, T9.6, T9.8, T9.9; user-facing `/report` form feeds T9.9
+8. **Host flow** ✅ — T6.1 ✅ (`/host` landing + `/host/new` create form) · T6.2 ✅ (`/host/trips` dashboard + trip detail/edit) · T6.3 ✅ (`/host/trips/[id]/joiners` — joiner list, stats, cancel-join flow)
 9. **Payments integration** (Razorpay Route / Cashfree Easy Split) — last; needs registered business.
 10. Reviews + in-app messaging
 11. ID verification
