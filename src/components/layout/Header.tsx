@@ -93,26 +93,28 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
         <div className="flex items-center gap-2">
           {!authReady ? null : user ? (
+            // Logged-in: avatar only — nav links live inside the dropdown on mobile
             <AvatarMenu user={user} transparent={transparent} />
           ) : (
-            <GuestActions transparent={transparent} />
+            // Guest: auth buttons + hamburger for nav links
+            <>
+              <GuestActions transparent={transparent} />
+              <button
+                type="button"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={menuOpen}
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-full transition md:hidden",
+                  transparent
+                    ? "text-white hover:bg-white/10"
+                    : "text-stone-700 hover:bg-stone-100",
+                )}
+              >
+                {menuOpen ? <XIcon /> : <MenuIcon />}
+              </button>
+            </>
           )}
-
-          {/* Mobile hamburger — hidden on md+ */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            className={cn(
-              "inline-flex h-9 w-9 items-center justify-center rounded-full transition md:hidden",
-              transparent
-                ? "text-white hover:bg-white/10"
-                : "text-stone-700 hover:bg-stone-100",
-            )}
-          >
-            {menuOpen ? <XIcon /> : <MenuIcon />}
-          </button>
         </div>
       </div>
 
@@ -254,7 +256,16 @@ function AvatarMenu({
             <div className="truncate text-xs text-stone-400">{user.email}</div>
           </div>
 
-          {/* Navigation items */}
+          {/* Mobile-only nav links — desktop has them in the header */}
+          <div className="border-b border-stone-100 py-1.5 md:hidden">
+            {NAV_LINKS.map(({ href, label }) => (
+              <DropdownLink key={href} href={href}>
+                {label}
+              </DropdownLink>
+            ))}
+          </div>
+
+          {/* Account navigation */}
           <div className="py-1.5">
             <DropdownLink href="/account">My bookings</DropdownLink>
             {profile?.has_trips && (

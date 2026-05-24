@@ -7,6 +7,7 @@ import { DetailHero } from "@/components/detail/DetailHero";
 import { Itinerary } from "@/components/detail/Itinerary";
 import { Inclusions } from "@/components/detail/Inclusions";
 import { PriceCard } from "@/components/detail/PriceCard";
+import { StickyBookBar } from "@/components/detail/StickyBookBar";
 import { getLiveTrip } from "@/lib/supabase/queries";
 import type { Profile } from "@/types/db";
 
@@ -92,7 +93,7 @@ export default async function TripDetailPage({
             <ReportLink subjectType="trip" subjectId={trip.id} />
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          <aside id="price-card" className="lg:sticky lg:top-24 lg:self-start">
             <PriceCard
               basePrice={Number(trip.price_per_share)}
               unitLabel="per share"
@@ -106,6 +107,13 @@ export default async function TripDetailPage({
             />
           </aside>
         </div>
+        <StickyBookBar
+          basePrice={Number(trip.price_per_share)}
+          ctaLabel="Join this trip"
+          ctaHref={`/book/trip/${trip.id}`}
+          spotsLeft={trip.spots_left}
+          accent="teal"
+        />
       </main>
       <Footer />
     </>

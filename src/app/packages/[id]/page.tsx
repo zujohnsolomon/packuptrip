@@ -6,6 +6,7 @@ import { DetailHero } from "@/components/detail/DetailHero";
 import { Itinerary } from "@/components/detail/Itinerary";
 import { Inclusions } from "@/components/detail/Inclusions";
 import { PriceCard } from "@/components/detail/PriceCard";
+import { StickyBookBar } from "@/components/detail/StickyBookBar";
 import { getLivePackage } from "@/lib/supabase/queries";
 
 export async function generateMetadata({
@@ -99,7 +100,7 @@ export default async function PackageDetailPage({
           </div>
 
           {/* Right: sticky price card */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          <aside id="price-card" className="lg:sticky lg:top-24 lg:self-start">
             <PriceCard
               basePrice={Number(pkg.price)}
               unitLabel="per person"
@@ -113,6 +114,13 @@ export default async function PackageDetailPage({
             />
           </aside>
         </div>
+        <StickyBookBar
+          basePrice={Number(pkg.price)}
+          ctaLabel="Book this trip"
+          ctaHref={`/book/package/${pkg.id}`}
+          spotsLeft={pkg.spots_left}
+          accent="amber"
+        />
       </main>
       <Footer />
     </>
