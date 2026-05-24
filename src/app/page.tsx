@@ -122,7 +122,7 @@ function SearchBar() {
 
         <button
           type="submit"
-          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 sm:h-auto sm:px-7"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 sm:h-auto sm:w-auto sm:shrink-0 sm:px-7"
         >
           <SearchIcon />
           Search

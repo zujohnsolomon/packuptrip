@@ -31,7 +31,8 @@ export function FilterBar({
       method="get"
       className="rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] sm:p-2"
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-0">
+        {/* Where — full-width row on mobile, flex-1 on desktop */}
         <Field label="Where" htmlFor="q">
           <input
             id="q"
@@ -39,55 +40,64 @@ export function FilterBar({
             type="text"
             defaultValue={defaults?.q ?? ""}
             placeholder="Spiti, Kerala…"
-            className={`block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none`}
-          />
-        </Field>
-        <Divider />
-        <div className="flex-1">
-          <DatePickerField
-            name="from"
-            label="From"
-            defaultValue={defaults?.from}
-            placeholder="Any date"
-            minDate={new Date()}
-            tone="light"
-          />
-        </div>
-        <Divider />
-        <div className="flex-1">
-          <DatePickerField
-            name="to"
-            label="To"
-            defaultValue={defaults?.to}
-            placeholder="Any date"
-            minDate={
-              defaults?.from && isValid(parseISO(defaults.from))
-                ? parseISO(defaults.from)
-                : new Date()
-            }
-            tone="light"
-          />
-        </div>
-        <Divider />
-        <Field label="Max price (₹)" htmlFor="max">
-          <input
-            id="max"
-            name="max"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            step={500}
-            defaultValue={defaults?.max ?? ""}
-            placeholder="Any"
             className="block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
           />
         </Field>
-        <button
-          type="submit"
-          className={`mt-2 inline-flex h-11 shrink-0 items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-sm transition sm:mt-0 sm:h-auto sm:px-7 ${btn} ${ring}`}
-        >
-          Search
-        </button>
+
+        <Divider />
+
+        {/*
+          Mobile: 2×2 compact grid — From | To / Max | Search
+          Desktop (sm:contents): children become direct flex items of the row
+        */}
+        <div className="grid grid-cols-2 gap-2 sm:contents">
+          <div className="sm:flex-1">
+            <DatePickerField
+              name="from"
+              label="From"
+              defaultValue={defaults?.from}
+              placeholder="Any date"
+              minDate={new Date()}
+              tone="light"
+            />
+          </div>
+          <Divider />
+          <div className="sm:flex-1">
+            <DatePickerField
+              name="to"
+              label="To"
+              defaultValue={defaults?.to}
+              placeholder="Any date"
+              minDate={
+                defaults?.from && isValid(parseISO(defaults.from))
+                  ? parseISO(defaults.from)
+                  : new Date()
+              }
+              tone="light"
+              align="right"
+            />
+          </div>
+          <Divider />
+          <Field label="Max price (₹)" htmlFor="max">
+            <input
+              id="max"
+              name="max"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              step={500}
+              defaultValue={defaults?.max ?? ""}
+              placeholder="Any"
+              className="block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
+            />
+          </Field>
+          <button
+            type="submit"
+            className={`flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-white shadow-sm transition sm:h-auto sm:w-auto sm:shrink-0 sm:px-7 ${btn} ${ring}`}
+          >
+            Search
+          </button>
+        </div>
       </div>
 
       {(defaults?.q || defaults?.from || defaults?.to || defaults?.max) && (
