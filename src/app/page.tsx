@@ -5,9 +5,11 @@ import { Footer } from "@/components/layout/Footer";
 import { PackageCard } from "@/components/ui/PackageCard";
 import { TripCard } from "@/components/ui/TripCard";
 import { Badge } from "@/components/ui/Badge";
+import { DatePickerField } from "@/components/ui/DatePickerField";
 import {
   featuredPackages,
   featuredTrips,
+  featuredTripHosts,
   engineImages,
   heroImage,
   testimonials,
@@ -33,7 +35,7 @@ export default function Home() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Hero                                                                       */
+/* Hero - full-bleed photo, headline, search. Premium typography, clear UX.   */
 /* -------------------------------------------------------------------------- */
 
 function Hero() {
@@ -41,23 +43,26 @@ function Hero() {
     <section className="relative isolate flex min-h-[85vh] w-full items-center overflow-hidden">
       <Image
         src={heroImage}
-        alt="Travellers on a mountain road at golden hour"
+        alt="Travellers on a mountain ridge at golden hour"
         fill
         priority
         sizes="100vw"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/65" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/65" />
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-32 sm:px-6 sm:pt-40 lg:px-8 lg:pb-24">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pt-36 lg:px-8 lg:pb-16">
         <div className="max-w-3xl">
           <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white ring-1 ring-inset ring-white/25 backdrop-blur">
             Two ways to travel, one community
           </span>
 
           <h1
-            className="mt-5 font-bold leading-[1.05] tracking-tight text-white"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
+            className="mt-5 font-serif font-medium leading-[1.02] tracking-tight text-white"
+            style={{
+              fontSize: "clamp(2.5rem, 6vw, 4.75rem)",
+              fontVariationSettings: "'opsz' 144, 'SOFT' 100",
+            }}
           >
             Find your trip,
             <br />
@@ -76,6 +81,9 @@ function Hero() {
 
           <TrustStrip />
         </div>
+
+        {/* Trending strip spans the full hero width so 4 cards have room */}
+        <TrendingStrip />
       </div>
     </section>
   );
@@ -84,42 +92,46 @@ function Hero() {
 function SearchBar() {
   return (
     <form
-      action="/packages"
-      className="flex w-full max-w-2xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-[var(--shadow-search)] sm:flex-row sm:items-stretch"
+      action="/search"
+      className="w-full max-w-2xl"
     >
-      <label className="block flex-1 cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
-          Where to?
+      <div className="flex flex-col gap-2 rounded-2xl bg-white p-2 shadow-[var(--shadow-search)] sm:flex-row sm:items-stretch">
+        <label className="block flex-1 cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+            Where to?
+          </div>
+          <input
+            type="text"
+            name="q"
+            placeholder="Spiti, Kerala, Ladakh…"
+            className="mt-0.5 block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
+          />
+        </label>
+
+        <div className="hidden w-px self-stretch bg-stone-200 sm:block" />
+
+        <div className="flex-1">
+          <DatePickerField
+            name="from"
+            label="From"
+            placeholder="Any date"
+            minDate={new Date()}
+            tone="light"
+          />
         </div>
-        <input
-          type="text"
-          name="q"
-          placeholder="Spiti, Kerala, Ladakh…"
-          className="mt-0.5 block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
-        />
-      </label>
 
-      <div className="hidden w-px self-stretch bg-stone-200 sm:block" />
-
-      <label className="block flex-1 cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
-          When
-        </div>
-        <input
-          type="text"
-          name="when"
-          placeholder="Any dates"
-          className="mt-0.5 block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
-        />
-      </label>
-
-      <button
-        type="submit"
-        className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 sm:h-auto sm:px-7"
-      >
-        <SearchIcon />
-        Search
-      </button>
+        <button
+          type="submit"
+          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 sm:h-auto sm:px-7"
+        >
+          <SearchIcon />
+          Search
+        </button>
+      </div>
+      {/* Hint: search returns both Originals and Community trips */}
+      <div className="mt-2 px-1 text-xs text-white/70">
+        Searches both Packuptrip Originals and Community Trips.
+      </div>
     </form>
   );
 }
@@ -127,12 +139,87 @@ function SearchBar() {
 function TrustStrip() {
   const items = ["Verified hosts", "Secure payments", "2-way reviews"];
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/90">
+    <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/90">
       {items.map((label) => (
         <span key={label} className="inline-flex items-center gap-2">
           <CheckIcon /> {label}
         </span>
       ))}
+    </div>
+  );
+}
+
+/* Trending destinations strip - sits at the bottom of the hero. Real photos
+ * of real places we run trips to. Adds visual variety without competing with
+ * the headline + search. Each tile links into a pre-filtered browse page. */
+function TrendingStrip() {
+  const tiles: { label: string; sub: string; image: string; href: string }[] = [
+    {
+      label: "Spiti Valley",
+      sub: "Oct departures",
+      image:
+        "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=600&q=70",
+      href: "/packages?q=spiti",
+    },
+    {
+      label: "Kerala",
+      sub: "Houseboats · backwaters",
+      image:
+        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=70",
+      href: "/packages?q=kerala",
+    },
+    {
+      label: "Meghalaya",
+      sub: "Living root bridges",
+      image:
+        "https://images.unsplash.com/photo-1465056836041-7f43ac27dcb5?auto=format&fit=crop&w=600&q=70",
+      href: "/packages?q=meghalaya",
+    },
+    {
+      label: "Rajasthan",
+      sub: "Forts · desert nights",
+      image:
+        "https://images.unsplash.com/photo-1477586957327-847a0f3f4fe3?auto=format&fit=crop&w=600&q=70",
+      href: "/packages?q=rajasthan",
+    },
+  ];
+  return (
+    <div className="mt-10">
+      <div className="mb-3 flex items-end justify-between">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+          Open right now
+        </span>
+        <Link
+          href="/packages"
+          className="text-xs font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
+        >
+          See all →
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {tiles.map((t) => (
+          <Link
+            key={t.label}
+            href={t.href}
+            className="group relative block aspect-[4/3] overflow-hidden rounded-2xl shadow-lg ring-1 ring-white/15 transition-transform hover:-translate-y-1"
+          >
+            <Image
+              src={t.image}
+              alt={t.label}
+              fill
+              sizes="(max-width: 640px) 50vw, 220px"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-3">
+              <div className="font-serif text-base font-medium leading-tight text-white sm:text-lg">
+                {t.label}
+              </div>
+              <div className="mt-0.5 text-[11px] text-white/80">{t.sub}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
@@ -312,7 +399,7 @@ function FeaturedTrips() {
         />
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featuredTrips.map((t) => (
-            <TripCard key={t.id} trip={t} />
+            <TripCard key={t.id} trip={t} host={featuredTripHosts[t.id]} />
           ))}
         </div>
       </div>
@@ -443,7 +530,7 @@ function HostCTA() {
           </h2>
           <p className="mt-3 max-w-xl text-teal-50/90">
             Post your trip in minutes. Pick who joins. Split costs fairly. We
-            handle the payments — you handle the memories.
+            handle the payments - you handle the memories.
           </p>
         </div>
         <Link
@@ -525,7 +612,7 @@ function SearchIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden

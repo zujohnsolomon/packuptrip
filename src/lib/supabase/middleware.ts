@@ -28,7 +28,7 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Important: do not remove this — touching getUser refreshes the session.
+  // Important: do not remove this - touching getUser refreshes the session.
   await supabase.auth.getUser();
 
   return response;

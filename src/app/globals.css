@@ -7,6 +7,7 @@
   --color-ink-muted: #57534e;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 
   --radius-card: 1rem;
   --shadow-card: 0 1px 2px rgb(41 37 36 / 0.04), 0 8px 24px rgb(41 37 36 / 0.06);
@@ -24,3 +25,95 @@
     font-family: var(--font-sans);
   }
 }
+
+/* ── Cinematic Editorial Arch Keyframes & Animations ── */
+@keyframes archImageBreathe {
+  0%, 100% { transform: scale(1.02) translate(0px, 0px); }
+  50% { transform: scale(1.06) translate(-2px, -3px); }
+}
+
+@keyframes drawThread {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes tagReveal {
+  0% { opacity: 0; transform: translateY(12px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulseIndicator {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes cardEntrance {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes staggerFade {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-arch-breathe {
+  animation: archImageBreathe 16s ease-in-out infinite;
+}
+
+.animate-draw-thread {
+  animation: drawThread 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-tag-reveal {
+  opacity: 0;
+  animation: tagReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-indicator {
+  animation: pulseIndicator 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-card-entrance {
+  animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-stagger-1 { animation: staggerFade 0.5s ease-out 0.1s forwards; opacity: 0; }
+.animate-stagger-2 { animation: staggerFade 0.5s ease-out 0.2s forwards; opacity: 0; }
+.animate-stagger-3 { animation: staggerFade 0.5s ease-out 0.3s forwards; opacity: 0; }
+.animate-stagger-4 { animation: staggerFade 0.5s ease-out 0.4s forwards; opacity: 0; }
+.animate-stagger-5 { animation: staggerFade 0.5s ease-out 0.5s forwards; opacity: 0; }
+
+/* SVG noise pattern for luxury linen/paper texture */
+.paper-texture {
+  position: relative;
+}
+.paper-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.024;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  z-index: 10;
+}
+
+/* ── Topography contour map pattern ── */
+.topography-bg {
+  background-color: #fafaf9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cpath d='M100,100 C200,150 300,50 400,120 C500,200 450,300 600,280 C750,260 800,400 900,350' fill='none' stroke='%23e2e0df' stroke-width='1.2' stroke-dasharray='3 3'/%3E%3Cpath d='M50,150 C150,200 250,100 350,170 C450,250 400,350 550,330 C700,310 750,450 850,400' fill='none' stroke='%23e2e0df' stroke-width='1.2'/%3E%3Cpath d='M0,200 C100,250 200,150 300,220 C400,300 350,400 500,380 C650,360 700,500 800,450' fill='none' stroke='%23e2e0df' stroke-width='1.2' stroke-dasharray='8 4'/%3E%3Cpath d='M200,600 C350,650 400,500 550,580 C700,650 650,800 800,750 C950,700 900,900 1000,850' fill='none' stroke='%23e2e0df' stroke-width='1.2'/%3E%3Cpath d='M150,650 C300,700 350,550 500,630 C650,700 600,850 750,800 C900,750 850,950 950,900' fill='none' stroke='%23e2e0df' stroke-width='1.2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+  background-size: 800px 800px;
+}
+
+/* ── Dotted Grid Pattern ── */
+.dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1.2px, transparent 0);
+  background-size: 8px 8px;
+}
+
+/* Asymmetric bottom scoop cutout */
+.scoop-cutout {
+  clip-path: path("M 0,0 L 480,0 A 40,40 0 0,1 520,40 L 520,620 A 40,40 0 0,1 480,660 L 40,660 A 40,40 0 0,1 0,620 Q 0,580 -40,580 Q 0,580 0,540 Z");
+}
+
+

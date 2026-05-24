@@ -1,8 +1,18 @@
+import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Badge } from "@/components/ui/Badge";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile } from "@/types/db";
+import {
+  getBookedItem,
+  listMyBookings,
+  type BookedItem,
+} from "@/lib/supabase/queries";
+import { formatINR } from "@/lib/utils";
+import { formatHumanDate } from "@/components/booking/BookingSummary";
+import type { Booking, Profile } from "@/types/db";
 
 export const metadata = { title: "Your account · Packuptrip" };
 
@@ -18,40 +28,65 @@ export default async function AccountPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirectTo=/account");
 
-  if (!user) redirect("/login");
+  const [{ data: profile }, bookings] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
+    listMyBookings(),
+  ]);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
+  // Resolve each booking's underlying item (package or trip) so we can show
+  // a title + photo on the card. Done in parallel.
+  const enriched = await Promise.all(
+    bookings.map(async (b) => ({
+      booking: b,
+      item: await getBookedItem(b.item_type, b.item_id),
+    })),
+  );
 
   return (
     <>
       <Header />
-      <main className="flex-1 pt-20">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+      <main className="flex-1 bg-cream pt-20">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-semibold tracking-tight text-ink">
             Welcome, {profile?.name ?? user.email}
           </h1>
           <p className="mt-1 text-stone-600">
-            This is your account. Bookings, hosted trips, and reviews will live
-            here.
+            Your bookings, hosted trips, and reviews live here.
           </p>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <PanelStub
-              title="Your bookings"
-              body="Trips you&rsquo;ve joined or packages you&rsquo;ve booked will appear here."
-            />
-            <PanelStub
-              title="Your hosted trips"
-              body="Trips you&rsquo;ve posted as a host will appear here."
-            />
-          </div>
+          <section className="mt-10">
+            <div className="flex items-end justify-between">
+              <h2 className="text-xl font-semibold text-ink">Your bookings</h2>
+              <span className="text-sm text-stone-500">
+                {bookings.length} total
+              </span>
+            </div>
 
-          <form action="/auth/logout" method="post" className="mt-10">
+            {enriched.length === 0 ? (
+              <EmptyBookings />
+            ) : (
+              <div className="mt-5 grid gap-4">
+                {enriched.map(({ booking, item }) => (
+                  <BookingRow
+                    key={booking.id}
+                    booking={booking}
+                    item={item}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="mt-12">
+            <h2 className="text-xl font-semibold text-ink">
+              Your hosted trips
+            </h2>
+            <PanelStub body="Trips you've posted as a host will appear here once the host flow ships." />
+          </section>
+
+          <form action="/auth/logout" method="post" className="mt-12">
             <button
               type="submit"
               className="inline-flex h-10 items-center rounded-full border border-stone-200 bg-white px-5 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50"
@@ -63,6 +98,116 @@ export default async function AccountPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function BookingRow({
+  booking,
+  item,
+}: {
+  booking: Booking;
+  item: BookedItem | null;
+}) {
+  const reference = booking.id.slice(0, 8).toUpperCase();
+  const isOriginals = booking.item_type === "package";
+  return (
+    <Link
+      href={`/bookings/${booking.id}`}
+      className="group flex items-stretch gap-4 overflow-hidden rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]"
+    >
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-stone-100 sm:h-28 sm:w-28">
+        {item?.item.images[0] && (
+          <Image
+            src={item.item.images[0]}
+            alt={item.item.title}
+            fill
+            sizes="112px"
+            className="object-cover"
+          />
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <div className="flex items-center gap-2">
+          <Badge variant={isOriginals ? "originals" : "community"}>
+            {isOriginals ? "Original" : "Community"}
+          </Badge>
+          <StatusChip status={booking.status} />
+        </div>
+        <div className="mt-1 truncate font-semibold text-ink group-hover:text-amber-700">
+          {item?.item.title ?? "Trip details unavailable"}
+        </div>
+        <div className="mt-0.5 truncate text-xs text-stone-500">
+          {item?.item.location ?? "-"}
+          {item && (
+            <>
+              {" · "}
+              {formatHumanDate(item.item.start_date)} · {item.item.days} days
+            </>
+          )}
+        </div>
+        <div className="mt-2 flex items-baseline gap-3 text-sm">
+          <span className="font-mono text-xs text-stone-400">{reference}</span>
+          <span className="font-medium text-ink">
+            {formatINR(Number(booking.total))}
+          </span>
+        </div>
+      </div>
+      <div className="hidden self-center pr-2 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-ink sm:block">
+        →
+      </div>
+    </Link>
+  );
+}
+
+function StatusChip({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    requested: "bg-amber-100 text-amber-800 ring-amber-200",
+    confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+    cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
+    refunded: "bg-stone-200 text-stone-700 ring-stone-300",
+  };
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+        styles[status] ?? styles.requested
+      }`}
+    >
+      {status}
+    </span>
+  );
+}
+
+function EmptyBookings() {
+  return (
+    <div className="mt-5 rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+      <div className="text-base font-semibold text-ink">No bookings yet</div>
+      <p className="mt-1 text-sm text-stone-600">
+        Find a curated package or join a community trip - both are one click
+        away.
+      </p>
+      <div className="mt-5 flex justify-center gap-3">
+        <Link
+          href="/packages"
+          className="inline-flex h-10 items-center rounded-full bg-amber-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
+        >
+          Browse packages
+        </Link>
+        <Link
+          href="/trips"
+          className="inline-flex h-10 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+        >
+          Community trips
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function PanelStub({ body }: { body: string }) {
+  return (
+    <div className="mt-3 rounded-2xl border border-dashed border-stone-300 bg-white p-6">
+      <p className="text-sm text-stone-600">{body}</p>
+    </div>
   );
 }
 
@@ -81,28 +226,12 @@ function SupabaseNotConfigured() {
               <code className="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
                 .env.local
               </code>{" "}
-              and restart the dev server. See{" "}
-              <code className="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
-                supabase/README.md
-              </code>{" "}
-              for the 5-step setup.
+              and restart the dev server.
             </p>
           </div>
         </div>
       </main>
       <Footer />
     </>
-  );
-}
-
-function PanelStub({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
-      <div className="font-semibold text-ink">{title}</div>
-      <p className="mt-1 text-sm text-stone-600">{body}</p>
-      <div className="mt-4 text-xs uppercase tracking-wider text-stone-400">
-        Coming soon
-      </div>
-    </div>
   );
 }

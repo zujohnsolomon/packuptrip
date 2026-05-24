@@ -22,9 +22,13 @@ Domains secured: `packuptrip.com` and `packuptrip.in`.
 
 ## 2. Business Model
 
-**Revenue:**
-- Community Trips: traveller service fee (~5–10%, prototype uses 7%) + host commission (~8–12%).
-- Originals: direct margin on packages (~20–35%), negotiated wholesale with vendors.
+**Revenue (locked 23 May 2026):**
+- **Traveller service fee: 8%** (charged on every booking, both Originals and Community Trips).
+- **Host commission: 12%** on Community Trips, taken from the host's payout (applied in Epic 7 — Payments).
+- **Booking deposit: 20% upfront**, balance collected before the trip starts.
+- Originals: direct margin on packages (~20–35%), negotiated wholesale with vendors. Margin is on top of the 8% service fee.
+
+**Where these numbers live in code:** [`src/lib/pricing.ts`](../../../src/lib/pricing.ts) is the single source of truth. The booking RPC `public.create_booking` carries its own copy of the service fee because SQL can't import TS — **both must change together** via a migration. Display surfaces (BookingForm, PriceCard) all import from `pricing.ts`. The Platform Settings admin UI that turns these into runtime-editable values is T9.12, deferred post-launch.
 
 **Strategic notes:**
 - Community Trips are best treated as an **acquisition / brand engine**, not the main profit center — travel is low-frequency, so marketplace margins are thin.
@@ -57,6 +61,7 @@ Domains secured: `packuptrip.com` and `packuptrip.in`.
 - Host flow — post a trip, manage it
 - Two-way reviews (host ↔ traveller)
 - Basic trust: ID verification, in-app messaging
+- **Admin Dashboard** (`/admin`, role-gated) — overview metrics, trip approval queue, Originals CRUD, users admin, bookings admin, reports & safety. Detail in `tasks.md` Epic 9.
 
 **Defer (do NOT build in v1):**
 - Native mobile app (web responsive only)
@@ -76,22 +81,35 @@ Domains secured: `packuptrip.com` and `packuptrip.in`.
 
 ## 7. Build Order
 
-Work in this sequence — do not build everything at once:
+Work in this sequence — do not build everything at once.
 
-1. Project scaffold (Next.js + Tailwind + folder structure)
-2. Data models + database schema
-3. Auth (signup / login / sessions)
-4. Browse pages (packages + community trips) with filters
-5. Detail pages
-6. Booking / join flow (without live payment first)
-7. Host flow (post + manage a trip)
-8. Reviews + in-app messaging
-9. ID verification
-10. Payments integration (last — needs registered business)
+> **Important:** the long-term feature vision lives in [`roadmap.md`](./roadmap.md).
+> Do **not** start anything from later phases (fast-follow, moat, scale) until
+> the launch core below is shipped and real travellers are using it. Vision is
+> ambitious; launch is ruthlessly boring. If a feature request doesn't fit the
+> launch core, flag it for a founder decision — don't quietly start building.
+
+> **Operational task tracker:** the working task breakdown (with status per item)
+> lives in [`/tasks.md`](../../../tasks.md) at the repo root. Update it as work
+> progresses. The list below is the strategic order; `tasks.md` is the detail.
+
+1. Project scaffold (Next.js + Tailwind + folder structure) ✅
+2. Data models + database schema ✅
+3. Auth (signup / login / sessions) ✅
+4. Browse pages (packages + community trips) with filters ✅
+5. Detail pages ✅
+6. **Booking / join flow** (without live payment first) — in progress
+7. **Admin Dashboard** launch slice (after #6 — gives admin real bookings to test against). T9.1, T9.2, T9.3, T9.4, T9.6, T9.8, T9.9 per `tasks.md` Epic 9.
+8. **Host flow** (post + manage a trip) — after admin so the approval queue exists when hosts submit.
+9. **Payments integration** (Razorpay Route / Cashfree Easy Split) — last; needs registered business.
+10. Reviews + in-app messaging
+11. ID verification
+
+The reorder vs the original list is intentional: **bookings first** generates real data; **admin next** lets the founder operate the platform; **host flow then** flows trip submissions through the admin queue; **payments last** because it needs a registered business and real API keys.
 
 ## 8. Data Models (starting point)
 
-**User** — id, name, email, passwordHash, idVerified (bool), role (traveller/host/admin), createdAt
+**User** — id, name, email, passwordHash, idVerified (bool), role (traveller/host/admin), createdAt. The `admin` role is real and load-bearing: it gates the `/admin` area (see Epic 9 in `tasks.md`) and is checked in RLS policies (e.g. `packages_admin_write`). Promote a user to admin via `update public.profiles set role = 'admin' where id = ...` from the Supabase SQL editor.
 
 **Package** (Packuptrip Original) — id, title, location, days, price, ratingAvg, reviewCount, images[], spotsTotal, spotsLeft, tags[], description, includes[], itinerary[], status
 

@@ -23,6 +23,26 @@ export type ItemType = "package" | "trip";
 
 export type SubjectType = "user" | "package" | "trip";
 
+export type ReportCategory = "safety" | "harassment" | "fraud" | "other";
+
+export type ReportStatus = "open" | "investigating" | "resolved";
+
+export type Report = {
+  id: string;
+  reporter_id: string;
+  subject_type: SubjectType;
+  subject_id: string;
+  booking_id: string | null;
+  category: ReportCategory;
+  description: string;
+  status: ReportStatus;
+  admin_notes: string | null;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ItineraryDay = {
   day: number;
   title: string;
@@ -38,6 +58,9 @@ export type Profile = {
   id_verified: boolean;
   role: UserRole;
   created_at: string;
+  // Moderation fields (added in v1_users_admin migration):
+  suspension_reason: string | null;
+  suspended_at: string | null;
 };
 
 export type Package = {
@@ -77,6 +100,11 @@ export type Trip = {
   start_date: string;
   status: TripStatus;
   created_at: string;
+  // Admin moderation fields (added in v1_trip_approval_queue):
+  rejection_reason: string | null;
+  admin_notes: string | null;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
 };
 
 export type Booking = {
