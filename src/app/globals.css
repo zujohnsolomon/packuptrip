@@ -116,4 +116,63 @@
   clip-path: path("M 0,0 L 480,0 A 40,40 0 0,1 520,40 L 520,620 A 40,40 0 0,1 480,660 L 40,660 A 40,40 0 0,1 0,620 Q 0,580 -40,580 Q 0,580 0,540 Z");
 }
 
+/* ── Prose styles for static content pages (About, Legal, etc.) ── */
+.prose-packup {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+}
+.prose-packup h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-ink);
+}
+.prose-packup h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-ink);
+}
+.prose-packup p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #44403c;
+}
+.prose-packup ul {
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+.prose-packup li {
+  margin-bottom: 0.35rem;
+  color: #44403c;
+}
+.prose-packup a {
+  color: #0f766e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-packup a:hover {
+  color: #134e4a;
+}
+.prose-packup strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.prose-packup hr {
+  border: none;
+  border-top: 1px solid #e7e5e4;
+  margin: 2.5rem 0;
+}
+.prose-packup .callout {
+  border-left: 3px solid #0d9488;
+  padding: 0.75rem 1rem;
+  background: #f0fdfa;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
 
