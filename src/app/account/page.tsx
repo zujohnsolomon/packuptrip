@@ -56,6 +56,25 @@ export default async function AccountPage() {
             Your bookings, hosted trips, and reviews live here.
           </p>
 
+          {/* Quick links */}
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/messages"
+              className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+              </svg>
+              Messages
+            </Link>
+            <Link
+              href="/host/trips"
+              className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            >
+              Your hosted trips →
+            </Link>
+          </div>
+
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <h2 className="text-xl font-semibold text-ink">Your bookings</h2>

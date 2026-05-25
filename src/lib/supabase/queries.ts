@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   Booking,
   ItemType,
+  Message,
   Package,
   Profile,
   Report,
@@ -10,6 +11,7 @@ import type {
   Review,
   ReviewWithAuthor,
   SubjectType,
+  ThreadSummary,
   Trip,
   UserRole,
 } from "@/types/db";
@@ -1122,3 +1124,72 @@ export async function submitReview(
 }
 
 
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Messaging
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** All threads for the signed-in user with last message + unread count. */
+export async function getMyThreads(): Promise<ThreadSummary[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data, error } = await supabase.rpc("get_my_threads", {
+    p_user_id: user.id,
+  });
+  if (error) { console.error("getMyThreads:", error); return []; }
+  return (data ?? []) as ThreadSummary[];
+}
+
+/** Messages in a thread, oldest first (initial load). */
+export async function getThreadMessages(threadId: string): Promise<Message[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("thread_id", threadId)
+    .order("created_at", { ascending: true });
+  if (error) { console.error("getThreadMessages:", error); return []; }
+  return (data ?? []) as Message[];
+}
+
+/** Thread metadata + both participant profiles. */
+export async function getThreadWithParticipants(threadId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("message_threads")
+    .select("*, participant_a_profile:profiles!message_threads_participant_a_fkey(id,name,avatar_url), participant_b_profile:profiles!message_threads_participant_b_fkey(id,name,avatar_url), trip:trips(id,title,images)")
+    .eq("id", threadId)
+    .maybeSingle();
+  if (error) { console.error("getThreadWithParticipants:", error); return null; }
+  return data;
+}
+
+/** Create or fetch a thread between two users on a trip. Returns thread ID. */
+export async function getOrCreateThread(
+  otherUserId: string,
+  tripId: string | null,
+): Promise<string | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase.rpc("get_or_create_thread", {
+    p_a: user.id,
+    p_b: otherUserId,
+    p_trip: tripId ?? null,
+  });
+  if (error) { console.error("getOrCreateThread:", error); return null; }
+  return data as string;
+}
+
+/** Mark all unread messages in a thread as read. */
+export async function markThreadRead(threadId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.rpc("mark_thread_read", {
+    p_thread_id: threadId,
+    p_user_id: user.id,
+  });
+}

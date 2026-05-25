@@ -6,7 +6,9 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { formatINR } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { getMyBookingWithItem, getMyReviewForBooking } from "@/lib/supabase/queries";
+import { openThread } from "@/actions/messages";
 import type { BookedItem } from "@/lib/supabase/queries";
+import type { Trip } from "@/types/db";
 
 export const metadata = { title: "Your booking · Packuptrip" };
 
@@ -121,6 +123,23 @@ export default async function BookingDetailPage({
                   My bookings
                 </Link>
               </div>
+
+              {/* Message host — community trips only */}
+              {item.type === "trip" && booking.status !== "cancelled" && booking.status !== "refunded" && (
+                <form action={openThread} className="mt-3">
+                  <input type="hidden" name="hostId" value={(item.item as Trip).host_id} />
+                  <input type="hidden" name="tripId" value={item.item.id} />
+                  <button
+                    type="submit"
+                    className="inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-5 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                    </svg>
+                    Message host
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 

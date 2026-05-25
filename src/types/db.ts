@@ -169,6 +169,21 @@ export type MessageThread = {
   created_at: string;
 };
 
+/** Inbox row returned by get_my_threads() */
+export type ThreadSummary = {
+  thread_id: string;
+  other_id: string;
+  other_name: string;
+  other_avatar: string | null;
+  trip_id: string | null;
+  trip_title: string | null;
+  trip_image: string | null;
+  last_body: string | null;
+  last_at: string | null;
+  last_sender: string | null;
+  unread_count: number;
+};
+
 export type Message = {
   id: string;
   thread_id: string;
