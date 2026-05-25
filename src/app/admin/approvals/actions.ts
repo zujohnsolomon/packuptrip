@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendTripApprovedEmail, sendTripRejectedEmail } from "@/lib/email";
 
 /** Throws if the current user isn't an admin. Wraps every action. */
 async function requireAdmin() {
@@ -38,6 +39,14 @@ export async function approveTrip(formData: FormData) {
   if (!id) throw new Error("Missing trip id.");
 
   const { supabase, userId } = await requireAdmin();
+
+  // Fetch trip + host details before updating for the email
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("title, location, host_id, profiles!trips_host_id_fkey(name, email)")
+    .eq("id", id)
+    .single<{ title: string; location: string; host_id: string; profiles: { name: string; email: string } | null }>();
+
   const { error } = await supabase
     .from("trips")
     .update({
@@ -49,6 +58,17 @@ export async function approveTrip(formData: FormData) {
     })
     .eq("id", id);
   if (error) throw error;
+
+  // Fire email — non-blocking, never fails the action
+  if (trip?.profiles) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://packuptrip.vercel.app";
+    sendTripApprovedEmail({
+      hostEmail: trip.profiles.email,
+      hostName: trip.profiles.name,
+      tripTitle: trip.title,
+      tripUrl: `${siteUrl}/trips/${id}`,
+    }).catch(console.error);
+  }
 
   revalidateApprovalSurfaces();
   redirect(`/admin/approvals?approved=${id}`);
@@ -63,6 +83,14 @@ export async function rejectTrip(formData: FormData) {
   if (reason.length < 4) throw new Error("Please provide a rejection reason.");
 
   const { supabase, userId } = await requireAdmin();
+
+  // Fetch trip + host for email
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("title, host_id, profiles!trips_host_id_fkey(name, email)")
+    .eq("id", id)
+    .single<{ title: string; host_id: string; profiles: { name: string; email: string } | null }>();
+
   const { error } = await supabase
     .from("trips")
     .update({
@@ -74,6 +102,17 @@ export async function rejectTrip(formData: FormData) {
     })
     .eq("id", id);
   if (error) throw error;
+
+  if (trip?.profiles) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://packuptrip.vercel.app";
+    sendTripRejectedEmail({
+      hostEmail: trip.profiles.email,
+      hostName: trip.profiles.name,
+      tripTitle: trip.title,
+      reason,
+      editUrl: `${siteUrl}/host/trips/${id}/edit`,
+    }).catch(console.error);
+  }
 
   revalidateApprovalSurfaces();
   redirect(`/admin/approvals?rejected=${id}`);

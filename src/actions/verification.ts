@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendVerificationApprovedEmail, sendVerificationRejectedEmail } from "@/lib/email";
 import type { IdType, VerificationRequest } from "@/types/db";
 
 /** Upsert a verification request after files are uploaded client-side. */
@@ -63,6 +64,21 @@ export async function approveVerification(
     .eq("id", userId);
   if (profileErr) return { error: profileErr.message };
 
+  // Email — fire and forget
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, email")
+    .eq("id", userId)
+    .single<{ name: string; email: string }>();
+  if (profile) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://packuptrip.vercel.app";
+    sendVerificationApprovedEmail({
+      userEmail: profile.email,
+      userName: profile.name,
+      profileUrl: `${siteUrl}/hosts/${userId}`,
+    }).catch(console.error);
+  }
+
   revalidatePath("/admin/verifications");
   revalidatePath(`/admin/verifications/${requestId}`);
   return { error: null };
@@ -88,6 +104,23 @@ export async function rejectVerification(
     .eq("id", requestId);
 
   if (error) return { error: error.message };
+
+  // Email — fire and forget
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, email")
+    .eq("id", (await supabase.from("id_verification_requests").select("user_id").eq("id", requestId).single()).data?.user_id ?? "")
+    .single<{ name: string; email: string }>();
+  if (profile) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://packuptrip.vercel.app";
+    sendVerificationRejectedEmail({
+      userEmail: profile.email,
+      userName: profile.name,
+      reason,
+      resubmitUrl: `${siteUrl}/account/verify`,
+    }).catch(console.error);
+  }
+
   revalidatePath("/admin/verifications");
   revalidatePath(`/admin/verifications/${requestId}`);
   return { error: null };
