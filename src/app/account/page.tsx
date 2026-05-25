@@ -56,8 +56,26 @@ export default async function AccountPage() {
             Your bookings, hosted trips, and reviews live here.
           </p>
 
+          {/* Profile completeness nudge */}
+          {profile && (!profile.bio || !profile.avatar_url || !profile.home_city) && (
+            <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-amber-50 px-5 py-4 ring-1 ring-inset ring-amber-200">
+              <div>
+                <p className="text-sm font-semibold text-amber-900">Complete your profile</p>
+                <p className="text-xs text-amber-700">
+                  Add a photo, bio, and home city — travellers trust hosts they can see.
+                </p>
+              </div>
+              <Link
+                href="/account/profile"
+                className="shrink-0 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600"
+              >
+                Edit profile
+              </Link>
+            </div>
+          )}
+
           {/* Quick links */}
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/messages"
               className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
@@ -66,6 +84,16 @@ export default async function AccountPage() {
                 <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
               </svg>
               Messages
+            </Link>
+            <Link
+              href="/account/profile"
+              className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.25"/>
+                <path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
+              </svg>
+              Edit profile
             </Link>
             {!profile?.id_verified && (
               <Link

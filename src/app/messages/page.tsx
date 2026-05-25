@@ -85,10 +85,22 @@ function ThreadRow({ thread, userId }: { thread: ThreadSummary; userId: string }
   );
 }
 
-export default async function MessagesPage() {
+export default async function MessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ hostId?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirectTo=/messages");
+
+  // ?hostId= from "Message host" CTA on /hosts/[id] — open/create thread immediately
+  const { hostId } = await searchParams;
+  if (hostId && hostId !== user.id) {
+    const { getOrCreateThread } = await import("@/lib/supabase/queries");
+    const threadId = await getOrCreateThread(hostId, null);
+    redirect(`/messages/${threadId}`);
+  }
 
   const threads = await getMyThreads();
 

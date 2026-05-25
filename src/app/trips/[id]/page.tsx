@@ -160,7 +160,10 @@ function ReportLink({
 
 function HostCard({ host }: { host: Profile }) {
   return (
-    <section className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[var(--shadow-card)]">
+    <Link
+      href={`/hosts/${host.id}`}
+      className="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+    >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-teal-100 ring-2 ring-white">
         {host.avatar_url ? (
           <Image
@@ -176,18 +179,18 @@ function HostCard({ host }: { host: Profile }) {
           </span>
         )}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
           Your host
         </div>
-        <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink">
+        <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">
           {host.name}
           {host.id_verified && <VerifiedBadge size="md" />}
         </div>
         <div className="text-xs text-stone-500">
-          {host.id_verified ? "ID verified" : "Unverified host"}
+          {host.id_verified ? "ID verified · " : ""}<span className="text-teal-600">View profile →</span>
         </div>
       </div>
-    </section>
+    </Link>
   );
 }

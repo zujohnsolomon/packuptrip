@@ -55,6 +55,8 @@ export type Profile = {
   email: string;
   avatar_url: string | null;
   bio: string | null;
+  home_city: string | null;
+  travel_style_tags: string[];
   id_verified: boolean;
   role: UserRole;
   created_at: string;
