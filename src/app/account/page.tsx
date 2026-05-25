@@ -67,6 +67,19 @@ export default async function AccountPage() {
               </svg>
               Messages
             </Link>
+            {!profile?.id_verified && (
+              <Link
+                href="/account/verify"
+                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                🛡️ Verify your identity
+              </Link>
+            )}
+            {profile?.id_verified && (
+              <span className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700">
+                🛡️ ID Verified
+              </span>
+            )}
             <Link
               href="/host/trips"
               className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"

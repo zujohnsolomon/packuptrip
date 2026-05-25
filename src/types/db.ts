@@ -161,6 +161,24 @@ export type ReviewWithAuthor = Review & {
   author: Pick<Profile, "id" | "name" | "avatar_url">;
 };
 
+export type VerificationStatus = "pending" | "approved" | "rejected";
+
+export type IdType = "aadhaar" | "pan" | "passport" | "driving_licence";
+
+export type VerificationRequest = {
+  id: string;
+  user_id: string;
+  id_type: IdType;
+  id_doc_path: string;
+  selfie_path: string;
+  status: VerificationStatus;
+  admin_notes: string | null;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type MessageThread = {
   id: string;
   participant_a: string;

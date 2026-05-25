@@ -49,6 +49,12 @@ const navItems: NavItem[] = [
     icon: <ReportsIcon />,
     taskId: "T9.9",
   },
+  {
+    href: "/admin/verifications",
+    label: "Verifications",
+    icon: <VerificationsIcon />,
+    taskId: "T9.6b",
+  },
 ];
 
 const deferredItems: string[] = [
@@ -62,9 +68,11 @@ const deferredItems: string[] = [
 export function AdminSidebar({
   userName,
   openReportsCount = 0,
+  pendingVerificationsCount = 0,
 }: {
   userName: string;
   openReportsCount?: number;
+  pendingVerificationsCount?: number;
 }) {
   const pathname = usePathname();
 
@@ -116,6 +124,14 @@ export function AdminSidebar({
                       className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-semibold leading-[18px] text-white"
                     >
                       {openReportsCount}
+                    </span>
+                  )}
+                  {item.href === "/admin/verifications" && pendingVerificationsCount > 0 && (
+                    <span
+                      aria-label={`${pendingVerificationsCount} pending verifications`}
+                      className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-semibold leading-[18px] text-white"
+                    >
+                      {pendingVerificationsCount}
                     </span>
                   )}
                 </Link>
@@ -227,6 +243,15 @@ function ReportsIcon() {
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
+    </Svg>
+  );
+}
+
+function VerificationsIcon() {
+  return (
+    <Svg>
+      <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" />
+      <polyline points="9 12 11 14 15 10" />
     </Svg>
   );
 }

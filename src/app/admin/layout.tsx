@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 import { getOpenReportsCount } from "@/lib/supabase/queries";
+import { getPendingVerificationCount } from "@/actions/verification";
 import type { Profile } from "@/types/db";
 
 export const metadata = {
@@ -53,13 +54,17 @@ export default async function AdminLayout({
 
   // Live unresolved-reports count for the sidebar badge. Cheap query
   // (single COUNT with a WHERE on indexed column).
-  const openReportsCount = await getOpenReportsCount();
+  const [openReportsCount, pendingVerificationsCount] = await Promise.all([
+    getOpenReportsCount(),
+    getPendingVerificationCount(),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-stone-50">
       <AdminSidebar
         userName={profile.name}
         openReportsCount={openReportsCount}
+        pendingVerificationsCount={pendingVerificationsCount}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminMobileNav />

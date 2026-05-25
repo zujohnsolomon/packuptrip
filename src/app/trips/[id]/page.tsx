@@ -10,6 +10,7 @@ import { PriceCard } from "@/components/detail/PriceCard";
 import { StickyBookBar } from "@/components/detail/StickyBookBar";
 import { getLiveTrip, getListingReviews } from "@/lib/supabase/queries";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import type { Profile } from "@/types/db";
 
 export async function generateMetadata({
@@ -179,11 +180,12 @@ function HostCard({ host }: { host: Profile }) {
         <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
           Your host
         </div>
-        <div className="mt-0.5 truncate text-base font-semibold text-ink">
+        <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink">
           {host.name}
+          {host.id_verified && <VerifiedBadge size="md" />}
         </div>
         <div className="text-xs text-stone-500">
-          {host.id_verified ? "ID verified" : "ID not verified yet"}
+          {host.id_verified ? "ID verified" : "Unverified host"}
         </div>
       </div>
     </section>
