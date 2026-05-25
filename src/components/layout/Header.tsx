@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import type { User } from "@supabase/supabase-js";
 
 type ProfileMini = {
@@ -93,8 +94,11 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
         <div className="flex items-center gap-2">
           {!authReady ? null : user ? (
-            // Logged-in: avatar only — nav links live inside the dropdown on mobile
-            <AvatarMenu user={user} transparent={transparent} />
+            // Logged-in: bell + avatar dropdown
+            <>
+              <NotificationBell userId={user.id} />
+              <AvatarMenu user={user} transparent={transparent} />
+            </>
           ) : (
             // Guest: auth buttons + hamburger for nav links
             <>

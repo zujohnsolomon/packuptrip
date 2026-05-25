@@ -212,3 +212,22 @@ export type Message = {
   read_at: string | null;
   created_at: string;
 };
+
+export type NotificationType =
+  | "booking_received"
+  | "trip_approved"
+  | "trip_cancelled"
+  | "verification_approved"
+  | "verification_rejected"
+  | "new_message";
+
+export type Notification = {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+};

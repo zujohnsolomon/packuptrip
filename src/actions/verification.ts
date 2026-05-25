@@ -131,7 +131,7 @@ export async function listVerificationRequests() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("id_verification_requests")
-    .select("*, profile:profiles(id,name,email,avatar_url,id_verified)")
+    .select("*, profile:profiles!id_verification_requests_user_id_fkey(id,name,email,avatar_url,id_verified)")
     .order("status") // pending sorts before approved/rejected alphabetically (a < p < r actually — use case below)
     .order("created_at", { ascending: true });
   if (error) { console.error("listVerificationRequests:", error); return []; }
@@ -147,7 +147,7 @@ export async function getVerificationRequest(id: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("id_verification_requests")
-    .select("*, profile:profiles(id,name,email,avatar_url,id_verified)")
+    .select("*, profile:profiles!id_verification_requests_user_id_fkey(id,name,email,avatar_url,id_verified)")
     .eq("id", id)
     .maybeSingle();
   return data ?? null;
