@@ -98,35 +98,43 @@ export function TripChatClient({
   const memberMap = new Map(members.map((m) => [m.id, m]));
   const me = memberMap.get(currentUserId);
 
-  // ── Realtime ────────────────────────────────────────────────────────────────
+  // ── Realtime via broadcast (no RLS/JWT dependency) ──────────────────────────
+  // We keep a stable channel ref so handleSend can broadcast on it
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel(`trip-chat-${tripId}`)
       .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "trip_messages",
-          filter: `trip_id=eq.${tripId}`,
-        },
-        (payload) => {
-          const incoming = payload.new as TripMessage;
-          // Replace optimistic copy if sender is me, else just append
+        "broadcast",
+        { event: "new_message" },
+        ({ payload }: { payload: { message: TripMessage } }) => {
+          const incoming = payload.message;
+          // Ignore our own broadcasts — we already applied optimistic update
           if (incoming.sender_id === currentUserId) {
+            // Replace optimistic copy with the real saved row
             setMessages((prev) =>
               prev.map((m) =>
                 m.id.startsWith("opt-") && m.body === incoming.body ? incoming : m
               )
             );
           } else {
-            setMessages((prev) => [...prev, incoming]);
+            setMessages((prev) => {
+              // Deduplicate — don't add if already present
+              if (prev.some((m) => m.id === incoming.id)) return prev;
+              return [...prev, incoming];
+            });
           }
         }
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    channelRef.current = channel;
+    return () => {
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
   }, [tripId, currentUserId]);
 
   // ── Scroll to bottom ────────────────────────────────────────────────────────
@@ -153,8 +161,26 @@ export function TripChatClient({
     setMessages((prev) => [...prev, opt]);
 
     startTransition(async () => {
-      await sendTripMessage(tripId, body);
+      const { message, error } = await sendTripMessage(tripId, body);
       setSending(false);
+
+      if (error || !message) {
+        // Roll back optimistic message on failure
+        setMessages((prev) => prev.filter((m) => m.body !== body || !m.id.startsWith("opt-")));
+        return;
+      }
+
+      // Replace our optimistic copy with the real saved row
+      setMessages((prev) =>
+        prev.map((m) => (m.id.startsWith("opt-") && m.body === body ? message : m))
+      );
+
+      // Broadcast to all other members via Realtime channel
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "new_message",
+        payload: { message },
+      });
     });
   }
 

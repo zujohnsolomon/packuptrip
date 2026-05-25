@@ -57,28 +57,30 @@ export async function getTripChatMembers(tripId: string): Promise<TripMember[]> 
   return members;
 }
 
-/** Send a message to the trip chat */
+/** Send a message to the trip chat — returns the saved row so the client can broadcast it */
 export async function sendTripMessage(
   tripId: string,
   body: string,
-): Promise<{ error: string | null }> {
+): Promise<{ message: TripMessage | null; error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in" };
+  if (!user) return { message: null, error: "Not signed in" };
 
   const trimmed = body.trim();
-  if (!trimmed) return { error: "Message cannot be empty" };
-  if (trimmed.length > 2000) return { error: "Message too long" };
+  if (!trimmed) return { message: null, error: "Message cannot be empty" };
+  if (trimmed.length > 2000) return { message: null, error: "Message too long" };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("trip_messages")
-    .insert({ trip_id: tripId, sender_id: user.id, body: trimmed });
+    .insert({ trip_id: tripId, sender_id: user.id, body: trimmed })
+    .select()
+    .single<TripMessage>();
 
   if (error) {
     console.error("sendTripMessage:", error);
-    return { error: error.message };
+    return { message: null, error: error.message };
   }
-  return { error: null };
+  return { message: data, error: null };
 }
 
 /** Check if current user is a member of the trip chat */
