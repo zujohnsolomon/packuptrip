@@ -7,6 +7,8 @@ import type {
   Report,
   ReportCategory,
   ReportStatus,
+  Review,
+  ReviewWithAuthor,
   SubjectType,
   Trip,
   UserRole,
@@ -1023,6 +1025,100 @@ export async function getMyBookingWithItem(
   const item = await getBookedItem(booking.item_type, booking.item_id);
   if (!item) return null;
   return { booking, item };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reviews
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Visible reviews for a trip or package listing, newest first. */
+export async function getListingReviews(
+  subjectType: "trip" | "package",
+  subjectId: string,
+): Promise<ReviewWithAuthor[]> {
+  const supabase = await createClient();
+  // Sweep expired deadlines so this page always reflects the latest state
+  await supabase.rpc("reveal_expired_reviews");
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*, author:profiles(id, name, avatar_url)")
+    .eq("subject_type", subjectType)
+    .eq("subject_id", subjectId)
+    .eq("is_visible", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("getListingReviews failed:", error);
+    return [];
+  }
+  return (data ?? []) as unknown as ReviewWithAuthor[];
+}
+
+/** Check whether the signed-in user has already left a review for a booking. */
+export async function getMyReviewForBooking(
+  bookingId: string,
+  authorId: string,
+): Promise<Review | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("booking_id", bookingId)
+    .eq("author_id", authorId)
+    .maybeSingle<Review>();
+  return data ?? null;
+}
+
+export type SubmitReviewPayload = {
+  bookingId: string;
+  subjectId: string;
+  subjectType: "user" | "trip" | "package";
+  reviewerRole: "joiner" | "host";
+  rating: number;
+  dimensions: Record<string, number>;
+  tags: string[];
+  text: string;
+  /** ISO string — trip end date + 14 days */
+  reviewDeadline: string;
+};
+
+/** Insert a review and call the reveal function. Server action only. */
+export async function submitReview(
+  payload: SubmitReviewPayload,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in" };
+
+  const { error: insertError } = await supabase.from("reviews").insert({
+    booking_id: payload.bookingId,
+    author_id: user.id,
+    subject_id: payload.subjectId,
+    subject_type: payload.subjectType,
+    rating: payload.rating,
+    text: payload.text || null,
+    reviewer_role: payload.reviewerRole,
+    dimensions: payload.dimensions,
+    tags: payload.tags,
+    is_visible: false,
+    review_deadline: payload.reviewDeadline,
+  });
+
+  if (insertError) {
+    if (insertError.code === "23505") return { error: "already_reviewed" };
+    console.error("submitReview failed:", insertError);
+    return { error: insertError.message };
+  }
+
+  // Attempt to reveal — doesn't fail the whole request if it errors
+  await supabase.rpc("check_and_reveal_reviews", {
+    p_booking_id: payload.bookingId,
+  });
+
+  return { error: null };
 }
 
 

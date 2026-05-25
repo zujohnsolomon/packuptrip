@@ -123,6 +123,8 @@ export const featuredTrips: Trip[] = [
     admin_notes: null,
     reviewed_at: null,
     reviewed_by: null,
+    rating_avg: 0,
+    review_count: 0,
   },
   {
     id: "rann-utsav",
@@ -147,6 +149,8 @@ export const featuredTrips: Trip[] = [
     admin_notes: null,
     reviewed_at: null,
     reviewed_by: null,
+    rating_avg: 0,
+    review_count: 0,
   },
   {
     id: "goa-slow",
@@ -171,6 +175,8 @@ export const featuredTrips: Trip[] = [
     admin_notes: null,
     reviewed_at: null,
     reviewed_by: null,
+    rating_avg: 0,
+    review_count: 0,
   },
   {
     id: "pondy-cycle",
@@ -195,6 +201,8 @@ export const featuredTrips: Trip[] = [
     admin_notes: null,
     reviewed_at: null,
     reviewed_by: null,
+    rating_avg: 0,
+    review_count: 0,
   },
 ];
 

@@ -8,7 +8,8 @@ import { Itinerary } from "@/components/detail/Itinerary";
 import { Inclusions } from "@/components/detail/Inclusions";
 import { PriceCard } from "@/components/detail/PriceCard";
 import { StickyBookBar } from "@/components/detail/StickyBookBar";
-import { getLiveTrip } from "@/lib/supabase/queries";
+import { getLiveTrip, getListingReviews } from "@/lib/supabase/queries";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import type { Profile } from "@/types/db";
 
 export async function generateMetadata({
@@ -31,7 +32,10 @@ export default async function TripDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const res = await getLiveTrip(id);
+  const [res, reviews] = await Promise.all([
+    getLiveTrip(id),
+    getListingReviews("trip", id),
+  ]);
   if (!res) notFound();
   const { trip, host } = res;
 
@@ -107,6 +111,16 @@ export default async function TripDetailPage({
             />
           </aside>
         </div>
+
+        {/* Reviews */}
+        <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+          <ReviewsSection
+            reviews={reviews}
+            ratingAvg={trip.rating_avg ?? 0}
+            reviewCount={trip.review_count ?? 0}
+          />
+        </div>
+
         <StickyBookBar
           basePrice={Number(trip.price_per_share)}
           ctaLabel="Join this trip"

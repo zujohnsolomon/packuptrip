@@ -5,7 +5,8 @@ import { Footer } from "@/components/layout/Footer";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { formatINR } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
-import { getMyBookingWithItem } from "@/lib/supabase/queries";
+import { getMyBookingWithItem, getMyReviewForBooking } from "@/lib/supabase/queries";
+import type { BookedItem } from "@/lib/supabase/queries";
 
 export const metadata = { title: "Your booking · Packuptrip" };
 
@@ -25,6 +26,18 @@ export default async function BookingDetailPage({
   const res = await getMyBookingWithItem(id);
   if (!res) notFound();
   const { booking, item } = res;
+
+  // Check if user already reviewed this booking
+  const existingReview = await getMyReviewForBooking(id, user.id);
+
+  // Is the trip over and within the 14-day review window?
+  const startDate = new Date(item.item.start_date);
+  const endDate = new Date(startDate.getTime() + item.item.days * 86_400_000);
+  const reviewDeadline = new Date(endDate.getTime() + 14 * 86_400_000);
+  const now = new Date();
+  const tripEnded = now >= endDate;
+  const reviewOpen = tripEnded && now <= reviewDeadline && !existingReview &&
+    booking.status !== "cancelled" && booking.status !== "refunded";
 
   const reference = id.slice(0, 8).toUpperCase();
   const accent = item.type === "package" ? "amber" : "teal";
@@ -120,6 +133,16 @@ export default async function BookingDetailPage({
             </p>
           </div>
 
+          {reviewOpen && <ReviewPrompt bookingId={id} item={item} reviewDeadline={reviewDeadline} />}
+          {existingReview && tripEnded && (
+            <div className="mt-6 rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-200">
+              <strong>Review submitted.</strong>{" "}
+              {item.type === "trip"
+                ? "It will be published once the host also reviews, or in 14 days."
+                : "Your review is live on the listing."}
+            </div>
+          )}
+
           <div className="mt-4 text-center text-xs text-stone-500">
             Something off about this trip or host?{" "}
             <Link
@@ -180,6 +203,41 @@ function Row({
       <span className={bold ? "font-semibold text-ink" : "text-stone-700"}>
         {value}
       </span>
+    </div>
+  );
+}
+
+function ReviewPrompt({
+  bookingId,
+  item,
+  reviewDeadline,
+}: {
+  bookingId: string;
+  item: BookedItem;
+  reviewDeadline: Date;
+}) {
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((reviewDeadline.getTime() - Date.now()) / 86_400_000)
+  );
+  return (
+    <div className="mt-6 rounded-2xl bg-amber-50 p-5 ring-1 ring-inset ring-amber-200">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-amber-900">
+            How was your trip?
+          </p>
+          <p className="mt-0.5 text-xs text-amber-700">
+            You have {daysLeft} day{daysLeft !== 1 ? "s" : ""} to leave a review.
+          </p>
+        </div>
+        <Link
+          href={`/bookings/${bookingId}/review`}
+          className="shrink-0 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-600"
+        >
+          Leave a review
+        </Link>
+      </div>
     </div>
   );
 }

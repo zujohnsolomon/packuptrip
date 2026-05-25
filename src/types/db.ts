@@ -99,6 +99,8 @@ export type Trip = {
   itinerary: ItineraryDay[];
   start_date: string;
   status: TripStatus;
+  rating_avg: number;
+  review_count: number;
   created_at: string;
   // Admin moderation fields (added in v1_trip_approval_queue):
   rejection_reason: string | null;
@@ -119,6 +121,25 @@ export type Booking = {
   created_at: string;
 };
 
+export type ReviewerRole = "joiner" | "host";
+
+/** Dimension keys for joiner → trip/package reviews */
+export type JoinerDimensions = {
+  accuracy: number;      // Was the listing accurate?
+  communication: number; // Was the host responsive?
+  experience: number;    // How was the trip itself?
+  value: number;         // Worth the price?
+};
+
+/** Dimension keys for host → joiner reviews */
+export type HostDimensions = {
+  punctuality: number;   // Showed up on time?
+  communication: number; // Easy to reach?
+  vibe: number;          // Good travel companion?
+};
+
+export type ReviewDimensions = JoinerDimensions | HostDimensions;
+
 export type Review = {
   id: string;
   booking_id: string;
@@ -127,7 +148,17 @@ export type Review = {
   subject_type: SubjectType;
   rating: number;
   text: string | null;
+  reviewer_role: ReviewerRole | null;
+  dimensions: Record<string, number>;
+  tags: string[];
+  is_visible: boolean;
+  review_deadline: string | null;
   created_at: string;
+};
+
+/** Review with author profile attached — used for display */
+export type ReviewWithAuthor = Review & {
+  author: Pick<Profile, "id" | "name" | "avatar_url">;
 };
 
 export type MessageThread = {

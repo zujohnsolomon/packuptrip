@@ -7,7 +7,8 @@ import { Itinerary } from "@/components/detail/Itinerary";
 import { Inclusions } from "@/components/detail/Inclusions";
 import { PriceCard } from "@/components/detail/PriceCard";
 import { StickyBookBar } from "@/components/detail/StickyBookBar";
-import { getLivePackage } from "@/lib/supabase/queries";
+import { getLivePackage, getListingReviews } from "@/lib/supabase/queries";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 
 export async function generateMetadata({
   params,
@@ -29,7 +30,10 @@ export default async function PackageDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const pkg = await getLivePackage(id);
+  const [pkg, reviews] = await Promise.all([
+    getLivePackage(id),
+    getListingReviews("package", id),
+  ]);
   if (!pkg) notFound();
 
   return (
@@ -114,6 +118,16 @@ export default async function PackageDetailPage({
             />
           </aside>
         </div>
+
+        {/* Reviews */}
+        <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+          <ReviewsSection
+            reviews={reviews}
+            ratingAvg={pkg.rating_avg ?? 0}
+            reviewCount={pkg.review_count ?? 0}
+          />
+        </div>
+
         <StickyBookBar
           basePrice={Number(pkg.price)}
           ctaLabel="Book this trip"
