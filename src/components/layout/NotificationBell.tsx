@@ -8,8 +8,8 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   type Notification,
-  type NotificationType,
 } from "@/actions/notifications";
+import type { NotificationType } from "@/types/db";
 
 // ─── Icon per notification type ───────────────────────────────────────────────
 
@@ -64,6 +64,19 @@ function TypeIcon({ type }: { type: NotificationType }) {
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="text-amber-700">
           <path d="M8 1.5L2 4v4c0 3.5 2.5 6.5 6 7.5 3.5-1 6-4 6-7.5V4L8 1.5z" stroke="currentColor" strokeWidth="1.3"/>
           <path d="M8 5.5v3M8 10.5v.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === "group_message") {
+    return (
+      <div className={`${base} bg-teal-100`}>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="text-teal-700">
+          <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+          <circle cx="5.5" cy="7" r="0.75" fill="currentColor"/>
+          <circle cx="8" cy="7" r="0.75" fill="currentColor"/>
+          <circle cx="10.5" cy="7" r="0.75" fill="currentColor"/>
         </svg>
       </div>
     );

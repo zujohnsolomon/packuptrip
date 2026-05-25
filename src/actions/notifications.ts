@@ -2,14 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { NotificationType } from "@/types/db";
 
-export type NotificationType =
-  | "booking_received"
-  | "trip_approved"
-  | "trip_cancelled"
-  | "verification_approved"
-  | "verification_rejected"
-  | "new_message";
+export type { NotificationType };
 
 export type Notification = {
   id: string;

@@ -11,6 +11,7 @@ import { StickyBookBar } from "@/components/detail/StickyBookBar";
 import { getLiveTrip, getListingReviews } from "@/lib/supabase/queries";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
+import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/db";
 
 export async function generateMetadata({
@@ -33,12 +34,32 @@ export default async function TripDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const [res, reviews] = await Promise.all([
     getLiveTrip(id),
     getListingReviews("trip", id),
   ]);
   if (!res) notFound();
   const { trip, host } = res;
+
+  // Check if current user is a trip member (for group chat button)
+  let isMember = false;
+  if (user) {
+    if (user.id === host?.id) {
+      isMember = true;
+    } else {
+      const { count } = await supabase
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .eq("item_id", id)
+        .eq("item_type", "trip")
+        .eq("user_id", user.id)
+        .in("status", ["requested", "confirmed"]);
+      isMember = (count ?? 0) > 0;
+    }
+  }
 
   return (
     <>
@@ -98,7 +119,7 @@ export default async function TripDetailPage({
             <ReportLink subjectType="trip" subjectId={trip.id} />
           </div>
 
-          <aside id="price-card" className="lg:sticky lg:top-24 lg:self-start">
+          <aside id="price-card" className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <PriceCard
               basePrice={Number(trip.price_per_share)}
               unitLabel="per share"
@@ -110,6 +131,21 @@ export default async function TripDetailPage({
               startDate={trip.start_date}
               days={trip.days}
             />
+            {/* Group chat — visible to host and joiners only */}
+            {isMember && (
+              <Link
+                href={`/trips/${trip.id}/chat`}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                  <circle cx="5" cy="7" r="0.75" fill="currentColor"/>
+                  <circle cx="8" cy="7" r="0.75" fill="currentColor"/>
+                  <circle cx="11" cy="7" r="0.75" fill="currentColor"/>
+                </svg>
+                Trip group chat
+              </Link>
+            )}
           </aside>
         </div>
 

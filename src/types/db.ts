@@ -213,13 +213,22 @@ export type Message = {
   created_at: string;
 };
 
+export type TripMessage = {
+  id: string;
+  trip_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+};
+
 export type NotificationType =
   | "booking_received"
   | "trip_approved"
   | "trip_cancelled"
   | "verification_approved"
   | "verification_rejected"
-  | "new_message";
+  | "new_message"
+  | "group_message";
 
 export type Notification = {
   id: string;
