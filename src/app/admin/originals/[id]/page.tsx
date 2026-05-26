@@ -187,6 +187,7 @@ export default async function AdminPackageDetailPage({
             <StatusActions
               id={pkg.id}
               status={pkg.status}
+              featured={pkg.featured}
               hasBookings={bookings.length > 0}
             />
           </aside>
@@ -242,11 +243,11 @@ function StatusChip({ status }: { status: string }) {
 function FlashBanner({
   sp,
 }: {
-  sp: { created?: string; saved?: string; status?: string };
+  sp: { created?: string; saved?: string; status?: string; featured?: string };
 }) {
   if (sp.created) {
     return (
-      <Banner variant="success">Package created. Switch status to “Live” when ready.</Banner>
+      <Banner variant="success">Package created. Switch status to "Live" when ready.</Banner>
     );
   }
   if (sp.saved) {
@@ -260,6 +261,12 @@ function FlashBanner({
   }
   if (sp.status === "archived") {
     return <Banner variant="info">Archived. Hidden from listings.</Banner>;
+  }
+  if (sp.featured === "true") {
+    return <Banner variant="success">Featured on the homepage hero strip.</Banner>;
+  }
+  if (sp.featured === "false") {
+    return <Banner variant="info">Removed from the homepage hero strip.</Banner>;
   }
   return null;
 }

@@ -91,6 +91,7 @@ export type Package = {
   itinerary: ItineraryDay[];
   start_date: string;
   status: PackageStatus;
+  featured: boolean;
   rating_avg: number;
   review_count: number;
   created_at: string;

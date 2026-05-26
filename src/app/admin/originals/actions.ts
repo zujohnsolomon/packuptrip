@@ -163,6 +163,21 @@ export async function setPackageStatus(formData: FormData) {
   redirect(`/admin/originals/${id}?status=${status}`);
 }
 
+/** Toggle whether a package appears in the homepage hero strip. */
+export async function togglePackageFeatured(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const featured = formData.get("featured") === "true";
+  if (!id) throw new Error("Missing package id.");
+  const { error } = await supabase
+    .from("packages")
+    .update({ featured })
+    .eq("id", id);
+  if (error) throw error;
+  revalidatePackageSurfaces(id);
+  redirect(`/admin/originals/${id}?featured=${featured}`);
+}
+
 /** Delete a package - refuses if any bookings reference it. Admins should
  *  archive instead of delete once anyone has booked. */
 export async function deletePackage(formData: FormData) {

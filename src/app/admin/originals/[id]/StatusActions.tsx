@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { setPackageStatus, deletePackage } from "../actions";
+import { setPackageStatus, deletePackage, togglePackageFeatured } from "../actions";
 import type { PackageStatus } from "@/types/db";
 
 export function StatusActions({
   id,
   status,
+  featured,
   hasBookings,
 }: {
   id: string;
   status: PackageStatus;
+  featured: boolean;
   hasBookings: boolean;
 }) {
   return (
@@ -46,7 +48,24 @@ export function StatusActions({
         )}
       </div>
 
+      {/* ── Feature on homepage ── */}
       <div className="mt-5 border-t border-stone-100 pt-4">
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+          Homepage hero
+        </div>
+        <form action={togglePackageFeatured}>
+          <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="featured" value={featured ? "false" : "true"} />
+          <FeaturedSubmit featured={featured} />
+        </form>
+        {featured && (
+          <p className="mt-1.5 text-[11px] text-stone-400">
+            This package appears in the homepage hero strip.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 border-t border-stone-100 pt-4">
         <DeleteAction id={id} hasBookings={hasBookings} />
       </div>
     </div>
@@ -156,6 +175,23 @@ function DeleteSubmit() {
       className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? "Deleting…" : "Yes, delete"}
+    </button>
+  );
+}
+
+function FeaturedSubmit({ featured }: { featured: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 ${
+        featured
+          ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+          : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+      }`}
+    >
+      {pending ? "Updating…" : featured ? "★ Featured — click to unfeature" : "☆ Feature on homepage"}
     </button>
   );
 }

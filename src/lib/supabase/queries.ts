@@ -23,6 +23,23 @@ export type BrowseFilters = {
   maxPrice?: number;
 };
 
+/** Featured live packages for the homepage hero strip — max 4. */
+export async function listFeaturedPackages(): Promise<Package[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("packages")
+    .select("*")
+    .eq("status", "live")
+    .eq("featured", true)
+    .order("start_date", { ascending: true })
+    .limit(4);
+  if (error) {
+    console.error("listFeaturedPackages failed:", error);
+    return [];
+  }
+  return (data ?? []) as Package[];
+}
+
 /** Server-side: list live packages with optional filters. RLS allows
  *  anonymous read of `status = 'live'` rows. */
 export async function listLivePackages(

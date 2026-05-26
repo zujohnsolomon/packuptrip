@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { DestinationPicker } from "@/components/ui/DestinationPicker";
 import { MonthPicker } from "@/components/ui/MonthPicker";
 import { createClient } from "@/lib/supabase/server";
-import { listLiveTrips, listLivePackages } from "@/lib/supabase/queries";
+import { listLiveTrips, listLivePackages, listFeaturedPackages } from "@/lib/supabase/queries";
 import { engineImages, heroImage, testimonials } from "@/lib/seed-data";
 import type { Trip, Package } from "@/types/db";
 
@@ -16,13 +16,13 @@ export default async function Home() {
   const supabase = await createClient();
 
   // Fetch real data in parallel
-  const [trips, packages] = await Promise.all([
+  const [trips, packages, featuredPackages] = await Promise.all([
     listLiveTrips(),
     listLivePackages(),
+    listFeaturedPackages(),
   ]);
 
   const featuredTrips = trips.slice(0, 4);
-  const featuredPackages = packages.slice(0, 4);
 
   // Host profiles for trip cards
   const hostIds = [...new Set(featuredTrips.map((t) => t.host_id))];
@@ -63,7 +63,7 @@ export default async function Home() {
     <>
       <Header overlay />
       <main className="flex-1">
-        <Hero />
+        <Hero featuredPackages={featuredPackages} />
         <SocialProofBar />
         <TwoEngines />
         <ExploreDestinations />
@@ -87,7 +87,7 @@ export default async function Home() {
 /* Hero - full-bleed photo, headline, search. Premium typography, clear UX.   */
 /* -------------------------------------------------------------------------- */
 
-function Hero() {
+function Hero({ featuredPackages }: { featuredPackages: import("@/types/db").Package[] }) {
   return (
     <section className="relative isolate flex min-h-[85vh] w-full items-center overflow-hidden">
       <Image
@@ -131,8 +131,10 @@ function Hero() {
           <TrustStrip />
         </div>
 
-        {/* Trending strip spans the full hero width so 4 cards have room */}
-        <TrendingStrip />
+        {/* Featured strip — real packages from DB */}
+        {featuredPackages.length > 0 && (
+          <FeaturedStrip packages={featuredPackages} />
+        )}
       </div>
     </section>
   );
@@ -180,40 +182,9 @@ function TrustStrip() {
   );
 }
 
-/* Trending destinations strip - sits at the bottom of the hero. Real photos
- * of real places we run trips to. Adds visual variety without competing with
- * the headline + search. Each tile links into a pre-filtered browse page. */
-function TrendingStrip() {
-  const tiles: { label: string; sub: string; image: string; href: string }[] = [
-    {
-      label: "Spiti Valley",
-      sub: "Oct departures",
-      image:
-        "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=600&q=70",
-      href: "/packages?q=spiti",
-    },
-    {
-      label: "Kerala",
-      sub: "Houseboats · backwaters",
-      image:
-        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=70",
-      href: "/packages?q=kerala",
-    },
-    {
-      label: "Meghalaya",
-      sub: "Living root bridges",
-      image:
-        "https://images.unsplash.com/photo-1465056836041-7f43ac27dcb5?auto=format&fit=crop&w=600&q=70",
-      href: "/packages?q=meghalaya",
-    },
-    {
-      label: "Rajasthan",
-      sub: "Forts · desert nights",
-      image:
-        "https://images.unsplash.com/photo-1477586957327-847a0f3f4fe3?auto=format&fit=crop&w=600&q=70",
-      href: "/packages?q=rajasthan",
-    },
-  ];
+/* Featured packages strip — populated from DB, admin-controlled.
+ * Each tile links directly to that package's detail page. */
+function FeaturedStrip({ packages }: { packages: import("@/types/db").Package[] }) {
   return (
     <div className="mt-10">
       <div className="mb-3 flex items-end justify-between">
@@ -228,25 +199,27 @@ function TrendingStrip() {
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        {tiles.map((t) => (
+        {packages.map((pkg) => (
           <Link
-            key={t.label}
-            href={t.href}
+            key={pkg.id}
+            href={`/packages/${pkg.id}`}
             className="group relative block aspect-[4/3] overflow-hidden rounded-2xl shadow-lg ring-1 ring-white/15 transition-transform hover:-translate-y-1"
           >
-            <Image
-              src={t.image}
-              alt={t.label}
-              fill
-              sizes="(max-width: 640px) 50vw, 220px"
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
+            {pkg.images[0] && (
+              <Image
+                src={pkg.images[0]}
+                alt={pkg.title}
+                fill
+                sizes="(max-width: 640px) 50vw, 220px"
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-3">
               <div className="font-serif text-base font-medium leading-tight text-white sm:text-lg">
-                {t.label}
+                {pkg.title}
               </div>
-              <div className="mt-0.5 text-[11px] text-white/80">{t.sub}</div>
+              <div className="mt-0.5 text-[11px] text-white/80">{pkg.location}</div>
             </div>
           </Link>
         ))}
