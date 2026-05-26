@@ -64,14 +64,30 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
   return (
     <div ref={containerRef} className="relative flex-1">
 
-      {/* ── Input field ── */}
-      <label className="block cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
+      {/* Hidden input — always submits the selected value with the form */}
+      <input type="hidden" name="q" value={value} />
+
+      {/* ── Mobile: button (no keyboard) ── */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="block w-full rounded-xl px-4 py-2.5 text-left transition-colors hover:bg-stone-50 sm:hidden"
+      >
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+          Where to?
+        </div>
+        <span className={`mt-0.5 block text-sm ${value ? "text-ink" : "text-stone-400"}`}>
+          {value || "Destination or region…"}
+        </span>
+      </button>
+
+      {/* ── Desktop: text input ── */}
+      <label className="hidden cursor-text rounded-xl px-4 transition-colors hover:bg-stone-50 sm:block sm:py-3">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
           Where to?
         </div>
         <input
           type="text"
-          name="q"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
