@@ -93,3 +93,55 @@ export async function isTripChatMember(tripId: string): Promise<boolean> {
     .rpc("is_trip_chat_member", { p_trip_id: tripId });
   return !!data;
 }
+
+/** Host (or sender) soft-deletes a message */
+export async function deleteTripMessage(
+  messageId: string,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in" };
+
+  const { error } = await supabase
+    .from("trip_messages")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", messageId);
+
+  if (error) {
+    console.error("deleteTripMessage:", error);
+    return { error: error.message };
+  }
+  return { error: null };
+}
+
+/** Host removes a member by cancelling their booking(s) via the existing RPC */
+export async function removeTripMember(
+  tripId: string,
+  memberId: string,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in" };
+
+  // Find active booking(s) for this member on this trip
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("item_id", tripId)
+    .eq("item_type", "trip")
+    .eq("user_id", memberId)
+    .in("status", ["requested", "confirmed"]);
+
+  if (!bookings?.length) return { error: "No active booking found for this member" };
+
+  // host_cancel_booking RPC handles auth check + spot restoration atomically
+  for (const booking of bookings) {
+    const { error } = await supabase.rpc("host_cancel_booking", { p_booking_id: booking.id });
+    if (error) {
+      console.error("removeTripMember:", error);
+      return { error: error.message };
+    }
+  }
+
+  return { error: null };
+}

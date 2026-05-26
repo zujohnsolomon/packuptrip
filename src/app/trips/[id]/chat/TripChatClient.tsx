@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { sendTripMessage } from "@/actions/tripChat";
+import { sendTripMessage, deleteTripMessage, removeTripMember } from "@/actions/tripChat";
 import type { TripMessage } from "@/types/db";
 import type { TripMember } from "@/actions/tripChat";
 
@@ -35,6 +35,108 @@ function isSameGroup(a: TripMessage, b: TripMessage) {
   return (
     a.sender_id === b.sender_id &&
     Math.abs(new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) < 5 * 60_000
+  );
+}
+
+// ─── Host action menu ─────────────────────────────────────────────────────────
+
+type HostMenuProps = {
+  tripId: string;
+  message: TripMessage;
+  senderName: string;
+  senderId: string;
+  isOwnMessage: boolean;
+  onDeleted: (messageId: string) => void;
+  onRemoved: (memberId: string) => void;
+};
+
+function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, onDeleted, onRemoved }: HostMenuProps) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  async function handleDelete() {
+    setBusy(true);
+    setOpen(false);
+    await deleteTripMessage(message.id);
+    onDeleted(message.id);
+    setBusy(false);
+  }
+
+  async function handleRemove() {
+    if (!confirm(`Remove ${senderName} from this trip? Their booking will be cancelled.`)) return;
+    setBusy(true);
+    setOpen(false);
+    await removeTripMember(tripId, senderId);
+    onRemoved(senderId);
+    setBusy(false);
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        disabled={busy}
+        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-400 opacity-0 transition-opacity group-hover/msg:opacity-100 hover:bg-stone-100 hover:text-stone-600"
+        aria-label="Message actions"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="8" cy="3" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="8" cy="13" r="1.2"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-48 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 right-0">
+          <button
+            onClick={handleDelete}
+            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10"/>
+            </svg>
+            Delete message
+          </button>
+
+          {!isOwnMessage && (
+            <>
+              <a
+                href={`/report?type=user&id=${senderId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/>
+                  <path d="M8 5.5v3M8 10.5v.5" strokeLinecap="round"/>
+                </svg>
+                Report user
+              </a>
+              <div className="mx-3 border-t border-stone-100" />
+              <button
+                onClick={handleRemove}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M11 8H5M13 4l-2-2H5L3 4v8l2 2h6l2-2V4z" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Remove from trip
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -79,12 +181,14 @@ export function TripChatClient({
   tripId,
   tripTitle,
   currentUserId,
+  isHost,
   initialMessages,
   members,
 }: {
   tripId: string;
   tripTitle: string;
   currentUserId: string;
+  isHost: boolean;
   initialMessages: TripMessage[];
   members: TripMember[];
 }) {
@@ -111,9 +215,7 @@ export function TripChatClient({
         { event: "new_message" },
         ({ payload }: { payload: { message: TripMessage } }) => {
           const incoming = payload.message;
-          // Ignore our own broadcasts — we already applied optimistic update
           if (incoming.sender_id === currentUserId) {
-            // Replace optimistic copy with the real saved row
             setMessages((prev) =>
               prev.map((m) =>
                 m.id.startsWith("opt-") && m.body === incoming.body ? incoming : m
@@ -121,10 +223,32 @@ export function TripChatClient({
             );
           } else {
             setMessages((prev) => {
-              // Deduplicate — don't add if already present
               if (prev.some((m) => m.id === incoming.id)) return prev;
               return [...prev, incoming];
             });
+          }
+        }
+      )
+      .on(
+        "broadcast",
+        { event: "delete_message" },
+        ({ payload }: { payload: { messageId: string } }) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === payload.messageId
+                ? { ...m, deleted_at: new Date().toISOString() }
+                : m
+            )
+          );
+        }
+      )
+      .on(
+        "broadcast",
+        { event: "remove_member" },
+        ({ payload }: { payload: { memberId: string } }) => {
+          // If you were removed, boot you out (parent page will redirect)
+          if (payload.memberId === currentUserId) {
+            window.location.href = "/trips";
           }
         }
       )
@@ -157,6 +281,7 @@ export function TripChatClient({
       sender_id: currentUserId,
       body,
       created_at: new Date().toISOString(),
+      deleted_at: null,
     };
     setMessages((prev) => [...prev, opt]);
 
@@ -181,6 +306,29 @@ export function TripChatClient({
         event: "new_message",
         payload: { message },
       });
+    });
+  }
+
+  // ── Host: message deleted ────────────────────────────────────────────────────
+  function handleDeleted(messageId: string) {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId ? { ...m, deleted_at: new Date().toISOString() } : m
+      )
+    );
+    channelRef.current?.send({
+      type: "broadcast",
+      event: "delete_message",
+      payload: { messageId },
+    });
+  }
+
+  // ── Host: member removed ─────────────────────────────────────────────────────
+  function handleRemoved(memberId: string) {
+    channelRef.current?.send({
+      type: "broadcast",
+      event: "remove_member",
+      payload: { memberId },
     });
   }
 
@@ -258,7 +406,7 @@ export function TripChatClient({
                 </div>
               )}
 
-              <div className={`flex items-end gap-2 ${isMe ? "flex-row-reverse" : "flex-row"} ${isFirstInGroup ? "mt-3" : "mt-0.5"}`}>
+              <div className={`group/msg flex items-end gap-2 ${isMe ? "flex-row-reverse" : "flex-row"} ${isFirstInGroup ? "mt-3" : "mt-0.5"}`}>
                 {/* Avatar — only shown for last in group, others side is blank space */}
                 <div className="w-8 shrink-0">
                   {!isMe && isLastInGroup && sender && (
@@ -282,19 +430,25 @@ export function TripChatClient({
                   )}
 
                   {/* Bubble */}
-                  <div
-                    className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
-                      isMe
-                        ? `bg-amber-500 text-white ${isOptimistic ? "opacity-70" : ""} ${
-                            isFirstInGroup ? "rounded-br-md" : ""
-                          }`
-                        : `bg-white text-stone-800 shadow-sm ring-1 ring-stone-100 ${
-                            isFirstInGroup ? "rounded-bl-md" : ""
-                          }`
-                    }`}
-                  >
-                    {msg.body}
-                  </div>
+                  {msg.deleted_at ? (
+                    <div className="rounded-2xl px-3.5 py-2 text-sm italic text-stone-400 ring-1 ring-stone-100">
+                      Message deleted
+                    </div>
+                  ) : (
+                    <div
+                      className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                        isMe
+                          ? `bg-amber-500 text-white ${isOptimistic ? "opacity-70" : ""} ${
+                              isFirstInGroup ? "rounded-br-md" : ""
+                            }`
+                          : `bg-white text-stone-800 shadow-sm ring-1 ring-stone-100 ${
+                              isFirstInGroup ? "rounded-bl-md" : ""
+                            }`
+                      }`}
+                    >
+                      {msg.body}
+                    </div>
+                  )}
 
                   {/* Timestamp — only last in group */}
                   {isLastInGroup && (
@@ -303,6 +457,21 @@ export function TripChatClient({
                     </span>
                   )}
                 </div>
+
+                {/* Host action menu — appears on hover, skip optimistic & deleted */}
+                {isHost && !isOptimistic && !msg.deleted_at && sender && (
+                  <div className={`mb-1 shrink-0 ${isMe ? "mr-1" : "ml-1"}`}>
+                    <HostMenu
+                      tripId={tripId}
+                      message={msg}
+                      senderName={sender.name}
+                      senderId={msg.sender_id}
+                      isOwnMessage={isMe}
+                      onDeleted={handleDeleted}
+                      onRemoved={handleRemoved}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           );

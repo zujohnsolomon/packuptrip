@@ -219,6 +219,7 @@ export type TripMessage = {
   sender_id: string;
   body: string;
   created_at: string;
+  deleted_at: string | null;
 };
 
 export type NotificationType =

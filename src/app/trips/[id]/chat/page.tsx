@@ -51,6 +51,9 @@ export default async function TripChatPage({
     getTripChatMembers(id),
   ]);
 
+  // Determine if current user is the host (so client can show host controls)
+  const isHost = members.some((m) => m.id === user.id && m.is_host);
+
   return (
     <div className="flex h-screen flex-col bg-stone-50">
       {/* Slim header — full Header is too heavy for a chat full-screen */}
@@ -94,6 +97,7 @@ export default async function TripChatPage({
           tripId={id}
           tripTitle={trip.title}
           currentUserId={user.id}
+          isHost={isHost}
           initialMessages={messages}
           members={members}
         />
