@@ -37,12 +37,14 @@ const DESTINATIONS: Region[] = [
 export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string }) {
   const [value, setValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setExpanded(null);
       }
     }
     document.addEventListener("mousedown", handler);
@@ -52,6 +54,11 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
   function pick(name: string) {
     setValue(name);
     setOpen(false);
+    setExpanded(null);
+  }
+
+  function toggleRegion(label: string) {
+    setExpanded((prev) => (prev === label ? null : label));
   }
 
   return (
@@ -77,28 +84,64 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
       {/* ── Dropdown ── */}
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-40" onClick={() => { setOpen(false); setExpanded(null); }} />
 
-          {/* ── Mobile: simple region list ── */}
+          {/* ── Mobile: accordion ── */}
           <div
             className="absolute left-0 top-full z-50 mt-2 w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:hidden"
           >
-            <p className="border-b border-stone-100 px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-              Browse destinations
-            </p>
-            {DESTINATIONS.map((col) => (
-              <button
-                key={col.label}
-                type="button"
-                onMouseDown={(e) => { e.preventDefault(); pick(col.label); }}
-                className="flex w-full items-center justify-between border-b border-stone-100 px-5 py-4 text-left last:border-0 hover:bg-stone-50"
-              >
-                <span className="text-[15px] font-medium text-stone-800">
-                  {col.label}
-                </span>
-                <span className="text-stone-300 text-sm">→</span>
-              </button>
-            ))}
+            {DESTINATIONS.map((col, i) => {
+              const isOpen = expanded === col.label;
+              return (
+                <div
+                  key={col.label}
+                  className={i < DESTINATIONS.length - 1 ? "border-b border-stone-100" : ""}
+                >
+                  {/* Region header row */}
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); toggleRegion(col.label); }}
+                    className="flex w-full items-center justify-between px-5 py-4 text-left"
+                  >
+                    <span className="text-[15px] font-semibold text-stone-900">
+                      {col.label}
+                    </span>
+                    <svg
+                      className={`h-4 w-4 text-stone-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Expanded sub-places */}
+                  {isOpen && (
+                    <div className="pb-3">
+                      {col.places.map((place) => (
+                        <button
+                          key={place}
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); pick(place); }}
+                          className="block w-full px-5 py-2.5 text-left text-[14px] text-stone-500 hover:text-stone-900"
+                        >
+                          {place}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); pick(col.label); }}
+                        className="mt-1 block w-full px-5 py-2 text-left text-[13px] text-stone-400 hover:text-stone-600"
+                      >
+                        All trips in {col.label} →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* ── Desktop: 6-column grid ── */}
