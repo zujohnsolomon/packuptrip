@@ -6,6 +6,23 @@ import { sendTripMessage, deleteTripMessage, removeTripMember } from "@/actions/
 import type { TripMessage } from "@/types/db";
 import type { TripMember } from "@/actions/tripChat";
 
+// ─── Long-press hook (mobile hold-to-moderate) ────────────────────────────────
+
+function useLongPress(onLongPress: () => void, ms = 500) {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function start(e: React.TouchEvent) {
+    // Prevent scroll from triggering during hold
+    e.preventDefault();
+    timer.current = setTimeout(onLongPress, ms);
+  }
+  function cancel() {
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; }
+  }
+
+  return { onTouchStart: start, onTouchEnd: cancel, onTouchMove: cancel };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(iso: string) {
@@ -46,37 +63,49 @@ type HostMenuProps = {
   senderName: string;
   senderId: string;
   isOwnMessage: boolean;
+  externalOpen?: boolean;
+  onClose?: () => void;
   onDeleted: (messageId: string) => void;
   onRemoved: (memberId: string) => void;
 };
 
-function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, onDeleted, onRemoved }: HostMenuProps) {
+function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, externalOpen, onClose, onDeleted, onRemoved }: HostMenuProps) {
   const [open, setOpen] = useState(false);
+  const isOpen = open || !!externalOpen;
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
+  // Close on outside click or tap
   useEffect(() => {
-    if (!open) return;
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    if (!isOpen) return;
+    function handler(e: MouseEvent | TouchEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        onClose?.();
+      }
     }
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [isOpen, onClose]);
+
+  function closeAll() { setOpen(false); onClose?.(); }
 
   async function handleDelete() {
     setBusy(true);
-    setOpen(false);
+    closeAll();
     await deleteTripMessage(message.id);
     onDeleted(message.id);
     setBusy(false);
   }
 
   async function handleRemove() {
+    closeAll();
     if (!confirm(`Remove ${senderName} from this trip? Their booking will be cancelled.`)) return;
     setBusy(true);
-    setOpen(false);
     await removeTripMember(tripId, senderId);
     onRemoved(senderId);
     setBusy(false);
@@ -84,11 +113,14 @@ function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, onDelet
 
   return (
     <div ref={ref} className="relative">
+      {/* ⋮ button — always visible on mobile (no hover), fades in on desktop hover */}
       <button
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
         title="Message actions"
-        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-300 opacity-40 transition-all group-hover/msg:opacity-100 group-hover/msg:text-stone-500 hover:bg-stone-100 hover:text-stone-600"
+        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-400
+          opacity-100 sm:opacity-30 sm:transition-all sm:group-hover/msg:opacity-100 sm:group-hover/msg:text-stone-600
+          hover:bg-stone-100 active:bg-stone-100"
         aria-label="Message actions"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -96,7 +128,7 @@ function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, onDelet
         </svg>
       </button>
 
-      {open && (
+      {isOpen && (
         <div className="absolute z-50 mt-1 w-48 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 right-0">
           <button
             onClick={handleDelete}
@@ -197,6 +229,7 @@ export function TripChatClient({
   const [input, setInput] = useState("");
   const [, startTransition] = useTransition();
   const [sending, setSending] = useState(false);
+  const [longPressedId, setLongPressedId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -435,14 +468,19 @@ export function TripChatClient({
                     </div>
                   )}
 
-                  {/* Bubble */}
+                  {/* Bubble — long-press on mobile to open host menu */}
                   {msg.deleted_at ? (
                     <div className="rounded-2xl px-3.5 py-2 text-sm italic text-stone-400 ring-1 ring-stone-100">
                       Message deleted
                     </div>
                   ) : (
                     <div
-                      className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                      {...(isHost && !isOptimistic
+                        ? useLongPress(() => setLongPressedId(msg.id))
+                        : {})}
+                      className={`select-none rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                        isHost && !isOptimistic ? "touch-none" : ""
+                      } ${
                         isMe
                           ? `bg-amber-500 text-white ${isOptimistic ? "opacity-70" : ""} ${
                               isFirstInGroup ? "rounded-br-md" : ""
@@ -464,7 +502,7 @@ export function TripChatClient({
                   )}
                 </div>
 
-                {/* Host action menu — appears on hover, skip optimistic & deleted */}
+                {/* Host action menu — hover on desktop, long-press on mobile */}
                 {isHost && !isOptimistic && !msg.deleted_at && sender && (
                   <div className={`mb-1 shrink-0 ${isMe ? "mr-1" : "ml-1"}`}>
                     <HostMenu
@@ -473,6 +511,8 @@ export function TripChatClient({
                       senderName={sender.name}
                       senderId={msg.sender_id}
                       isOwnMessage={isMe}
+                      externalOpen={longPressedId === msg.id}
+                      onClose={() => setLongPressedId(null)}
                       onDeleted={handleDeleted}
                       onRemoved={handleRemoved}
                     />
