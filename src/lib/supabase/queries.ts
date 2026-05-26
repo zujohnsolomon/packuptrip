@@ -1559,3 +1559,116 @@ export async function getLivePricingRates(): Promise<PricingRates> {
     depositRate:        map["deposit_rate"]          ?? BOOKING_DEPOSIT_RATE,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Post-trip Memory Page (D2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MemoryCrewMember = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  isHost: boolean;
+};
+
+export type TripMemoryData = {
+  trip: Trip;
+  host: Profile | null;
+  crew: MemoryCrewMember[];
+  reviews: (Review & {
+    author: { id: string; name: string; avatar_url: string | null };
+  })[];
+  /** Whether the current viewer is allowed to see this page */
+  canView: boolean;
+};
+
+export async function getTripMemory(
+  tripId: string,
+): Promise<TripMemoryData | null> {
+  const supabase = await createClient();
+
+  // Fetch trip — allow completed AND live (host may preview before end)
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("*")
+    .eq("id", tripId)
+    .in("status", ["completed", "live", "cancelled"])
+    .maybeSingle<Trip>();
+
+  if (!trip) return null;
+
+  // Auth check — only host + confirmed joiners can view
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let canView = false;
+  if (user) {
+    if (user.id === trip.host_id) {
+      canView = true;
+    } else {
+      const { data: booking } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("item_id", tripId)
+        .eq("item_type", "trip")
+        .eq("user_id", user.id)
+        .in("status", ["confirmed", "requested"])
+        .maybeSingle();
+      if (booking) canView = true;
+    }
+  }
+
+  // Always return data so the page can show the locked state
+  const { data: host } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", trip.host_id)
+    .maybeSingle<Profile>();
+
+  // Crew: all confirmed/requested joiners + host
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select("user_id")
+    .eq("item_id", tripId)
+    .eq("item_type", "trip")
+    .in("status", ["confirmed", "requested"]);
+
+  const joinerIds = Array.from(
+    new Set((bookings ?? []).map((b: { user_id: string }) => b.user_id))
+  );
+
+  const crew: MemoryCrewMember[] = [];
+
+  if (host) {
+    crew.push({ id: host.id, name: host.name, avatar_url: host.avatar_url, isHost: true });
+  }
+
+  if (joinerIds.length > 0) {
+    const { data: joinerProfiles } = await supabase
+      .from("profiles")
+      .select("id, name, avatar_url")
+      .in("id", joinerIds);
+    for (const p of (joinerProfiles ?? []) as Pick<Profile, "id" | "name" | "avatar_url">[]) {
+      if (p.id !== trip.host_id) {
+        crew.push({ id: p.id, name: p.name, avatar_url: p.avatar_url, isHost: false });
+      }
+    }
+  }
+
+  // Visible reviews for this trip
+  const { data: reviewsData } = await supabase
+    .from("reviews")
+    .select("*, author:profiles!reviews_author_id_fkey(id, name, avatar_url)")
+    .eq("subject_id", tripId)
+    .eq("subject_type", "trip")
+    .eq("is_visible", true)
+    .order("rating", { ascending: false })
+    .limit(10);
+
+  return {
+    trip,
+    host: host ?? null,
+    crew,
+    reviews: (reviewsData ?? []) as TripMemoryData["reviews"],
+    canView,
+  };
+}

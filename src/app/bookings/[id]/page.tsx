@@ -124,6 +124,17 @@ export default async function BookingDetailPage({
                 </Link>
               </div>
 
+              {/* Trip memory — shown after trip starts */}
+              {item.type === "trip" && now >= startDate && booking.status !== "cancelled" && booking.status !== "refunded" && (
+                <Link
+                  href={`/trips/${item.item.id}/memory`}
+                  className="mt-3 inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-5 text-sm font-medium text-amber-700 hover:bg-amber-100 transition-colors"
+                >
+                  <span>🎒</span>
+                  {tripEnded ? "View trip memory" : "Trip memory (in progress)"}
+                </Link>
+              )}
+
               {/* Message host — community trips only */}
               {item.type === "trip" && booking.status !== "cancelled" && booking.status !== "refunded" && (
                 <form action={openThread} className="mt-3">
