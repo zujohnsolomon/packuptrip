@@ -72,6 +72,8 @@ export type Profile = {
   // Plus membership (added in f3_packuptrip_plus migration):
   plus_member: boolean;
   plus_expires_at: string | null;
+  // Promo credits received from being referred (fix_referral_credit_both_parties):
+  promo_credits: number;
 };
 
 export type Package = {

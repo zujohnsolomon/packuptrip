@@ -74,6 +74,47 @@ export default async function AccountPage() {
             </div>
           )}
 
+          {/* ── Credit balance ── show if user has usable or pending credits ── */}
+          {profile && (profile.promo_credits > 0 || profile.referral_credits > 0) && (
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-700 px-5 py-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-teal-200">
+                  Available credits
+                </p>
+                <p className="mt-0.5 text-2xl font-bold text-white">
+                  ₹{(profile.promo_credits + profile.referral_credits).toLocaleString("en-IN")}
+                </p>
+                <p className="mt-0.5 text-xs text-teal-200">
+                  Applied automatically at checkout on your next booking.
+                </p>
+              </div>
+              <Link
+                href="/account/referrals"
+                className="shrink-0 rounded-full bg-white/15 px-4 py-2 text-xs font-semibold text-white hover:bg-white/25 transition-colors"
+              >
+                Details →
+              </Link>
+            </div>
+          )}
+
+          {/* ── Pending referral reward — user was referred but hasn't booked yet ── */}
+          {profile && profile.promo_credits === 0 && profile.referred_by && (
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-50 px-5 py-4 ring-1 ring-inset ring-teal-100">
+              <div>
+                <p className="text-sm font-semibold text-teal-900">🎁 ₹200 reward waiting</p>
+                <p className="text-xs text-teal-700">
+                  Make your first booking and ₹200 will be added to your account instantly.
+                </p>
+              </div>
+              <Link
+                href="/trips"
+                className="shrink-0 rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
+              >
+                Browse trips
+              </Link>
+            </div>
+          )}
+
           {/* DNA matching nudge — shown when user has no travel style tags */}
           {profile && (!profile.travel_style_tags || profile.travel_style_tags.length === 0) && (
             <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-50 px-5 py-4 ring-1 ring-inset ring-teal-100">
