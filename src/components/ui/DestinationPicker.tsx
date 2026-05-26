@@ -79,26 +79,44 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
+          {/* ── Mobile: simple region list ── */}
           <div
-            className="absolute left-0 top-full z-50 mt-2 rounded-2xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
+            className="absolute left-0 top-full z-50 mt-2 w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:hidden"
+          >
+            <p className="border-b border-stone-100 px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+              Browse destinations
+            </p>
+            {DESTINATIONS.map((col) => (
+              <button
+                key={col.label}
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); pick(col.label); }}
+                className="flex w-full items-center justify-between border-b border-stone-100 px-5 py-4 text-left last:border-0 hover:bg-stone-50"
+              >
+                <span className="text-[15px] font-medium text-stone-800">
+                  {col.label}
+                </span>
+                <span className="text-stone-300 text-sm">→</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ── Desktop: 6-column grid ── */}
+          <div
+            className="absolute left-0 top-full z-50 mt-2 hidden rounded-2xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:block"
             style={{ width: "min(900px, calc(100vw - 1.5rem))" }}
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="grid grid-cols-6">
               {DESTINATIONS.map((col, i) => (
                 <div
                   key={col.label}
-                  className={`flex flex-col px-7 py-7 ${
-                    i < DESTINATIONS.length - 1
-                      ? "border-r border-stone-100"
-                      : ""
+                  className={`flex flex-col px-6 py-6 ${
+                    i < DESTINATIONS.length - 1 ? "border-r border-stone-100" : ""
                   }`}
                 >
-                  {/* Region header */}
                   <p className="mb-4 text-[15px] font-semibold text-stone-900">
                     {col.label}
                   </p>
-
-                  {/* Destinations */}
                   <ul className="flex-1 space-y-2">
                     {col.places.map((place) => (
                       <li key={place}>
@@ -112,12 +130,10 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
                       </li>
                     ))}
                   </ul>
-
-                  {/* All trips link */}
                   <button
                     type="button"
                     onMouseDown={(e) => { e.preventDefault(); pick(col.label); }}
-                    className="mt-6 block text-left text-[13px] text-stone-400 transition-colors hover:text-stone-600"
+                    className="mt-5 block text-left text-[13px] text-stone-400 transition-colors hover:text-stone-600"
                   >
                     All trips in {col.label} →
                   </button>
