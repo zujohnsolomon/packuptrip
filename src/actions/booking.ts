@@ -15,6 +15,7 @@ const BASE_URL =
 export async function confirmBooking(
   itemType: ItemType,
   itemId: string,
+  creditToApply: number = 0,
 ): Promise<{ bookingId: string | null; error: string | null }> {
   const supabase = await createClient();
 
@@ -24,10 +25,14 @@ export async function confirmBooking(
   } = await supabase.auth.getUser();
   if (!user) return { bookingId: null, error: "Please sign in to book." };
 
-  // Create the booking
+  // Create the booking (RPC handles Plus fee rate + credit deduction atomically)
   const { data: bookingId, error: rpcError } = await supabase.rpc(
     "create_booking",
-    { p_item_type: itemType, p_item_id: itemId },
+    {
+      p_item_type: itemType,
+      p_item_id: itemId,
+      p_credit_to_apply: Math.max(0, Math.round(creditToApply)),
+    },
   );
 
   if (rpcError) {

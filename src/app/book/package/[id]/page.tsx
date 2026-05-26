@@ -28,12 +28,20 @@ export default async function BookPackagePage({
   const [pkg, rates, profileResult] = await Promise.all([
     getLivePackage(id),
     getLivePricingRates(),
-    supabase.from("profiles").select("plus_member").eq("id", user.id).maybeSingle<{ plus_member: boolean }>(),
+    supabase
+      .from("profiles")
+      .select("plus_member, promo_credits, referral_credits")
+      .eq("id", user.id)
+      .maybeSingle<{ plus_member: boolean; promo_credits: number; referral_credits: number }>(),
   ]);
   if (!pkg) notFound();
 
   const isPlus = profileResult.data?.plus_member === true;
   const serviceFeeRate = isPlus ? rates.plusFeeRate : rates.serviceFeeRate;
+
+  const availableCredit =
+    (profileResult.data?.promo_credits ?? 0) +
+    (profileResult.data?.referral_credits ?? 0);
 
   if (pkg.spots_left <= 0) {
     return <SoldOut href={`/packages/${pkg.id}`} title={pkg.title} />;
@@ -75,6 +83,7 @@ export default async function BookPackagePage({
               accent="amber"
               serviceFeeRate={serviceFeeRate}
               isPlus={isPlus}
+              availableCredit={availableCredit}
             />
           </div>
         </div>

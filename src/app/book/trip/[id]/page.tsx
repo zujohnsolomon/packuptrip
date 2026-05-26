@@ -28,7 +28,11 @@ export default async function BookTripPage({
   const [res, rates, profileResult] = await Promise.all([
     getLiveTrip(id),
     getLivePricingRates(),
-    supabase.from("profiles").select("plus_member").eq("id", user.id).maybeSingle<{ plus_member: boolean }>(),
+    supabase
+      .from("profiles")
+      .select("plus_member, promo_credits, referral_credits")
+      .eq("id", user.id)
+      .maybeSingle<{ plus_member: boolean; promo_credits: number; referral_credits: number }>(),
   ]);
   if (!res) notFound();
   const { trip, host } = res;
@@ -38,6 +42,10 @@ export default async function BookTripPage({
   const serviceFeeRate = isPlus
     ? (rates.plusFeeRate ?? rates.serviceFeeRate / 2)
     : rates.serviceFeeRate;
+
+  const availableCredit =
+    (profileResult.data?.promo_credits ?? 0) +
+    (profileResult.data?.referral_credits ?? 0);
 
   if (trip.spots_left <= 0) {
     return <SoldOut href={`/trips/${trip.id}`} title={trip.title} />;
@@ -81,6 +89,7 @@ export default async function BookTripPage({
               accent="teal"
               serviceFeeRate={serviceFeeRate}
               isPlus={isPlus}
+              availableCredit={availableCredit}
             />
           </div>
         </div>

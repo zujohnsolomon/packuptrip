@@ -14,6 +14,7 @@ export function BookingForm({
   accent,
   serviceFeeRate = SERVICE_FEE_RATE,
   isPlus = false,
+  availableCredit = 0,
 }: {
   itemType: ItemType;
   itemId: string;
@@ -24,13 +25,18 @@ export function BookingForm({
   serviceFeeRate?: number;
   /** If true, the user is a Plus member and serviceFeeRate is already the discounted rate. */
   isPlus?: boolean;
+  /** Sum of promo_credits + referral_credits — auto-applied at checkout. */
+  availableCredit?: number;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const serviceFee = calcServiceFee(basePrice, serviceFeeRate);
-  const total = calcBookingTotal(basePrice, serviceFeeRate);
+  const subtotal = calcBookingTotal(basePrice, serviceFeeRate);
+  // Credits auto-applied, capped at the booking subtotal
+  const creditUsed = Math.min(availableCredit, subtotal);
+  const total = subtotal - creditUsed;
 
   const btn =
     accent === "amber"
@@ -40,7 +46,7 @@ export function BookingForm({
   async function onConfirm() {
     setError(null);
     setLoading(true);
-    const { bookingId, error: err } = await confirmBooking(itemType, itemId);
+    const { bookingId, error: err } = await confirmBooking(itemType, itemId, creditUsed);
     setLoading(false);
 
     if (err) {
@@ -64,11 +70,18 @@ export function BookingForm({
         {formatINR(total)}
       </div>
 
-      {isPlus && (
-        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
-          ✦ Plus rate applied — {Math.round(serviceFeeRate * 100)}% fee
-        </div>
-      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {isPlus && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
+            ✦ Plus rate — {Math.round(serviceFeeRate * 100)}% fee
+          </span>
+        )}
+        {creditUsed > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            🎁 {formatINR(creditUsed)} credit applied
+          </span>
+        )}
+      </div>
 
       <dl className="mt-5 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
         <Row label="Trip price" value={formatINR(basePrice)} />
@@ -76,6 +89,13 @@ export function BookingForm({
           label={`Service fee (${Math.round(serviceFeeRate * 100)}%)`}
           value={formatINR(serviceFee)}
         />
+        {creditUsed > 0 && (
+          <Row
+            label="🎁 Credits"
+            value={`−${formatINR(creditUsed)}`}
+            green
+          />
+        )}
         <div className="my-1 h-px bg-stone-200" />
         <Row label="Total" value={formatINR(total)} bold />
       </dl>
@@ -108,19 +128,27 @@ function Row({
   label,
   value,
   bold = false,
+  green = false,
 }: {
   label: string;
   value: string;
   bold?: boolean;
+  green?: boolean;
 }) {
+  const labelCls = bold
+    ? "font-semibold text-ink"
+    : green
+    ? "text-emerald-700"
+    : "text-stone-600";
+  const valueCls = bold
+    ? "font-semibold text-ink"
+    : green
+    ? "font-medium text-emerald-700"
+    : "text-stone-700";
   return (
     <div className="flex items-center justify-between">
-      <span className={bold ? "font-semibold text-ink" : "text-stone-600"}>
-        {label}
-      </span>
-      <span className={bold ? "font-semibold text-ink" : "text-stone-700"}>
-        {value}
-      </span>
+      <span className={labelCls}>{label}</span>
+      <span className={valueCls}>{value}</span>
     </div>
   );
 }

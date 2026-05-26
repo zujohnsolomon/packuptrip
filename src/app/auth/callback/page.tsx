@@ -45,10 +45,25 @@ function CallbackInner() {
   useEffect(() => {
     const supabase = createClient();
     const next = safeNext(searchParams.get("next"));
+    const ref = searchParams.get("ref") ?? null;
 
-    function navigateTo(target: string) {
+    async function navigateTo(target: string) {
       if (finishedRef.current) return;
       finishedRef.current = true;
+
+      // Attach referral code for OAuth sign-ups (email sign-ups handle this
+      // via raw_user_meta_data at account creation time).
+      if (ref) {
+        try {
+          await fetch(
+            `/api/referral/attach?code=${encodeURIComponent(ref)}`,
+            { method: "POST" },
+          );
+        } catch {
+          // Non-fatal — don't block navigation on a failed referral attach.
+        }
+      }
+
       try {
         // Strip fragment + sensitive query before navigating.
         window.history.replaceState(null, "", window.location.pathname);
@@ -79,7 +94,7 @@ function CallbackInner() {
       if (cancelled) return true;
       if (data.session) {
         setDetail("Almost there…");
-        navigateTo(next);
+        await navigateTo(next);
         return true;
       }
       return false;
@@ -91,7 +106,7 @@ function CallbackInner() {
         setDetail("Exchanging confirmation code…");
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-          navigateTo(next);
+          await navigateTo(next);
           return;
         }
         bail(error.message);
@@ -117,7 +132,7 @@ function CallbackInner() {
           refresh_token: rt,
         });
         if (!error) {
-          navigateTo(next);
+          await navigateTo(next);
           return;
         }
         bail(error.message);

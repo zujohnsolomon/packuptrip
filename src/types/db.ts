@@ -129,6 +129,7 @@ export type Booking = {
   item_type: ItemType;
   base_price: number;
   service_fee: number;
+  credit_applied: number;
   total: number;
   status: BookingStatus;
   created_at: string;
