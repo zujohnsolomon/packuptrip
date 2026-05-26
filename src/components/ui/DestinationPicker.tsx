@@ -5,16 +5,15 @@ import { useState, useRef, useEffect } from "react";
 type Place = { name: string; hint: string };
 type Region = {
   region: string;
-  emoji: string;
+  dot: string;   // tailwind bg colour for the dot
   accent?: boolean;
   places: Place[];
 };
 
 const DESTINATIONS: Region[] = [
-  /* ── South India first — always ───────────────────────────────────────── */
   {
     region: "South India",
-    emoji: "🌴",
+    dot: "bg-amber-500",
     accent: true,
     places: [
       { name: "Tamil Nadu",   hint: "Ooty · Kodaikanal · Madurai" },
@@ -24,43 +23,42 @@ const DESTINATIONS: Region[] = [
       { name: "Pondicherry",  hint: "French Quarter · Auroville" },
     ],
   },
-  /* ── Other regions ─────────────────────────────────────────────────────── */
   {
     region: "Himalayas",
-    emoji: "🏔️",
+    dot: "bg-sky-500",
     places: [
-      { name: "Ladakh",           hint: "Leh · Nubra · Pangong" },
-      { name: "Spiti Valley",     hint: "Kaza · Key · Pin Valley" },
-      { name: "Manali",           hint: "Solang · Kasol · Kheerganga" },
-      { name: "Uttarakhand",      hint: "Rishikesh · Chopta · Valley of Flowers" },
-      { name: "Himachal Pradesh", hint: "Dharamshala · Tirthan · Sangla" },
+      { name: "Ladakh",            hint: "Leh · Nubra · Pangong" },
+      { name: "Spiti Valley",      hint: "Kaza · Key · Pin Valley" },
+      { name: "Manali",            hint: "Solang · Kasol · Kheerganga" },
+      { name: "Uttarakhand",       hint: "Rishikesh · Chopta · Kedarnath" },
+      { name: "Himachal Pradesh",  hint: "Dharamshala · Tirthan · Sangla" },
     ],
   },
   {
     region: "Northeast",
-    emoji: "🌿",
+    dot: "bg-teal-500",
     places: [
-      { name: "Meghalaya",        hint: "Shillong · Dawki · Cherrapunji" },
-      { name: "Sikkim",           hint: "Gangtok · Gurudongmar · Yumthang" },
-      { name: "Arunachal Pradesh",hint: "Tawang · Ziro · Mechuka" },
-      { name: "Assam",            hint: "Kaziranga · Majuli · Brahmaputra" },
-      { name: "Nagaland",         hint: "Hornbill Festival · Dzukou" },
+      { name: "Meghalaya",         hint: "Shillong · Dawki · Cherrapunji" },
+      { name: "Sikkim",            hint: "Gangtok · Gurudongmar · Yumthang" },
+      { name: "Arunachal Pradesh", hint: "Tawang · Ziro · Mechuka" },
+      { name: "Assam",             hint: "Kaziranga · Majuli · Brahmaputra" },
+      { name: "Nagaland",          hint: "Hornbill Festival · Dzukou" },
     ],
   },
   {
     region: "Coastal & Islands",
-    emoji: "🌊",
+    dot: "bg-blue-500",
     places: [
-      { name: "Andaman",      hint: "Havelock · Neil · Baratang" },
-      { name: "Kerala Coast", hint: "Kovalam · Varkala · Bekal" },
-      { name: "Lakshadweep",  hint: "Agatti · Bangaram · Minicoy" },
-      { name: "Konkan Coast", hint: "Tarkarli · Malvan · Ganapatipule" },
-      { name: "Odisha Coast", hint: "Puri · Chilika Lake · Gopalpur" },
+      { name: "Andaman",       hint: "Havelock · Neil · Baratang" },
+      { name: "Kerala Coast",  hint: "Kovalam · Varkala · Bekal" },
+      { name: "Lakshadweep",   hint: "Agatti · Bangaram · Minicoy" },
+      { name: "Konkan Coast",  hint: "Tarkarli · Malvan · Ganapatipule" },
+      { name: "Odisha Coast",  hint: "Puri · Chilika Lake · Gopalpur" },
     ],
   },
   {
     region: "Heritage",
-    emoji: "🏰",
+    dot: "bg-orange-500",
     places: [
       { name: "Rajasthan",      hint: "Jaisalmer · Udaipur · Jaipur" },
       { name: "Madhya Pradesh", hint: "Orchha · Khajuraho · Pachmarhi" },
@@ -71,13 +69,13 @@ const DESTINATIONS: Region[] = [
   },
   {
     region: "Wildlife",
-    emoji: "🐯",
+    dot: "bg-green-600",
     places: [
-      { name: "Jim Corbett",   hint: "Tigers · Elephants · Ramganga" },
-      { name: "Ranthambore",   hint: "Tiger Reserve · Sawai Madhopur" },
-      { name: "Kabini",        hint: "Nagarhole · Elephants · River Safari" },
-      { name: "Tadoba",        hint: "Maharashtra · Dense Forest" },
-      { name: "Bandhavgarh",   hint: "MP · High Tiger Density" },
+      { name: "Jim Corbett",  hint: "Tigers · Elephants · Ramganga" },
+      { name: "Ranthambore",  hint: "Tiger Reserve · Sawai Madhopur" },
+      { name: "Kabini",       hint: "Nagarhole · Elephants · River Safari" },
+      { name: "Tadoba",       hint: "Maharashtra · Dense Forest" },
+      { name: "Bandhavgarh",  hint: "MP · High Tiger Density" },
     ],
   },
 ];
@@ -87,7 +85,6 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /* Close on click outside */
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -105,6 +102,7 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
 
   return (
     <div ref={containerRef} className="relative flex-1">
+
       {/* ── Field ── */}
       <label className="block cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
@@ -125,69 +123,66 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
       {/* ── Dropdown ── */}
       {open && (
         <>
-          {/* Backdrop — captures outside clicks on mobile without scroll issues */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           <div
-            className="absolute left-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-[0_8px_48px_rgba(0,0,0,0.14)]"
-            style={{ width: "min(760px, calc(100vw - 2rem))" }}
+            className="absolute left-0 top-full z-50 mt-2 rounded-2xl border border-stone-150 bg-white shadow-[0_12px_48px_-8px_rgba(0,0,0,0.18),0_4px_16px_-4px_rgba(0,0,0,0.08)]"
+            style={{ width: "min(860px, calc(100vw - 1.5rem))" }}
           >
-            {/* Header row */}
-            <div className="flex items-center justify-between border-b border-stone-100 px-5 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-3.5 border-b border-stone-100">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-400">
                 Browse destinations
-              </p>
+              </span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-stone-300 hover:text-stone-500 transition-colors"
+                className="flex h-6 w-6 items-center justify-center rounded-full text-stone-300 transition hover:bg-stone-100 hover:text-stone-500"
                 aria-label="Close"
               >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-2 gap-px bg-stone-100 sm:grid-cols-3 lg:grid-cols-6">
+            {/* 6-column grid */}
+            <div className="grid grid-cols-2 divide-x divide-stone-100 sm:grid-cols-3 lg:grid-cols-6">
               {DESTINATIONS.map((col) => (
-                <div
-                  key={col.region}
-                  className={`p-4 ${col.accent ? "bg-amber-50" : "bg-white"}`}
-                >
-                  {/* Region header */}
-                  <div className={`mb-3 flex items-center gap-1.5 ${col.accent ? "text-amber-700" : "text-stone-400"}`}>
-                    <span className="text-sm leading-none">{col.emoji}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none">
+                <div key={col.region} className="px-4 py-5">
+
+                  {/* Region label */}
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${col.dot}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-500">
                       {col.region}
                     </span>
                     {col.accent && (
-                      <span className="rounded-full bg-amber-200 px-1.5 py-0.5 text-[9px] font-bold leading-none text-amber-800">
-                        ★ Popular
+                      <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold leading-none text-amber-700">
+                        Popular
                       </span>
                     )}
                   </div>
 
-                  {/* Places */}
+                  {/* Places list */}
                   <ul className="space-y-0.5">
                     {col.places.map((p) => (
                       <li key={p.name}>
                         <button
                           type="button"
-                          /* onMouseDown prevents blur from closing the dropdown
-                             before the click registers */
                           onMouseDown={(e) => { e.preventDefault(); pick(p.name); }}
-                          className="group w-full rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white"
+                          className={`group w-full rounded-lg px-2.5 py-2 text-left transition-colors ${
+                            col.accent ? "hover:bg-amber-50" : "hover:bg-stone-50"
+                          }`}
                         >
-                          <span className={`block text-sm font-medium leading-snug ${
+                          <span className={`block text-[13px] font-medium leading-tight ${
                             col.accent
-                              ? "text-amber-900 group-hover:text-amber-700"
-                              : "text-stone-700 group-hover:text-amber-700"
+                              ? "text-stone-800 group-hover:text-amber-800"
+                              : "text-stone-700 group-hover:text-stone-900"
                           }`}>
                             {p.name}
                           </span>
-                          <span className="block text-[10px] leading-snug text-stone-400">
+                          <span className="mt-0.5 block text-[11px] leading-tight text-stone-400">
                             {p.hint}
                           </span>
                         </button>
@@ -198,9 +193,9 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
               ))}
             </div>
 
-            {/* Footer hint */}
-            <div className="border-t border-stone-100 px-5 py-3 text-[11px] text-stone-400">
-              Can&apos;t find your destination? Just type it above and search.
+            {/* Footer */}
+            <div className="border-t border-stone-100 px-6 py-3 text-[11px] text-stone-400">
+              Can&apos;t find it? Type any destination above and hit Search.
             </div>
           </div>
         </>
