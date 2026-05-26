@@ -6,6 +6,7 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { createClient } from "@/lib/supabase/server";
 import { getLivePackage } from "@/lib/supabase/queries";
+import { getLivePricingRates } from "@/lib/pricing";
 
 export const metadata = { title: "Confirm booking · Packuptrip" };
 
@@ -25,7 +26,10 @@ export default async function BookPackagePage({
     redirect(`/login?redirectTo=/book/package/${id}`);
   }
 
-  const pkg = await getLivePackage(id);
+  const [pkg, { serviceFeeRate }] = await Promise.all([
+    getLivePackage(id),
+    getLivePricingRates(),
+  ]);
   if (!pkg) notFound();
 
   if (pkg.spots_left <= 0) {
@@ -66,6 +70,7 @@ export default async function BookPackagePage({
               itemId={pkg.id}
               basePrice={Number(pkg.price)}
               accent="amber"
+              serviceFeeRate={serviceFeeRate}
             />
           </div>
         </div>

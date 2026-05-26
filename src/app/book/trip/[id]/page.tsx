@@ -6,6 +6,7 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { createClient } from "@/lib/supabase/server";
 import { getLiveTrip } from "@/lib/supabase/queries";
+import { getLivePricingRates } from "@/lib/pricing";
 
 export const metadata = { title: "Join this trip · Packuptrip" };
 
@@ -25,7 +26,10 @@ export default async function BookTripPage({
     redirect(`/login?redirectTo=/book/trip/${id}`);
   }
 
-  const res = await getLiveTrip(id);
+  const [res, { serviceFeeRate }] = await Promise.all([
+    getLiveTrip(id),
+    getLivePricingRates(),
+  ]);
   if (!res) notFound();
   const { trip, host } = res;
 
@@ -69,6 +73,7 @@ export default async function BookTripPage({
               itemId={trip.id}
               basePrice={Number(trip.price_per_share)}
               accent="teal"
+              serviceFeeRate={serviceFeeRate}
             />
           </div>
         </div>

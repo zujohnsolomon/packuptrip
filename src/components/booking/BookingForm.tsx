@@ -4,11 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { confirmBooking } from "@/actions/booking";
 import { formatINR } from "@/lib/utils";
-import {
-  SERVICE_FEE_RATE,
-  calcServiceFee,
-  calcBookingTotal,
-} from "@/lib/pricing";
+import { calcServiceFee, calcBookingTotal, SERVICE_FEE_RATE } from "@/lib/pricing";
 import type { ItemType } from "@/types/db";
 
 export function BookingForm({
@@ -16,18 +12,22 @@ export function BookingForm({
   itemId,
   basePrice,
   accent,
+  serviceFeeRate = SERVICE_FEE_RATE,
 }: {
   itemType: ItemType;
   itemId: string;
   basePrice: number;
   accent: "amber" | "teal";
+  /** Live rate from platform_settings — passed by server page. Falls back to
+   *  the compile-time constant so existing call sites don't break. */
+  serviceFeeRate?: number;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const serviceFee = calcServiceFee(basePrice);
-  const total = calcBookingTotal(basePrice);
+  const serviceFee = calcServiceFee(basePrice, serviceFeeRate);
+  const total = calcBookingTotal(basePrice, serviceFeeRate);
 
   const btn =
     accent === "amber"
@@ -64,7 +64,7 @@ export function BookingForm({
       <dl className="mt-5 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
         <Row label="Trip price" value={formatINR(basePrice)} />
         <Row
-          label={`Service fee (${Math.round(SERVICE_FEE_RATE * 100)}%)`}
+          label={`Service fee (${Math.round(serviceFeeRate * 100)}%)`}
           value={formatINR(serviceFee)}
         />
         <div className="my-1 h-px bg-stone-200" />
@@ -115,4 +115,3 @@ function Row({
     </div>
   );
 }
-

@@ -1,43 +1,65 @@
 /**
- * Packuptrip - locked pricing constants.
+ * Packuptrip — pricing helpers.
  *
- * Single source of truth for fees, commissions, and deposit %. Imported by
- * every UI surface that displays them.
+ * The definitive rates live in `platform_settings` (Supabase). The constants
+ * below are compile-time fallbacks used only when the DB hasn't been queried
+ * yet (e.g. static rendering, tests). At runtime all booking pages call
+ * `getLivePricingRates()` to get the current admin-configured values.
  *
- * ⚠️  THE BOOKING RPC `public.create_booking` HAS ITS OWN COPY of
- *     `v_fee_rate` because SQL functions can't import from TS. If you change
- *     SERVICE_FEE_RATE here, you MUST also issue a migration that updates the
- *     RPC. Both numbers must match or the displayed total won't equal the
- *     stored total.
- *
- * Until T9.12 (Platform Settings, post-launch) ships, these are hardcoded.
- * After T9.12 they move into a `platform_settings` table and admins can
- * tune them live.
- *
- * Last locked: 23 May 2026 by the founder.
+ * The `create_booking` RPC also reads from `platform_settings` directly,
+ * so the displayed total always matches the stored total.
  */
 
-/** Charged on every booking. Shown as a line item in the price breakdown. */
-export const SERVICE_FEE_RATE = 0.08;
+// ─── Fallback constants (used for static/test contexts only) ─────────────────
 
-/** Taken from the host's payout on community trips. Not yet applied
- *  anywhere - wired up in Epic 7 (Payments) when payout splits land. */
+export const SERVICE_FEE_RATE    = 0.08;
 export const HOST_COMMISSION_RATE = 0.12;
-
-/** Upfront deposit collected at booking time. The remaining balance is
- *  charged before the trip starts. Logic lives in Epic 7 (Payments). */
 export const BOOKING_DEPOSIT_RATE = 0.2;
 
-/** Convenience helpers - single rounding rule (nearest rupee) so display
- *  always matches the RPC's `round()` of service fee. */
-export function calcServiceFee(basePrice: number): number {
-  return Math.round(basePrice * SERVICE_FEE_RATE);
+// ─── Live rates from DB (call in server components / server actions) ──────────
+
+export type PricingRates = {
+  serviceFeeRate:    number;
+  hostCommissionRate: number;
+  depositRate:       number;
+};
+
+/**
+ * Fetches current fee rates from `platform_settings`.
+ * Falls back to the constants above if any key is missing.
+ * Server-only — never call from client components.
+ */
+export async function getLivePricingRates(): Promise<PricingRates> {
+  // Dynamic import keeps this file importable in client contexts too.
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", ["service_fee_rate", "host_commission_rate", "deposit_rate"]);
+
+  const map = Object.fromEntries(
+    (data ?? []).map((r: { key: string; value: unknown }) => [r.key, Number(r.value)])
+  );
+
+  return {
+    serviceFeeRate:    map["service_fee_rate"]    ?? SERVICE_FEE_RATE,
+    hostCommissionRate: map["host_commission_rate"] ?? HOST_COMMISSION_RATE,
+    depositRate:       map["deposit_rate"]         ?? BOOKING_DEPOSIT_RATE,
+  };
 }
 
-export function calcBookingTotal(basePrice: number): number {
-  return basePrice + calcServiceFee(basePrice);
+// ─── Pure math helpers ────────────────────────────────────────────────────────
+
+export function calcServiceFee(basePrice: number, rate = SERVICE_FEE_RATE): number {
+  return Math.round(basePrice * rate);
 }
 
-export function calcDeposit(total: number): number {
-  return Math.round(total * BOOKING_DEPOSIT_RATE);
+export function calcBookingTotal(basePrice: number, rate = SERVICE_FEE_RATE): number {
+  return basePrice + calcServiceFee(basePrice, rate);
+}
+
+export function calcDeposit(total: number, rate = BOOKING_DEPOSIT_RATE): number {
+  return Math.round(total * rate);
 }
