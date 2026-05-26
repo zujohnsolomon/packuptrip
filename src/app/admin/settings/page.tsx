@@ -1,5 +1,3 @@
-"use server";
-
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import {
   getPlatformSettings,

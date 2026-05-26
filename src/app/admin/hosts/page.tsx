@@ -1,5 +1,3 @@
-"use server";
-
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import {
