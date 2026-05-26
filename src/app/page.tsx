@@ -6,6 +6,7 @@ import { PackageCard } from "@/components/ui/PackageCard";
 import { TripCard, type TripCardHost } from "@/components/ui/TripCard";
 import { Badge } from "@/components/ui/Badge";
 import { DatePickerField } from "@/components/ui/DatePickerField";
+import { DestinationPicker } from "@/components/ui/DestinationPicker";
 import { createClient } from "@/lib/supabase/server";
 import { listLiveTrips, listLivePackages } from "@/lib/supabase/queries";
 import { engineImages, heroImage, testimonials } from "@/lib/seed-data";
@@ -144,17 +145,7 @@ function SearchBar() {
       className="w-full max-w-2xl"
     >
       <div className="flex flex-col gap-2 rounded-2xl bg-white p-2 shadow-[var(--shadow-search)] sm:flex-row sm:items-stretch">
-        <label className="block flex-1 cursor-text rounded-xl px-4 py-2.5 transition-colors hover:bg-stone-50 sm:py-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
-            Where to?
-          </div>
-          <input
-            type="text"
-            name="q"
-            placeholder="Spiti, Kerala, Ladakh…"
-            className="mt-0.5 block w-full bg-transparent text-sm text-ink placeholder-stone-400 focus:outline-none"
-          />
-        </label>
+        <DestinationPicker />
 
         <div className="hidden w-px self-stretch bg-stone-200 sm:block" />
 

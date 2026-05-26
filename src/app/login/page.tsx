@@ -176,7 +176,7 @@ export default function LoginPage() {
               starts <span className="tagline-accent">here</span>
             </h2>
             <p className="tagline-sub">
-              Discover RV &amp; camper van rentals across Kerala &amp; Karnataka
+              Join group trips with fellow adventurers across India
             </p>
           </div>
 

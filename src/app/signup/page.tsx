@@ -173,11 +173,11 @@ export default function SignupPage() {
           {/* ── Center overlay text ── */}
           <div className="s-media-tagline">
             <h2 className="s-tagline-heading">
-              Kerala &amp; Karnataka<br />
-              await <span className="s-tagline-accent">you</span>
+              Your crew is<br />
+              waiting for <span className="s-tagline-accent">you</span>
             </h2>
             <p className="s-tagline-sub">
-              Join hundreds of adventurers exploring the Western Ghats by road
+              Discover curated trips and community adventures across India
             </p>
           </div>
 
