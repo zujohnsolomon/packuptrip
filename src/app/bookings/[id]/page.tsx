@@ -32,10 +32,10 @@ export default async function BookingDetailPage({
   // Check if user already reviewed this booking
   const existingReview = await getMyReviewForBooking(id, user.id);
 
-  // Is the trip over and within the 14-day review window?
+  // Is the trip over and within the 1.5-day (36-hour) review window?
   const startDate = new Date(item.item.start_date);
   const endDate = new Date(startDate.getTime() + item.item.days * 86_400_000);
-  const reviewDeadline = new Date(endDate.getTime() + 14 * 86_400_000);
+  const reviewDeadline = new Date(endDate.getTime() + 1.5 * 86_400_000);
   const now = new Date();
   const tripEnded = now >= endDate;
   const reviewOpen = tripEnded && now <= reviewDeadline && !existingReview &&
@@ -168,7 +168,7 @@ export default async function BookingDetailPage({
             <div className="mt-6 rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-200">
               <strong>Review submitted.</strong>{" "}
               {item.type === "trip"
-                ? "It will be published once the host also reviews, or in 14 days."
+                ? "It will be published once the host also reviews, or in 36 hours."
                 : "Your review is live on the listing."}
             </div>
           )}
@@ -246,10 +246,13 @@ function ReviewPrompt({
   item: BookedItem;
   reviewDeadline: Date;
 }) {
-  const daysLeft = Math.max(
+  const hoursLeft = Math.max(
     0,
-    Math.ceil((reviewDeadline.getTime() - Date.now()) / 86_400_000)
+    Math.ceil((reviewDeadline.getTime() - Date.now()) / 3_600_000)
   );
+  const timeLabel = hoursLeft >= 24
+    ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? "s" : ""}`
+    : `${hoursLeft} hour${hoursLeft !== 1 ? "s" : ""}`;
   return (
     <div className="mt-6 rounded-2xl bg-amber-50 p-5 ring-1 ring-inset ring-amber-200">
       <div className="flex items-start justify-between gap-4">
@@ -258,7 +261,7 @@ function ReviewPrompt({
             How was your trip?
           </p>
           <p className="mt-0.5 text-xs text-amber-700">
-            You have {daysLeft} day{daysLeft !== 1 ? "s" : ""} to leave a review.
+            You have {timeLabel} to leave a review.
           </p>
         </div>
         <Link

@@ -33,8 +33,8 @@ export default async function ReviewPage({
   const now = new Date();
   if (now < endDate) redirect(`/bookings/${id}`);
 
-  // 14-day review window
-  const deadline = new Date(endDate.getTime() + 14 * 86_400_000);
+  // 1.5-day (36-hour) review window
+  const deadline = new Date(endDate.getTime() + 1.5 * 86_400_000);
   if (now > deadline) {
     return (
       <>
@@ -43,7 +43,7 @@ export default async function ReviewPage({
           <div className="mx-auto max-w-xl px-4 py-24 text-center">
             <p className="text-2xl font-semibold text-ink">Review window closed</p>
             <p className="mt-2 text-stone-500">
-              Reviews can be left up to 14 days after a trip ends.
+              Reviews can be left up to 36 hours after a trip ends.
             </p>
           </div>
         </main>
@@ -64,7 +64,7 @@ export default async function ReviewPage({
             <p className="mt-4 text-2xl font-semibold text-ink">Review submitted</p>
             <p className="mt-2 text-stone-500">
               {item.type === "trip"
-                ? "Your review will be published once the host has also reviewed, or after 14 days."
+                ? "Your review will be published once the host has also reviewed, or after 36 hours."
                 : "Your review is live."}
             </p>
           </div>
@@ -100,7 +100,7 @@ export default async function ReviewPage({
     const reviewerRole = isHost ? "host" : "joiner";
 
     const reviewDeadline = new Date(
-      endDate.getTime() + 14 * 86_400_000
+      endDate.getTime() + 1.5 * 86_400_000
     ).toISOString();
 
     const { error } = await submitReview({
