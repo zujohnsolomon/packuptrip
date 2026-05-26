@@ -74,6 +74,24 @@ export default async function AccountPage() {
             </div>
           )}
 
+          {/* DNA matching nudge — shown when user has no travel style tags */}
+          {profile && (!profile.travel_style_tags || profile.travel_style_tags.length === 0) && (
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-50 px-5 py-4 ring-1 ring-inset ring-teal-100">
+              <div>
+                <p className="text-sm font-semibold text-teal-900">🧬 Set your travel vibe</p>
+                <p className="text-xs text-teal-700">
+                  Add travel style tags to your profile and we'll surface trips that match your energy.
+                </p>
+              </div>
+              <Link
+                href="/account/profile"
+                className="shrink-0 rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
+              >
+                Add tags
+              </Link>
+            </div>
+          )}
+
           {/* Quick links */}
           <div className="mt-5 flex flex-wrap gap-3">
             <Link

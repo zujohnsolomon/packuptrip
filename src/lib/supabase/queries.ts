@@ -1727,3 +1727,32 @@ export async function getReferralStats(
     creditedCount,
   };
 }
+
+// ─── F1: Trip DNA Matching ────────────────────────────────────────────────────
+
+/** Live trips whose tags overlap with the given user's travel_style_tags.
+ *  Returns up to 6 results ordered by date. Returns [] if the user has no tags
+ *  or is not found. */
+export async function getMatchingTripsForUser(userId: string): Promise<Trip[]> {
+  const supabase = await createClient();
+
+  // Fetch user's travel style tags
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("travel_style_tags")
+    .eq("id", userId)
+    .maybeSingle<Pick<Profile, "travel_style_tags">>();
+
+  const userTags = profile?.travel_style_tags ?? [];
+  if (userTags.length === 0) return [];
+
+  const { data } = await supabase
+    .from("trips")
+    .select("*")
+    .eq("status", "live")
+    .overlaps("tags", userTags)
+    .order("start_date", { ascending: true })
+    .limit(6);
+
+  return (data ?? []) as Trip[];
+}
