@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
-  getNotifications,
   markNotificationRead,
   markAllNotificationsRead,
   type Notification,
@@ -117,17 +116,22 @@ export function NotificationBell({ userId }: { userId: string }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // ── Load notifications on first open ──────────────────────────────────────
+  // ── Load notifications — direct client query, same pattern as the count ───
   async function loadNotifications() {
-    try {
-      const data = await getNotifications();
-      setNotifications(data);
-      setUnread(data.filter((n) => !n.read_at).length);
-    } catch (err) {
-      console.error("loadNotifications:", err);
-    } finally {
-      setLoaded(true);
-    }
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .returns<Notification[]>();
+
+    if (error) console.error("loadNotifications:", error);
+    const list = data ?? [];
+    setNotifications(list);
+    setUnread(list.filter((n) => !n.read_at).length);
+    setLoaded(true);
   }
 
   // ── Realtime subscription: fires when DB inserts/updates a notification ───
