@@ -65,6 +65,10 @@ export type Profile = {
   suspension_reason: string | null;
   suspended_at: string | null;
   host_tier: "standard" | "superhost" | "flagged";
+  // Referral fields (added in e1_referral_credits migration):
+  referral_code: string;
+  referred_by: string | null;
+  referral_credits: number;
 };
 
 export type Package = {
@@ -241,5 +245,15 @@ export type Notification = {
   body: string | null;
   link: string | null;
   read_at: string | null;
+  created_at: string;
+};
+
+export type Referral = {
+  id: string;
+  referrer_id: string;
+  referred_id: string;
+  booking_id: string | null;
+  credit_amount: number;
+  credited_at: string | null;
   created_at: string;
 };

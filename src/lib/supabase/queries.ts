@@ -1672,3 +1672,58 @@ export async function getTripMemory(
     canView,
   };
 }
+
+// ─── E1: Referral Credits ─────────────────────────────────────────────────────
+
+export type ReferralStats = {
+  referralCode: string;
+  creditBalance: number;   // ₹ total earned (credited)
+  pendingCount: number;    // signups waiting for first booking
+  creditedCount: number;   // signups whose first booking fired
+};
+
+/** Returns the public profile for an invite page (readable by anyone). */
+export async function getReferralProfile(
+  code: string,
+): Promise<Pick<Profile, "id" | "name" | "avatar_url"> | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, name, avatar_url")
+    .eq("referral_code", code)
+    .maybeSingle<Pick<Profile, "id" | "name" | "avatar_url">>();
+  return data ?? null;
+}
+
+/** Returns referral stats for the current user's referral dashboard. */
+export async function getReferralStats(
+  userId: string,
+): Promise<ReferralStats | null> {
+  const supabase = await createClient();
+
+  // Credit balance + referral code from profile
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("referral_code, referral_credits")
+    .eq("id", userId)
+    .maybeSingle<Pick<Profile, "referral_code" | "referral_credits">>();
+
+  if (!profile) return null;
+
+  // Referral audit rows: pending vs credited
+  const { data: rows } = await supabase
+    .from("referrals")
+    .select("credited_at")
+    .eq("referrer_id", userId);
+
+  const all = rows ?? [];
+  const creditedCount = all.filter((r: { credited_at: string | null }) => r.credited_at !== null).length;
+  const pendingCount  = all.length - creditedCount;
+
+  return {
+    referralCode:  profile.referral_code,
+    creditBalance: profile.referral_credits,
+    pendingCount,
+    creditedCount,
+  };
+}

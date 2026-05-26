@@ -7,6 +7,7 @@ export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
+  const refCode  = searchParams.get("ref") ?? null;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,11 +28,13 @@ export function SignupForm() {
     setError(null);
     setInfo(null);
     setGoogleLoading(true);
-    
+
     const redirectTo = safeRedirect(searchParams.get("redirectTo"));
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
+    // Pass ref code through so the callback page can attach it to the profile
+    const refParam = refCode ? `&ref=${encodeURIComponent(refCode)}` : "";
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}${refParam}`;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    
+
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(callbackUrl)}`;
   }
 
@@ -50,7 +53,8 @@ export function SignupForm() {
       email,
       password,
       options: {
-        data: { name },
+        // ref_code stored in raw_user_meta_data — read by handle_new_user trigger
+        data: { name, ...(refCode ? { ref_code: refCode } : {}) },
         emailRedirectTo: callbackUrl,
       },
     });
@@ -78,6 +82,15 @@ export function SignupForm() {
 
   return (
     <div className="space-y-5 relative">
+      {/* Referral credit banner */}
+      {refCode && (
+        <div className="flex items-center gap-2 rounded-xl bg-teal-50 border border-teal-200 px-3.5 py-2.5">
+          <span className="text-base">🎁</span>
+          <p className="text-[11px] font-semibold text-teal-800">
+            You were invited — ₹200 credit added on your first booking.
+          </p>
+        </div>
+      )}
       {/* ── Rotating Compass Redirect Overlay ── */}
       {googleLoading && (
         <div className="absolute inset-x-0 -top-6 -bottom-6 bg-white/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center animate-tag-reveal rounded-[2rem]">
