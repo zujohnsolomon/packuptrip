@@ -828,7 +828,14 @@ export type AdminMetrics = {
   totalBookings: number;
   bookingsLast7d: number;
   bookingsLast30d: number;
-  grossRevenue: number;
+  /** Total of bookings with status = 'requested' (committed, not yet paid). */
+  reservedRevenue: number;
+  /** Total of bookings with status = 'confirmed' (money received). */
+  capturedRevenue: number;
+  /** Total of bookings with status = 'refunded'. */
+  refundedRevenue: number;
+  /** Sum of (service_fee − credit_applied) for confirmed bookings — net platform earnings. */
+  netPlatformRevenue: number;
   revenueLast30d: number;
   activePackages: number;
   activeTrips: number;
@@ -836,6 +843,7 @@ export type AdminMetrics = {
   newSignups7d: number;
   newSignups30d: number;
   totalUsers: number;
+  /** Originals + Community split — excludes cancelled/refunded bookings. */
   revenueSplit: { originals: number; community: number };
 };
 
@@ -880,18 +888,51 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     supabase.from("profiles").select("id", head).gte("created_at", day7),
     supabase.from("profiles").select("id", head).gte("created_at", day30),
     supabase.from("profiles").select("id", head),
-    supabase.from("bookings").select("total, item_type"),
-    supabase.from("bookings").select("total").gte("created_at", day30),
+    supabase
+      .from("bookings")
+      .select("total, service_fee, credit_applied, item_type, status"),
+    supabase
+      .from("bookings")
+      .select("total")
+      .not("status", "in", '("cancelled","refunded")')
+      .gte("created_at", day30),
   ]);
 
-  const all = (revenueAllRows.data ?? []) as { total: number; item_type: string }[];
+  type BookingRow = {
+    total: number;
+    service_fee: number;
+    credit_applied: number;
+    item_type: string;
+    status: string;
+  };
+
+  const all = (revenueAllRows.data ?? []) as BookingRow[];
   const last30 = (revenue30dRows.data ?? []) as { total: number }[];
-  const grossRevenue = all.reduce((s, b) => s + Number(b.total), 0);
+
+  const reservedRevenue = all
+    .filter((b) => b.status === "requested")
+    .reduce((s, b) => s + Number(b.total), 0);
+  const capturedRevenue = all
+    .filter((b) => b.status === "confirmed")
+    .reduce((s, b) => s + Number(b.total), 0);
+  const refundedRevenue = all
+    .filter((b) => b.status === "refunded")
+    .reduce((s, b) => s + Number(b.total), 0);
+  // Net platform earnings = service fee minus credits absorbed, confirmed only
+  const netPlatformRevenue = all
+    .filter((b) => b.status === "confirmed")
+    .reduce((s, b) => s + Number(b.service_fee) - Number(b.credit_applied), 0);
+
   const revenueLast30d = last30.reduce((s, b) => s + Number(b.total), 0);
-  const originals = all
+
+  // Revenue split by type — exclude cancelled/refunded
+  const activeBookings = all.filter(
+    (b) => b.status !== "cancelled" && b.status !== "refunded",
+  );
+  const originals = activeBookings
     .filter((b) => b.item_type === "package")
     .reduce((s, b) => s + Number(b.total), 0);
-  const community = all
+  const community = activeBookings
     .filter((b) => b.item_type === "trip")
     .reduce((s, b) => s + Number(b.total), 0);
 
@@ -899,7 +940,10 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     totalBookings: bookingsAll.count ?? 0,
     bookingsLast7d: bookings7d.count ?? 0,
     bookingsLast30d: bookings30d.count ?? 0,
-    grossRevenue,
+    reservedRevenue,
+    capturedRevenue,
+    refundedRevenue,
+    netPlatformRevenue,
     revenueLast30d,
     activePackages: packagesLive.count ?? 0,
     activeTrips: tripsLive.count ?? 0,

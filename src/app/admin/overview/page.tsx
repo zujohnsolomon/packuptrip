@@ -54,11 +54,7 @@ function KpiRow({ metrics }: { metrics: AdminMetrics }) {
         value={metrics.totalBookings.toLocaleString("en-IN")}
         secondary={`${metrics.bookingsLast7d} in the last 7 days`}
       />
-      <KpiCard
-        label="Gross revenue"
-        value={formatINR(metrics.grossRevenue)}
-        secondary={`+${formatINR(metrics.revenueLast30d)} last 30 days`}
-      />
+      <RevenueKpiCard metrics={metrics} />
       <KpiCard
         label="Active trips"
         value={(metrics.activePackages + metrics.activeTrips).toString()}
@@ -69,6 +65,84 @@ function KpiRow({ metrics }: { metrics: AdminMetrics }) {
         value={metrics.totalUsers.toLocaleString("en-IN")}
         secondary={`${metrics.newSignups7d} joined this week`}
       />
+    </div>
+  );
+}
+
+function RevenueKpiCard({ metrics }: { metrics: AdminMetrics }) {
+  // Pre-payments: everything sits in "reserved". Show the most useful
+  // number as the headline and break down by status below.
+  const headline =
+    metrics.capturedRevenue > 0
+      ? metrics.capturedRevenue   // Once payments are live, show captured
+      : metrics.reservedRevenue;  // Pre-launch: show committed value
+  const headlineLabel =
+    metrics.capturedRevenue > 0 ? "Captured" : "Reserved";
+
+  return (
+    <div className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+        Revenue
+      </div>
+      <div className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+        {formatINR(headline)}
+      </div>
+      <div className="mt-1 text-xs text-stone-500">{headlineLabel}</div>
+
+      <div className="mt-3 space-y-1 border-t border-stone-100 pt-3">
+        <RevenueStatusRow
+          label="Reserved"
+          value={metrics.reservedRevenue}
+          color="text-amber-700"
+          dot="bg-amber-400"
+        />
+        <RevenueStatusRow
+          label="Captured"
+          value={metrics.capturedRevenue}
+          color="text-emerald-700"
+          dot="bg-emerald-500"
+        />
+        <RevenueStatusRow
+          label="Refunded"
+          value={metrics.refundedRevenue}
+          color="text-stone-500"
+          dot="bg-stone-300"
+        />
+        {metrics.capturedRevenue > 0 && (
+          <div className="border-t border-stone-100 pt-1">
+            <RevenueStatusRow
+              label="Net platform fee"
+              value={metrics.netPlatformRevenue}
+              color="text-teal-700"
+              dot="bg-teal-500"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RevenueStatusRow({
+  label,
+  value,
+  color,
+  dot,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  dot: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1.5">
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
+        <span className="text-[11px] text-stone-500">{label}</span>
+      </div>
+      <span className={`text-[11px] font-semibold tabular-nums ${color}`}>
+        {formatINR(value)}
+      </span>
     </div>
   );
 }
@@ -118,7 +192,7 @@ function RevenueSplit({ metrics }: { metrics: AdminMetrics }) {
             Where it&rsquo;s coming from
           </h2>
         </div>
-        <div className="text-xs text-stone-500">All-time gross</div>
+        <div className="text-xs text-stone-500">Excl. cancelled &amp; refunded</div>
       </div>
 
       {total === 0 ? (
