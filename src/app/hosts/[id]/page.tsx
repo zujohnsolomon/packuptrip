@@ -213,9 +213,16 @@ export default async function HostProfilePage({
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-ink">
-                        {profile.name}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <p className="truncate text-sm font-semibold text-ink">
+                          {profile.name}
+                        </p>
+                        {profile.host_tier === "superhost" && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+                            ⭐ Superhost
+                          </span>
+                        )}
+                      </div>
                       {avgRating !== null && (
                         <p className="text-xs text-amber-600">
                           ★ {avgRating.toFixed(2)}
@@ -252,7 +259,14 @@ export default async function HostProfilePage({
                       )}
                     </div>
                     <div>
-                      <h1 className="text-lg font-bold text-ink">{profile.name}</h1>
+                      <div className="flex flex-wrap items-center justify-center gap-1.5">
+                        <h1 className="text-lg font-bold text-ink">{profile.name}</h1>
+                        {profile.host_tier === "superhost" && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            ⭐ Superhost
+                          </span>
+                        )}
+                      </div>
                       {profile.home_city && (
                         <p className="text-xs text-stone-500">📍 {profile.home_city}</p>
                       )}
@@ -298,6 +312,12 @@ export default async function HostProfilePage({
 
                 {/* Trust signals */}
                 <div className="mt-4 space-y-2 border-t border-stone-100 pt-4">
+                  {profile.host_tier === "superhost" && (
+                    <div className="flex items-center gap-2 text-sm text-stone-600">
+                      <span className="shrink-0 text-base leading-none">⭐</span>
+                      <span><span className="font-semibold text-amber-700">Superhost</span> — top-rated trusted host</span>
+                    </div>
+                  )}
                   {profile.id_verified && (
                     <div className="flex items-center gap-2 text-sm text-stone-600">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-teal-500">

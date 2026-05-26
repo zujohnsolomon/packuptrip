@@ -199,6 +199,14 @@ function ReportLink({
   );
 }
 
+function SuperhostBadge() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+      ⭐ Superhost
+    </span>
+  );
+}
+
 function HostCard({
   host,
   currentUserId,
@@ -236,6 +244,7 @@ function HostCard({
           <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">
             {host.name}
             {host.id_verified && <VerifiedBadge size="md" />}
+            {host.host_tier === "superhost" && <SuperhostBadge />}
           </div>
           <div className="text-xs text-stone-500">
             {host.id_verified ? "ID verified · " : ""}
