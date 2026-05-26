@@ -1408,8 +1408,13 @@ export async function updatePlatformSetting(
   value: number,
 ): Promise<void> {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   await supabase
     .from("platform_settings")
-    .update({ value, updated_at: new Date().toISOString() })
+    .update({
+      value,
+      updated_at: new Date().toISOString(),
+      updated_by: user?.id ?? null,
+    })
     .eq("key", key);
 }
