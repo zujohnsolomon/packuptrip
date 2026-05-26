@@ -44,10 +44,11 @@ export default async function ChatPage({
 
   const trip = (thread as any).trip ?? null;
 
-  // Server action bound to this thread
+  // Server action bound to this thread — returns the real row so ChatClient
+  // can replace its optimistic copy without waiting for a Realtime event.
   async function handleSend(body: string) {
     "use server";
-    await sendMessage(threadId, body);
+    return sendMessage(threadId, body);
   }
 
   return (

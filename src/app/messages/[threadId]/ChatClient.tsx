@@ -129,7 +129,7 @@ export function ChatClient({
   initialMessages: Message[];
   otherUser: { id: string; name: string; avatar_url: string | null } | null;
   trip: { id: string; title: string; images: string[] } | null;
-  sendAction: (body: string) => Promise<void>;
+  sendAction: (body: string) => Promise<Message | null>;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -201,9 +201,10 @@ export function ChatClient({
     const text = input.trim();
     if (!text || sending) return;
 
-    // Optimistic message
+    // Add optimistic bubble immediately
+    const optId = `opt-${Date.now()}`;
     const optimistic: Message = {
-      id: `opt-${Date.now()}`,
+      id: optId,
       thread_id: threadId,
       sender_id: currentUserId,
       body: text,
@@ -218,7 +219,12 @@ export function ChatClient({
 
     setSending(true);
     try {
-      await sendAction(text);
+      const saved = await sendAction(text);
+      // Replace the optimistic bubble with the real DB row so "Sending…" clears.
+      // If Realtime also fires, it won't find an opt- message and will no-op.
+      setMessages((prev) =>
+        prev.map((m) => (m.id === optId ? (saved ?? { ...m, id: `sent-${Date.now()}` }) : m))
+      );
     } finally {
       setSending(false);
     }
