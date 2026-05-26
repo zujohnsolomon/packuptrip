@@ -129,9 +129,18 @@ export function NotificationBell({ userId }: { userId: string }) {
 
     if (error) console.error("loadNotifications:", error);
     const list = data ?? [];
-    setNotifications(list);
-    setUnread(list.filter((n) => !n.read_at).length);
+
+    // Mark all as visually read immediately — panel opening = seen
+    const now = new Date().toISOString();
+    setNotifications(list.map((n) => ({ ...n, read_at: n.read_at ?? now })));
+    setUnread(0);
     setLoaded(true);
+
+    // Persist to DB in background (fire and forget)
+    const hasUnread = list.some((n) => !n.read_at);
+    if (hasUnread) {
+      startTransition(() => markAllNotificationsRead());
+    }
   }
 
   // ── Realtime subscription: fires when DB inserts/updates a notification ───
@@ -238,16 +247,8 @@ export function NotificationBell({ userId }: { userId: string }) {
       {open && (
         <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/5">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3">
+          <div className="flex items-center border-b border-stone-100 px-4 py-3">
             <span className="text-sm font-semibold text-ink">Notifications</span>
-            {unread > 0 && (
-              <button
-                onClick={handleMarkAll}
-                className="text-xs text-stone-400 hover:text-teal-600 transition-colors"
-              >
-                Mark all read
-              </button>
-            )}
           </div>
 
           {/* List */}
