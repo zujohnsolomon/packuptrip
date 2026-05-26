@@ -80,6 +80,13 @@ export default async function BookingDetailPage({
                   label="Service fee"
                   value={formatINR(Number(booking.service_fee))}
                 />
+                {Number(booking.credit_applied) > 0 && (
+                  <Row
+                    label="🎁 Credits applied"
+                    value={`−${formatINR(Number(booking.credit_applied))}`}
+                    green
+                  />
+                )}
                 <div className="my-1 h-px bg-stone-200" />
                 <Row
                   label="Total"
@@ -220,17 +227,19 @@ function Row({
   label,
   value,
   bold = false,
+  green = false,
 }: {
   label: string;
   value: string;
   bold?: boolean;
+  green?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={bold ? "font-semibold text-ink" : "text-stone-600"}>
+      <span className={bold ? "font-semibold text-ink" : green ? "text-emerald-700" : "text-stone-600"}>
         {label}
       </span>
-      <span className={bold ? "font-semibold text-ink" : "text-stone-700"}>
+      <span className={bold ? "font-semibold text-ink" : green ? "font-medium text-emerald-700" : "text-stone-700"}>
         {value}
       </span>
     </div>

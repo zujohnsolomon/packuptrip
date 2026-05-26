@@ -90,12 +90,12 @@ calculation; changing one requires a migration that updates both.
 - [ ] T9.10 admin slice builds alongside this
 - [x] **Split the admin Overview revenue metric** into **Reserved** (`bookings.status = 'requested'`), **Captured** (`status = 'confirmed'`), and **Refunded** (`status = 'refunded'`). Right now Gross Revenue includes unpaid bookings — once real payments land, this is misleading. Replace the single "Gross revenue" KPI with three.
 
-### Epic 8 — Reviews + messaging + ID verification ⏳
+### Epic 8 — Reviews + messaging + ID verification ✅
 
-- [ ] Two-way reviews after a completed booking (host ↔ traveller)
-- [ ] Review aggregation feeds `packages.rating_avg`, `packages.review_count` (and equivalent for trips)
-- [ ] In-app messaging: thread per booking pair, message list, send form
-- [ ] ID verification flow: upload, manual approval queue in admin (T9.6)
+- [x] Two-way reviews after a completed booking (host ↔ traveller)
+- [x] Review aggregation feeds `packages.rating_avg`, `packages.review_count` (and equivalent for trips)
+- [x] In-app messaging: thread per booking pair, message list, send form
+- [x] ID verification flow: upload, manual approval queue in admin (T9.6)
 
 ### Epic 9 — Admin Dashboard ✅ (launch slice)
 
@@ -126,7 +126,7 @@ table. The admin role + RLS hooks for it are already in the schema.
 
 Things to do before flipping the site public. Add to as we hit them.
 
-- [ ] **Wire up Resend SMTP** for transactional auth emails and re-enable "Confirm email" in Supabase Auth → Sign In / Providers → Email. Email confirmation is currently OFF for dev testing only — must be ON for launch. Resend setup steps in chat history (May 2026).
+- [ ] **Wire up Resend SMTP** *(dashboard only — no code needed)* Supabase Dashboard → Auth → SMTP Settings → add Resend credentials. Then re-enable "Confirm email" in Auth → Sign In / Providers → Email. `RESEND_API_KEY` is already in `.env.local`; transactional booking emails already use it. Auth confirmation emails are the only remaining gap.
 - [x] ~~**Lock in the real service fee.**~~ ✅ Locked at **8%** on 23 May 2026. Source: [`src/lib/pricing.ts`](./src/lib/pricing.ts) + booking RPC `v_fee_rate`.
 - [ ] **Enable leaked-password protection** in Supabase Dashboard → Auth → Password Protection (currently disabled per security advisor).
 - [x] ~~**Resolve GitHub push credentials**~~ ✅ Working — git push to `main` triggers Vercel deploys.
