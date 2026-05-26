@@ -138,9 +138,23 @@ export function ChatClient({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close overflow menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handler(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
 
   const otherInitials = (otherUser?.name ?? "?")
     .split(" ")
@@ -315,16 +329,78 @@ export function ChatClient({
         </Link>
 
         <div className="min-w-0 flex-1">
-          <Link href={`/hosts/${otherUser?.id}`} className="truncate text-sm font-semibold text-ink hover:text-amber-600 transition-colors">
+          <Link href={`/hosts/${otherUser?.id}`} className="block truncate text-sm font-semibold text-ink hover:text-amber-600 transition-colors">
             {otherUser?.name ?? "Unknown"}
           </Link>
           {trip && (
             <Link
               href={`/trips/${trip.id}`}
-              className="truncate text-[11px] text-teal-600 hover:underline"
+              className="block truncate text-[11px] text-teal-600 hover:underline"
             >
               {trip.title}
             </Link>
+          )}
+        </div>
+
+        {/* ⋮ overflow menu */}
+        <div ref={menuRef} className="relative shrink-0">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-stone-500 transition hover:bg-stone-100"
+            aria-label="More options"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+              <circle cx="9" cy="3.5" r="1.5" />
+              <circle cx="9" cy="9" r="1.5" />
+              <circle cx="9" cy="14.5" r="1.5" />
+            </svg>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-11 z-50 w-52 overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-xl">
+              {/* View profile */}
+              <Link
+                href={`/hosts/${otherUser?.id}`}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="8" cy="5" r="3" />
+                  <path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" />
+                </svg>
+                View profile
+              </Link>
+
+              {/* View trip — only if thread is tied to one */}
+              {trip && (
+                <Link
+                  href={`/trips/${trip.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2L3 6v8h4v-4h2v4h4V6L8 2z" />
+                  </svg>
+                  View trip
+                </Link>
+              )}
+
+              <div className="h-px bg-stone-100" />
+
+              {/* Report */}
+              <Link
+                href={`/report?subjectType=user&subjectId=${otherUser?.id}`}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 2L2 13h12L8 2z" />
+                  <line x1="8" y1="7" x2="8" y2="10" />
+                  <circle cx="8" cy="12" r="0.5" fill="currentColor" />
+                </svg>
+                Report {otherUser?.name?.split(" ")[0] ?? "user"}
+              </Link>
+            </div>
           )}
         </div>
       </header>
