@@ -126,19 +126,28 @@ export function ChatClient({
   initialMessages,
   otherUser,
   trip,
+  initialIsBlocked,
   sendAction,
+  blockAction,
+  unblockAction,
 }: {
   threadId: string;
   currentUserId: string;
   initialMessages: Message[];
   otherUser: { id: string; name: string; avatar_url: string | null } | null;
   trip: { id: string; title: string; images: string[] } | null;
+  initialIsBlocked: boolean;
   sendAction: (body: string) => Promise<Message | null>;
+  blockAction: () => Promise<void>;
+  unblockAction: () => Promise<void>;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(initialIsBlocked);
+  const [confirmBlock, setConfirmBlock] = useState(false);
+  const [blockBusy, setBlockBusy] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
@@ -162,6 +171,23 @@ export function ChatClient({
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  async function handleBlock() {
+    setBlockBusy(true);
+    await blockAction();
+    setIsBlocked(true);
+    setConfirmBlock(false);
+    setMenuOpen(false);
+    setBlockBusy(false);
+  }
+
+  async function handleUnblock() {
+    setBlockBusy(true);
+    await unblockAction();
+    setIsBlocked(false);
+    setMenuOpen(false);
+    setBlockBusy(false);
+  }
 
   // Scroll to bottom
   const scrollToBottom = useCallback((smooth = true) => {
@@ -387,19 +413,70 @@ export function ChatClient({
 
               <div className="h-px bg-stone-100" />
 
+              {/* Block / Unblock */}
+              {isBlocked ? (
+                <button
+                  onClick={handleUnblock}
+                  disabled={blockBusy}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="8" cy="8" r="6" />
+                    <line x1="4" y1="4" x2="12" y2="12" />
+                  </svg>
+                  {blockBusy ? "Unblocking…" : `Unblock ${otherUser?.name?.split(" ")[0] ?? "user"}`}
+                </button>
+              ) : confirmBlock ? (
+                <div className="px-4 py-3">
+                  <p className="text-xs text-stone-500">
+                    Block {otherUser?.name?.split(" ")[0]}? They won't be able to message you.
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={handleBlock}
+                      disabled={blockBusy}
+                      className="flex-1 rounded-lg bg-red-500 py-1.5 text-xs font-semibold text-white hover:bg-red-600 disabled:opacity-50"
+                    >
+                      {blockBusy ? "Blocking…" : "Block"}
+                    </button>
+                    <button
+                      onClick={() => setConfirmBlock(false)}
+                      className="flex-1 rounded-lg bg-stone-100 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmBlock(true)}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="8" cy="8" r="6" />
+                    <line x1="4" y1="4" x2="12" y2="12" />
+                  </svg>
+                  Block {otherUser?.name?.split(" ")[0] ?? "user"}
+                </button>
+              )}
+
+              {!isBlocked && !confirmBlock && <div className="h-px bg-stone-100" />}
+
               {/* Report */}
-              <Link
-                href={`/report?type=user&id=${otherUser?.id}`}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 2L2 13h12L8 2z" />
-                  <line x1="8" y1="7" x2="8" y2="10" />
-                  <circle cx="8" cy="12" r="0.5" fill="currentColor" />
-                </svg>
-                Report {otherUser?.name?.split(" ")[0] ?? "user"}
-              </Link>
+              {!confirmBlock && (
+                <Link
+                  href={`/report?type=user&id=${otherUser?.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2L2 13h12L8 2z" />
+                    <line x1="8" y1="7" x2="8" y2="10" />
+                    <circle cx="8" cy="12" r="0.5" fill="currentColor" />
+                  </svg>
+                  Report {otherUser?.name?.split(" ")[0] ?? "user"}
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -425,34 +502,49 @@ export function ChatClient({
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Input bar ── */}
-      <div className="border-t border-stone-200 bg-white px-4 py-3 sm:px-6">
-        <div className="flex items-end gap-3">
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={input}
-            onChange={handleInput}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message…"
-            className="flex-1 resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
-            style={{ maxHeight: 120 }}
-          />
+      {/* ── Input bar / Blocked state ── */}
+      {isBlocked ? (
+        <div className="border-t border-stone-200 bg-stone-50 px-4 py-4 text-center">
+          <p className="text-sm font-medium text-stone-500">
+            You have blocked {otherUser?.name?.split(" ")[0] ?? "this user"}
+          </p>
           <button
-            onClick={handleSend}
-            disabled={!input.trim() || sending}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-40"
-            aria-label="Send"
+            onClick={handleUnblock}
+            disabled={blockBusy}
+            className="mt-2 text-xs font-semibold text-amber-600 hover:text-amber-700 disabled:opacity-50"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M15.5 2.5L8 10M15.5 2.5L10.5 15.5L8 10M15.5 2.5L2.5 7L8 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            {blockBusy ? "Unblocking…" : "Unblock"}
           </button>
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-stone-400">
-          Enter to send · Shift+Enter for new line
-        </p>
-      </div>
+      ) : (
+        <div className="border-t border-stone-200 bg-white px-4 py-3 sm:px-6">
+          <div className="flex items-end gap-3">
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={input}
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message…"
+              className="flex-1 resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              style={{ maxHeight: 120 }}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || sending}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-40"
+              aria-label="Send"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M15.5 2.5L8 10M15.5 2.5L10.5 15.5L8 10M15.5 2.5L2.5 7L8 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <p className="mt-1.5 text-center text-[10px] text-stone-400">
+            Enter to send · Shift+Enter for new line
+          </p>
+        </div>
+      )}
     </div>
   );
 }

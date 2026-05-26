@@ -6,7 +6,7 @@ import {
   markThreadRead,
 } from "@/lib/supabase/queries";
 import { ChatClient } from "./ChatClient";
-import { sendMessage } from "@/actions/messages";
+import { sendMessage, blockUser, unblockUser } from "@/actions/messages";
 
 export const metadata = { title: "Chat · Packuptrip" };
 
@@ -44,11 +44,26 @@ export default async function ChatPage({
 
   const trip = (thread as any).trip ?? null;
 
-  // Server action bound to this thread — returns the real row so ChatClient
-  // can replace its optimistic copy without waiting for a Realtime event.
+  // Check if current user has blocked the other participant
+  const { data: blockRow } = await supabase
+    .from("blocked_users")
+    .select("id")
+    .eq("blocker_id", user.id)
+    .eq("blocked_id", otherProfile?.id ?? "")
+    .maybeSingle();
+  const isBlockedByMe = !!blockRow;
+
   async function handleSend(body: string) {
     "use server";
     return sendMessage(threadId, body);
+  }
+  async function handleBlock() {
+    "use server";
+    await blockUser(otherProfile?.id ?? "");
+  }
+  async function handleUnblock() {
+    "use server";
+    await unblockUser(otherProfile?.id ?? "");
   }
 
   return (
@@ -58,7 +73,10 @@ export default async function ChatPage({
       initialMessages={messages}
       otherUser={otherProfile}
       trip={trip}
+      initialIsBlocked={isBlockedByMe}
       sendAction={handleSend}
+      blockAction={handleBlock}
+      unblockAction={handleUnblock}
     />
   );
 }
