@@ -89,7 +89,7 @@ export function MonthPicker() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           <div
-            className="absolute left-0 top-full z-50 mt-2 rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
+            className="absolute right-0 top-full z-50 mt-2 rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
             style={{ width: "min(680px, calc(100vw - 1.5rem))" }}
           >
             <p className="mb-5 text-[15px] font-semibold text-stone-900">
