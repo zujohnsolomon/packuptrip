@@ -180,9 +180,16 @@ function JoinerCard({
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="truncate font-medium text-ink">
-            {joiner.profile?.name ?? "Unknown"}
-          </div>
+          {joiner.profile ? (
+            <Link
+              href={`/passport/${joiner.profile.id}`}
+              className="truncate font-medium text-ink hover:text-teal-700 hover:underline"
+            >
+              {joiner.profile.name}
+            </Link>
+          ) : (
+            <div className="truncate font-medium text-ink">Unknown</div>
+          )}
           <div className="truncate text-xs text-stone-500">
             {joiner.profile?.email ?? "—"}
           </div>

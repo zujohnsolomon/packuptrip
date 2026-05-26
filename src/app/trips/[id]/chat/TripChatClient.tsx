@@ -457,9 +457,16 @@ export function TripChatClient({
                   {/* Sender name — first in every group, for everyone (group chat needs it) */}
                   {isFirstInGroup && sender && (
                     <div className="mb-1 flex items-center gap-1.5 px-1">
-                      <span className={`text-[11px] font-semibold ${isMe ? "text-amber-600" : "text-stone-600"}`}>
-                        {isMe ? "You" : sender.name}
-                      </span>
+                      {isMe ? (
+                        <span className="text-[11px] font-semibold text-amber-600">You</span>
+                      ) : (
+                        <a
+                          href={sender.is_host ? `/hosts/${msg.sender_id}` : `/passport/${msg.sender_id}`}
+                          className="text-[11px] font-semibold text-stone-600 hover:underline"
+                        >
+                          {sender.name}
+                        </a>
+                      )}
                       {sender.is_host && (
                         <span className="rounded-full bg-teal-50 px-1.5 py-0.5 text-[9px] font-semibold text-teal-700">
                           Host

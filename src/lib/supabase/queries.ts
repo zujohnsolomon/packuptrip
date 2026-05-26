@@ -1418,3 +1418,104 @@ export async function updatePlatformSetting(
     })
     .eq("key", key);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Traveller Passport (D1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type PassportTrip = {
+  bookingId: string;
+  itemType: "trip" | "package";
+  itemId: string;
+  title: string;
+  location: string;
+  image: string | null;
+  startDate: string;
+};
+
+export type TravellerPassportData = {
+  profile: Profile;
+  tripsJoined: PassportTrip[];
+  reviewsReceived: (Review & {
+    author: { id: string; name: string; avatar_url: string | null };
+  })[];
+};
+
+export async function getTravellerPassport(
+  userId: string,
+): Promise<TravellerPassportData | null> {
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single<Profile>();
+
+  if (!profile) return null;
+
+  // Bookings (trips + packages joined, most recent first)
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select("id, item_type, item_id, status, created_at")
+    .eq("user_id", userId)
+    .in("status", ["confirmed", "requested"])
+    .order("created_at", { ascending: false })
+    .limit(12);
+
+  const rows = (bookings ?? []) as {
+    id: string;
+    item_type: string;
+    item_id: string;
+    status: string;
+    created_at: string;
+  }[];
+
+  const tripIds = rows.filter((b) => b.item_type === "trip").map((b) => b.item_id);
+  const pkgIds  = rows.filter((b) => b.item_type === "package").map((b) => b.item_id);
+
+  const [tripsRes, pkgsRes] = await Promise.all([
+    tripIds.length
+      ? supabase.from("trips").select("id, title, location, images, start_date").in("id", tripIds)
+      : Promise.resolve({ data: [] }),
+    pkgIds.length
+      ? supabase.from("packages").select("id, title, location, images, start_date").in("id", pkgIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const itemMap = new Map<string, { title: string; location: string; images: string[]; start_date: string }>();
+  for (const t of (tripsRes.data ?? []) as any[]) itemMap.set(t.id, t);
+  for (const p of (pkgsRes.data ?? []) as any[]) itemMap.set(p.id, p);
+
+  const tripsJoined: PassportTrip[] = rows
+    .map((b) => {
+      const item = itemMap.get(b.item_id);
+      if (!item) return null;
+      return {
+        bookingId: b.id,
+        itemType: b.item_type as "trip" | "package",
+        itemId: b.item_id,
+        title: item.title,
+        location: item.location,
+        image: item.images?.[0] ?? null,
+        startDate: item.start_date,
+      };
+    })
+    .filter(Boolean) as PassportTrip[];
+
+  // Reviews received as a joiner (host → joiner reviews)
+  const { data: reviewsData } = await supabase
+    .from("reviews")
+    .select("*, author:profiles!reviews_author_id_fkey(id, name, avatar_url)")
+    .eq("subject_id", userId)
+    .eq("subject_type", "user")
+    .eq("is_visible", true)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  return {
+    profile,
+    tripsJoined,
+    reviewsReceived: (reviewsData ?? []) as TravellerPassportData["reviewsReceived"],
+  };
+}
