@@ -5,8 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { createClient } from "@/lib/supabase/server";
-import { getLivePackage } from "@/lib/supabase/queries";
-import { getLivePricingRates } from "@/lib/pricing";
+import { getLivePackage, getLivePricingRates } from "@/lib/supabase/queries";
 
 export const metadata = { title: "Confirm booking · Packuptrip" };
 

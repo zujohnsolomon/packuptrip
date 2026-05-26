@@ -1519,3 +1519,43 @@ export async function getTravellerPassport(
     reviewsReceived: (reviewsData ?? []) as TravellerPassportData["reviewsReceived"],
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Live pricing rates from platform_settings
+// ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  SERVICE_FEE_RATE,
+  HOST_COMMISSION_RATE,
+  BOOKING_DEPOSIT_RATE,
+} from "@/lib/pricing";
+
+export type PricingRates = {
+  serviceFeeRate:     number;
+  hostCommissionRate: number;
+  depositRate:        number;
+};
+
+/**
+ * Fetches current fee rates from platform_settings.
+ * Falls back to the compile-time constants in pricing.ts if any key is missing.
+ * Server-only — called from Server Components and Server Actions only.
+ */
+export async function getLivePricingRates(): Promise<PricingRates> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("platform_settings")
+    .select("key, value")
+    .in("key", ["service_fee_rate", "host_commission_rate", "deposit_rate"]);
+
+  const map = Object.fromEntries(
+    (data ?? []).map((r: { key: string; value: unknown }) => [r.key, Number(r.value)])
+  );
+
+  return {
+    serviceFeeRate:     map["service_fee_rate"]     ?? SERVICE_FEE_RATE,
+    hostCommissionRate: map["host_commission_rate"]  ?? HOST_COMMISSION_RATE,
+    depositRate:        map["deposit_rate"]          ?? BOOKING_DEPOSIT_RATE,
+  };
+}
