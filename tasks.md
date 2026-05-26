@@ -129,19 +129,31 @@ Things to do before flipping the site public. Add to as we hit them.
 - [ ] **Wire up Resend SMTP** for transactional auth emails and re-enable "Confirm email" in Supabase Auth → Sign In / Providers → Email. Email confirmation is currently OFF for dev testing only — must be ON for launch. Resend setup steps in chat history (May 2026).
 - [x] ~~**Lock in the real service fee.**~~ ✅ Locked at **8%** on 23 May 2026. Source: [`src/lib/pricing.ts`](./src/lib/pricing.ts) + booking RPC `v_fee_rate`.
 - [ ] **Enable leaked-password protection** in Supabase Dashboard → Auth → Password Protection (currently disabled per security advisor).
-- [ ] **Resolve GitHub push credentials** so Vercel switches from CLI deploys to git-triggered deploys on push to `main`.
+- [x] ~~**Resolve GitHub push credentials**~~ ✅ Working — git push to `main` triggers Vercel deploys.
 - [ ] **Set Site URL + redirect allowlist** in Supabase Auth → URL Configuration to include the production Vercel domain (and any custom domains).
 - [ ] **Custom domain.** Point packuptrip.com (and/or .in) at Vercel; update Site URL accordingly.
-- [ ] **Remove T9.3 seed test data.** Two pending Community Trips were inserted to make the approval queue testable. They're tagged with `__seed_test_data`. Before launch: `delete from public.trips where '__seed_test_data' = any(tags);`
+- [x] ~~**Remove T9.3 seed test data.**~~ ✅ Done — both seed trips deleted from DB on 26 May 2026.
+- [ ] **Add env vars to Vercel dashboard:** `ANTHROPIC_API_KEY` (AI features), `CRON_SECRET` (cron security), `RESEND_API_KEY` (already in Vercel?), `NEXT_PUBLIC_SITE_URL` (update to production domain once custom domain is live).
 
 ---
 
+## BUILT AHEAD OF LAUNCH (originally deferred Phase 1 + 2)
+
+These were originally Phase 1/2 post-launch features but were built pre-launch at the founder's direction:
+
+- [x] **Per-trip group chat** — real-time group chat for trip members (`/trips/[id]/chat`)
+- [x] **Traveller passport** — public profiles for joiners (`/passport/[userId]`)
+- [x] **Post-trip memory page** — crew, itinerary, reviews in one shareable page (`/trips/[id]/memory`)
+- [x] **Referral credits (E1)** — invite link → ₹200 credit on friend's first booking (`/invite/[code]`, `/account/referrals`)
+- [x] **AI itinerary draft (E2)** — ✨ AI Draft button in host trip creation form (`/api/ai/itinerary`, requires `ANTHROPIC_API_KEY`)
+- [x] **Trip DNA matching (F1)** — logged-in users see 🧬 Matched for your vibe strip on `/trips`
+- [x] **AI Concierge (F2)** — floating Packy 🧭 chat widget sitewide (`/api/ai/concierge`, requires `ANTHROPIC_API_KEY`)
+- [x] **Packuptrip Plus (F3)** — membership tier: 4% fee, double referral credits, Plus badge. Landing page `/plus`, waitlist, admin grant/revoke.
+- [x] **Superhost tier** — surfaced on trip and host profile pages; admin can set via `/admin/hosts`
+
 ## DEFERRED (post-launch only — see roadmap.md for full phasing)
 
-- Phase 1 (fast follow): per-trip group chat, traveller passport, post-trip memory page, referral credits
-- Phase 2 (moat): Trip DNA matching, AI concierge, AI itinerary draft, verification tiers + Superhost, Packuptrip Plus membership
 - Phase 3 (scale): B2B white-label, add-ons marketplace, host leaderboards, gift cards, sponsored trips
+- Epic 7 (Payments): blocked on domain registration + GST + Razorpay marketplace account
 
-**Do not start any of the above until the launch core (Epics 1–9) is shipped
-and real travellers are using it.** See `roadmap.md` for the founder's note
-on discipline.
+**Payments (Epic 7) is the only remaining major blocker before real-money transactions.** See `roadmap.md`.
