@@ -12,7 +12,7 @@ import {
 } from "@/lib/supabase/queries";
 import { formatINR } from "@/lib/utils";
 import { formatHumanDate } from "@/components/booking/BookingSummary";
-import type { Booking, Profile } from "@/types/db";
+import type { Booking, Profile, Trip, TripStatus } from "@/types/db";
 
 export const metadata = { title: "Your account · Packuptrip" };
 
@@ -30,10 +30,18 @@ export default async function AccountPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirectTo=/account");
 
-  const [{ data: profile }, bookings] = await Promise.all([
+  const [{ data: profile }, bookings, { data: hostedRaw }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
     listMyBookings(),
+    supabase
+      .from("trips")
+      .select("*")
+      .eq("host_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
+
+  const hostedTrips = (hostedRaw ?? []) as Trip[];
 
   // Resolve each booking's underlying item (package or trip) so we can show
   // a title + photo on the card. Done in parallel.
@@ -205,10 +213,44 @@ export default async function AccountPage() {
           </section>
 
           <section className="mt-12">
-            <h2 className="text-xl font-semibold text-ink">
-              Your hosted trips
-            </h2>
-            <PanelStub body="Trips you've posted as a host will appear here once the host flow ships." />
+            <div className="flex items-end justify-between">
+              <h2 className="text-xl font-semibold text-ink">Your hosted trips</h2>
+              <Link
+                href="/host/trips"
+                className="text-sm text-teal-700 hover:text-teal-800 transition-colors"
+              >
+                Manage all →
+              </Link>
+            </div>
+
+            {hostedTrips.length === 0 ? (
+              <div className="mt-3 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center sm:p-8">
+                <div className="text-base font-semibold text-ink">No hosted trips yet</div>
+                <p className="mt-1 text-sm text-stone-600">
+                  Post a community trip — you set the itinerary, we handle bookings.
+                </p>
+                <Link
+                  href="/host/new"
+                  className="mt-4 inline-flex h-10 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+                >
+                  Post a trip
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-3 grid gap-3">
+                {hostedTrips.map((trip) => (
+                  <HostedTripRow key={trip.id} trip={trip} />
+                ))}
+                {hostedTrips.length === 5 && (
+                  <Link
+                    href="/host/trips"
+                    className="block rounded-2xl border border-stone-200 bg-white px-5 py-3 text-center text-sm font-medium text-teal-700 hover:bg-stone-50 transition-colors"
+                  >
+                    View all hosted trips →
+                  </Link>
+                )}
+              </div>
+            )}
           </section>
 
           <form action="/auth/logout" method="post" className="mt-12">
@@ -328,11 +370,58 @@ function EmptyBookings() {
   );
 }
 
-function PanelStub({ body }: { body: string }) {
+const TRIP_STATUS_STYLES: Record<TripStatus, string> = {
+  draft: "bg-stone-100 text-stone-600 ring-stone-200",
+  pending: "bg-amber-100 text-amber-800 ring-amber-200",
+  live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+  completed: "bg-sky-100 text-sky-800 ring-sky-200",
+  cancelled: "bg-stone-200 text-stone-600 ring-stone-300",
+};
+
+function HostedTripRow({ trip }: { trip: Trip }) {
+  const style = TRIP_STATUS_STYLES[trip.status] ?? TRIP_STATUS_STYLES.draft;
+  const href =
+    trip.status === "draft" || trip.status === "pending"
+      ? `/host/trips/${trip.id}`
+      : `/trips/${trip.id}`;
   return (
-    <div className="mt-3 rounded-2xl border border-dashed border-stone-300 bg-white p-6">
-      <p className="text-sm text-stone-600">{body}</p>
-    </div>
+    <Link
+      href={href}
+      className="group flex items-center gap-4 overflow-hidden rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]"
+    >
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-stone-100">
+        {trip.images[0] && (
+          <Image
+            src={trip.images[0]}
+            alt={trip.title}
+            fill
+            sizes="64px"
+            className="object-cover"
+          />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${style}`}
+          >
+            {trip.status}
+          </span>
+        </div>
+        <div className="mt-0.5 truncate font-semibold text-ink group-hover:text-teal-700">
+          {trip.title}
+        </div>
+        <div className="truncate text-xs text-stone-500">
+          {trip.location}
+          {trip.start_date && (
+            <> · {formatHumanDate(trip.start_date)} · {trip.days}d</>
+          )}
+        </div>
+      </div>
+      <div className="hidden shrink-0 pr-2 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-ink sm:block">
+        →
+      </div>
+    </Link>
   );
 }
 
