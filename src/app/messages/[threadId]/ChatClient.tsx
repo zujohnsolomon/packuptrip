@@ -136,6 +136,7 @@ export function ChatClient({
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
 
   const otherInitials = (otherUser?.name ?? "?")
     .split(" ")
@@ -155,39 +156,40 @@ export function ChatClient({
   // Scroll when new messages arrive
   useEffect(() => { scrollToBottom(true); }, [messages.length]);
 
-  // Supabase Realtime subscription
+  // Supabase Realtime — broadcast channel (same approach as group chat).
+  // postgres_changes with row-level filters is unreliable; broadcast is instant.
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel(`thread-${threadId}`)
+      .channel(`dm-${threadId}`)
       .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `thread_id=eq.${threadId}`,
-        },
-        (payload) => {
-          const incoming = payload.new as Message;
-          // Skip own messages — already shown optimistically
+        "broadcast",
+        { event: "new_message" },
+        ({ payload }: { payload: { message: Message } }) => {
+          const incoming = payload.message;
           if (incoming.sender_id === currentUserId) {
-            // Replace optimistic copy with the real one
+            // Safety net: replace any still-pending opt- bubble
             setMessages((prev) =>
               prev.map((m) =>
-                m.id.startsWith("opt-") && m.body === incoming.body && m.sender_id === currentUserId
-                  ? incoming
-                  : m
+                m.id.startsWith("opt-") && m.body === incoming.body ? incoming : m
               )
             );
-            return;
+          } else {
+            // Other person's message — guard against duplicates
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === incoming.id)) return prev;
+              return [...prev, incoming];
+            });
           }
-          setMessages((prev) => [...prev, incoming]);
         }
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    channelRef.current = channel;
+    return () => {
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
   }, [threadId, currentUserId]);
 
   // Auto-resize textarea
@@ -220,11 +222,19 @@ export function ChatClient({
     setSending(true);
     try {
       const saved = await sendAction(text);
-      // Replace the optimistic bubble with the real DB row so "Sending…" clears.
-      // If Realtime also fires, it won't find an opt- message and will no-op.
+      const realMessage = saved ?? { ...optimistic, id: `sent-${Date.now()}` };
+
+      // Replace the optimistic bubble with the real DB row
       setMessages((prev) =>
-        prev.map((m) => (m.id === optId ? (saved ?? { ...m, id: `sent-${Date.now()}` }) : m))
+        prev.map((m) => (m.id === optId ? realMessage : m))
       );
+
+      // Broadcast so the other participant receives it instantly (no DB polling)
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "new_message",
+        payload: { message: realMessage },
+      });
     } finally {
       setSending(false);
     }
