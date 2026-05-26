@@ -7,12 +7,17 @@ import { cn } from "@/lib/utils";
 
 /** Horizontal-scroll nav for mobile/tablet (sidebar hides below lg). */
 const items = [
-  { href: "/admin/overview", label: "Overview" },
-  { href: "/admin/approvals", label: "Approvals" },
-  { href: "/admin/originals", label: "Originals" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/reports", label: "Reports" },
+  { href: "/admin/overview",       label: "Overview" },
+  { href: "/admin/approvals",      label: "Approvals" },
+  { href: "/admin/originals",      label: "Originals" },
+  { href: "/admin/trips",          label: "Trips" },
+  { href: "/admin/users",          label: "Users" },
+  { href: "/admin/hosts",          label: "Hosts" },
+  { href: "/admin/bookings",       label: "Bookings" },
+  { href: "/admin/reports",        label: "Reports" },
+  { href: "/admin/verifications",  label: "Verifications" },
+  { href: "/admin/reviews",        label: "Reviews" },
+  { href: "/admin/settings",       label: "Settings" },
 ];
 
 export function AdminMobileNav() {

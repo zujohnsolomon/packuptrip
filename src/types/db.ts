@@ -64,6 +64,7 @@ export type Profile = {
   // Moderation fields (added in v1_users_admin migration):
   suspension_reason: string | null;
   suspended_at: string | null;
+  host_tier: "standard" | "superhost" | "flagged";
 };
 
 export type Package = {

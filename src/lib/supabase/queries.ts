@@ -1193,3 +1193,223 @@ export async function markThreadRead(threadId: string): Promise<void> {
     p_user_id: user.id,
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin — Community Trips (T9.5)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminTripListRow = {
+  trip: Trip;
+  host: { id: string; name: string; email: string; avatar_url: string | null } | null;
+};
+
+export async function listAllTripsForAdmin(filters: {
+  q?: string;
+  status?: string;
+} = {}): Promise<AdminTripListRow[]> {
+  const supabase = await createClient();
+  let q = supabase
+    .from("trips")
+    .select("*, host:profiles!trips_host_id_fkey(id,name,email,avatar_url)")
+    .order("created_at", { ascending: false });
+
+  if (filters.status && filters.status !== "any") q = q.eq("status", filters.status);
+  if (filters.q) {
+    const p = `%${filters.q}%`;
+    q = q.or(`title.ilike.${p},location.ilike.${p}`);
+  }
+
+  const { data, error } = await q;
+  if (error) { console.error("listAllTripsForAdmin:", error); return []; }
+  return (data ?? []).map((row: any) => ({ trip: row as Trip, host: row.host ?? null }));
+}
+
+export async function adminSetTripStatus(
+  tripId: string,
+  status: "live" | "pending" | "cancelled",
+): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("trips").update({ status }).eq("id", tripId);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin — Hosts (T9.7)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminHostListRow = {
+  profile: Profile;
+  liveTrips: number;
+  totalTrips: number;
+  ratingAvg: number;
+};
+
+export async function listHostsForAdmin(filters: {
+  q?: string;
+  tier?: string;
+} = {}): Promise<AdminHostListRow[]> {
+  const supabase = await createClient();
+
+  // Hosts = anyone who has posted at least one trip
+  const { data: tripData } = await supabase
+    .from("trips")
+    .select("host_id, status");
+
+  const hostIds = [...new Set((tripData ?? []).map((t: any) => t.host_id as string))];
+  if (hostIds.length === 0) return [];
+
+  let q = supabase
+    .from("profiles")
+    .select("*")
+    .in("id", hostIds)
+    .order("created_at", { ascending: false });
+
+  if (filters.q) {
+    const p = `%${filters.q}%`;
+    q = q.or(`name.ilike.${p},email.ilike.${p}`);
+  }
+  if (filters.tier && filters.tier !== "any") q = q.eq("host_tier", filters.tier);
+
+  const { data: profiles, error } = await q;
+  if (error) { console.error("listHostsForAdmin:", error); return []; }
+
+  const tripMap = new Map<string, { live: number; total: number }>();
+  for (const t of (tripData ?? []) as { host_id: string; status: string }[]) {
+    const cur = tripMap.get(t.host_id) ?? { live: 0, total: 0 };
+    cur.total++;
+    if (t.status === "live") cur.live++;
+    tripMap.set(t.host_id, cur);
+  }
+
+  // Batch-fetch host ratings from reviews (subject_type = 'user')
+  const { data: reviewData } = await supabase
+    .from("reviews")
+    .select("subject_id, rating")
+    .eq("subject_type", "user")
+    .eq("is_visible", true)
+    .in("subject_id", hostIds);
+
+  const ratingMap = new Map<string, { sum: number; count: number }>();
+  for (const r of (reviewData ?? []) as { subject_id: string; rating: number }[]) {
+    const cur = ratingMap.get(r.subject_id) ?? { sum: 0, count: 0 };
+    cur.sum += r.rating;
+    cur.count++;
+    ratingMap.set(r.subject_id, cur);
+  }
+
+  return (profiles as Profile[]).map((p) => {
+    const rat = ratingMap.get(p.id);
+    return {
+      profile: p,
+      liveTrips: tripMap.get(p.id)?.live ?? 0,
+      totalTrips: tripMap.get(p.id)?.total ?? 0,
+      ratingAvg: rat ? Math.round((rat.sum / rat.count) * 10) / 10 : 0,
+    };
+  });
+}
+
+export async function adminSetHostTier(
+  userId: string,
+  tier: "standard" | "superhost" | "flagged",
+): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("profiles").update({ host_tier: tier }).eq("id", userId);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin — Reviews (T9.11)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminReviewListRow = {
+  review: Review;
+  author: { id: string; name: string; avatar_url: string | null } | null;
+  subjectTitle: string | null;
+};
+
+export async function listReviewsForAdmin(filters: {
+  q?: string;
+  visible?: "any" | "visible" | "hidden";
+} = {}): Promise<AdminReviewListRow[]> {
+  const supabase = await createClient();
+  let q = supabase
+    .from("reviews")
+    .select("*, author:profiles!reviews_author_id_fkey(id,name,avatar_url)")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (filters.visible === "visible") q = q.eq("is_visible", true);
+  if (filters.visible === "hidden") q = q.eq("is_visible", false);
+  if (filters.q) {
+    const p = `%${filters.q}%`;
+    q = q.ilike("text", p);
+  }
+
+  const { data, error } = await q;
+  if (error) { console.error("listReviewsForAdmin:", error); return []; }
+
+  const rows = (data ?? []) as any[];
+
+  // Resolve subject titles in batch
+  const tripIds = rows.filter((r) => r.subject_type === "trip").map((r) => r.subject_id);
+  const pkgIds = rows.filter((r) => r.subject_type === "package").map((r) => r.subject_id);
+  const userIds = rows.filter((r) => r.subject_type === "user").map((r) => r.subject_id);
+
+  const [tripsRes, pkgsRes, usersRes] = await Promise.all([
+    tripIds.length ? supabase.from("trips").select("id,title").in("id", tripIds) : Promise.resolve({ data: [] }),
+    pkgIds.length ? supabase.from("packages").select("id,title").in("id", pkgIds) : Promise.resolve({ data: [] }),
+    userIds.length ? supabase.from("profiles").select("id,name").in("id", userIds) : Promise.resolve({ data: [] }),
+  ]);
+
+  const titleMap = new Map<string, string>();
+  for (const t of (tripsRes.data ?? []) as { id: string; title: string }[]) titleMap.set(t.id, t.title);
+  for (const p of (pkgsRes.data ?? []) as { id: string; title: string }[]) titleMap.set(p.id, p.title);
+  for (const u of (usersRes.data ?? []) as { id: string; name: string }[]) titleMap.set(u.id, u.name);
+
+  return rows.map((row) => ({
+    review: row as Review,
+    author: row.author ?? null,
+    subjectTitle: titleMap.get(row.subject_id) ?? null,
+  }));
+}
+
+export async function adminSetReviewVisibility(
+  reviewId: string,
+  visible: boolean,
+): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("reviews").update({ is_visible: visible }).eq("id", reviewId);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin — Platform Settings (T9.12)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type PlatformSetting = {
+  key: string;
+  value: number;
+  updated_at: string;
+};
+
+export async function getPlatformSettings(): Promise<PlatformSetting[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("platform_settings")
+    .select("key, value, updated_at")
+    .order("key");
+  if (error) { console.error("getPlatformSettings:", error); return []; }
+  return (data ?? []).map((row: any) => ({
+    key: row.key,
+    value: Number(row.value),
+    updated_at: row.updated_at,
+  }));
+}
+
+export async function updatePlatformSetting(
+  key: string,
+  value: number,
+): Promise<void> {
+  const supabase = await createClient();
+  await supabase
+    .from("platform_settings")
+    .update({ value, updated_at: new Date().toISOString() })
+    .eq("key", key);
+}
