@@ -57,6 +57,7 @@ function Bubble({
   isOwn,
   isFirst,
   isLast,
+  otherId,
   otherInitials,
   otherAvatar,
 }: {
@@ -64,6 +65,7 @@ function Bubble({
   isOwn: boolean;
   isFirst: boolean;
   isLast: boolean;
+  otherId: string;
   otherInitials: string;
   otherAvatar: string | null;
 }) {
@@ -71,22 +73,24 @@ function Bubble({
 
   return (
     <div className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar placeholder — keeps alignment for grouped messages */}
+      {/* Avatar — tappable, links to sender's profile */}
       <div className="w-8 shrink-0">
         {!isOwn && isLast && (
-          otherAvatar ? (
-            <Image
-              src={otherAvatar}
-              alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-800">
-              {otherInitials}
-            </div>
-          )
+          <Link href={`/hosts/${otherId}`} className="block">
+            {otherAvatar ? (
+              <Image
+                src={otherAvatar}
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full object-cover transition-opacity hover:opacity-80"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-800 transition-opacity hover:opacity-80">
+                {otherInitials}
+              </div>
+            )}
+          </Link>
         )}
       </div>
 
@@ -272,6 +276,7 @@ export function ChatClient({
         isOwn={isOwn}
         isFirst={isFirst}
         isLast={isLast}
+        otherId={otherUser?.id ?? ""}
         otherInitials={otherInitials}
         otherAvatar={otherUser?.avatar_url ?? null}
       />
@@ -292,25 +297,27 @@ export function ChatClient({
           </svg>
         </Link>
 
-        {/* Other user avatar */}
-        {otherUser?.avatar_url ? (
-          <Image
-            src={otherUser.avatar_url}
-            alt={otherUser.name}
-            width={40}
-            height={40}
-            className="h-10 w-10 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800">
-            {otherInitials}
-          </div>
-        )}
+        {/* Other user avatar — taps to profile */}
+        <Link href={`/hosts/${otherUser?.id}`} className="shrink-0">
+          {otherUser?.avatar_url ? (
+            <Image
+              src={otherUser.avatar_url}
+              alt={otherUser.name}
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full object-cover transition-opacity hover:opacity-80"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800 transition-opacity hover:opacity-80">
+              {otherInitials}
+            </div>
+          )}
+        </Link>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink">
+          <Link href={`/hosts/${otherUser?.id}`} className="truncate text-sm font-semibold text-ink hover:text-amber-600 transition-colors">
             {otherUser?.name ?? "Unknown"}
-          </p>
+          </Link>
           {trip && (
             <Link
               href={`/trips/${trip.id}`}
