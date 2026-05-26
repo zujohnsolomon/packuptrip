@@ -119,10 +119,15 @@ export function NotificationBell({ userId }: { userId: string }) {
 
   // ── Load notifications on first open ──────────────────────────────────────
   async function loadNotifications() {
-    const data = await getNotifications();
-    setNotifications(data);
-    setUnread(data.filter((n) => !n.read_at).length);
-    setLoaded(true);
+    try {
+      const data = await getNotifications();
+      setNotifications(data);
+      setUnread(data.filter((n) => !n.read_at).length);
+    } catch (err) {
+      console.error("loadNotifications:", err);
+    } finally {
+      setLoaded(true);
+    }
   }
 
   // ── Realtime subscription: fires when DB inserts/updates a notification ───
