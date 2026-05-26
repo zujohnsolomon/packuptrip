@@ -389,7 +389,7 @@ export function ChatClient({
 
               {/* Report */}
               <Link
-                href={`/report?subjectType=user&subjectId=${otherUser?.id}`}
+                href={`/report?type=user&id=${otherUser?.id}`}
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
               >
