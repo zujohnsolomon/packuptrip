@@ -303,6 +303,9 @@ function ItineraryEditor({
   itinerary: ItineraryDay[];
   onChange: (next: ItineraryDay[]) => void;
 }) {
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError]   = useState<string | null>(null);
+
   function update(idx: number, patch: Partial<ItineraryDay>) {
     onChange(itinerary.map((d, i) => (i === idx ? { ...d, ...patch } : d)));
   }
@@ -323,11 +326,72 @@ function ItineraryEditor({
     onChange(next);
   }
 
+  async function handleAiDraft() {
+    setAiError(null);
+    setAiLoading(true);
+
+    // Read values from the nearest form
+    const form = document.querySelector<HTMLFormElement>("form");
+    const title    = (form?.querySelector<HTMLInputElement>('[name="title"]')?.value ?? "").trim();
+    const location = (form?.querySelector<HTMLInputElement>('[name="location"]')?.value ?? "").trim();
+    const days     = Number(form?.querySelector<HTMLInputElement>('[name="days"]')?.value ?? 5);
+    const tags     = (form?.querySelector<HTMLInputElement>('[name="tags"]')?.value ?? "").trim();
+
+    try {
+      const res = await fetch("/api/ai/itinerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, location, days, tags }),
+      });
+      const data = await res.json() as { itinerary?: ItineraryDay[]; error?: string };
+      if (!res.ok || !data.itinerary) {
+        setAiError(data.error ?? "Generation failed. Try again.");
+      } else {
+        onChange(data.itinerary);
+      }
+    } catch {
+      setAiError("Network error — check your connection and try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-3">
+      {/* AI draft button */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-stone-500">
+          Fill in the title, location, and days above first, then let AI sketch a draft.
+        </p>
+        <button
+          type="button"
+          onClick={handleAiDraft}
+          disabled={aiLoading}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3.5 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+        >
+          {aiLoading ? (
+            <>
+              <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="12" cy="12" r="9" className="opacity-20" />
+                <path d="M12 3a9 9 0 0 1 9 9" strokeLinecap="round" />
+              </svg>
+              Drafting…
+            </>
+          ) : (
+            <>✨ AI Draft</>
+          )}
+        </button>
+      </div>
+
+      {aiError && (
+        <div className="rounded-xl bg-red-50 px-4 py-2.5 text-xs text-red-700 ring-1 ring-inset ring-red-200">
+          {aiError}
+        </div>
+      )}
+
       {itinerary.length === 0 && (
         <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-5 text-center text-sm text-stone-500">
-          No days yet. Add your first day below.
+          No days yet. Use AI Draft above or add your first day below.
         </div>
       )}
       {itinerary.map((day, idx) => (
