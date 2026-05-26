@@ -97,3 +97,24 @@ export async function unsuspendUser(formData: FormData) {
   revalidateUserSurfaces(id);
   redirect(`/admin/users/${id}?suspended=0`);
 }
+
+/** Grant or revoke Packuptrip Plus for a user. */
+export async function setUserPlus(formData: FormData) {
+  const id   = String(formData.get("id") ?? "");
+  const next = String(formData.get("plus") ?? "") === "1";
+  if (!id) throw new Error("Missing user id.");
+
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      plus_member:     next,
+      plus_expires_at: next
+        ? new Date(Date.now() + 365 * 86_400_000).toISOString() // 1 year
+        : null,
+    })
+    .eq("id", id);
+  if (error) throw error;
+  revalidateUserSurfaces(id);
+  redirect(`/admin/users/${id}?plus=${next ? 1 : 0}`);
+}

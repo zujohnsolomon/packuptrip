@@ -1532,6 +1532,7 @@ import {
 
 export type PricingRates = {
   serviceFeeRate:     number;
+  plusFeeRate:        number;  // F3: Plus member discounted rate
   hostCommissionRate: number;
   depositRate:        number;
 };
@@ -1547,14 +1548,17 @@ export async function getLivePricingRates(): Promise<PricingRates> {
   const { data } = await supabase
     .from("platform_settings")
     .select("key, value")
-    .in("key", ["service_fee_rate", "host_commission_rate", "deposit_rate"]);
+    .in("key", ["service_fee_rate", "host_commission_rate", "deposit_rate", "plus_service_fee_rate"]);
 
   const map = Object.fromEntries(
     (data ?? []).map((r: { key: string; value: unknown }) => [r.key, Number(r.value)])
   );
 
+  const standard = map["service_fee_rate"] ?? SERVICE_FEE_RATE;
+
   return {
-    serviceFeeRate:     map["service_fee_rate"]     ?? SERVICE_FEE_RATE,
+    serviceFeeRate:     standard,
+    plusFeeRate:        map["plus_service_fee_rate"] ?? standard / 2,
     hostCommissionRate: map["host_commission_rate"]  ?? HOST_COMMISSION_RATE,
     depositRate:        map["deposit_rate"]          ?? BOOKING_DEPOSIT_RATE,
   };

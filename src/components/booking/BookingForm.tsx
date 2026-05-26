@@ -13,6 +13,7 @@ export function BookingForm({
   basePrice,
   accent,
   serviceFeeRate = SERVICE_FEE_RATE,
+  isPlus = false,
 }: {
   itemType: ItemType;
   itemId: string;
@@ -21,6 +22,8 @@ export function BookingForm({
   /** Live rate from platform_settings — passed by server page. Falls back to
    *  the compile-time constant so existing call sites don't break. */
   serviceFeeRate?: number;
+  /** If true, the user is a Plus member and serviceFeeRate is already the discounted rate. */
+  isPlus?: boolean;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -60,6 +63,12 @@ export function BookingForm({
       <div className="mt-1 text-3xl font-semibold text-ink">
         {formatINR(total)}
       </div>
+
+      {isPlus && (
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
+          ✦ Plus rate applied — {Math.round(serviceFeeRate * 100)}% fee
+        </div>
+      )}
 
       <dl className="mt-5 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
         <Row label="Trip price" value={formatINR(basePrice)} />

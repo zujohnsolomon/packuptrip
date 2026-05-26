@@ -112,6 +112,11 @@ export default async function AdminUsersPage({
                               Not verified
                             </span>
                           )}
+                          {(profile as { plus_member?: boolean }).plus_member && (
+                            <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800 ring-1 ring-inset ring-teal-200">
+                              ✦ Plus
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-ink tabular-nums">

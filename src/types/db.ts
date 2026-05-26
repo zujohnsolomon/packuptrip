@@ -69,6 +69,9 @@ export type Profile = {
   referral_code: string;
   referred_by: string | null;
   referral_credits: number;
+  // Plus membership (added in f3_packuptrip_plus migration):
+  plus_member: boolean;
+  plus_expires_at: string | null;
 };
 
 export type Package = {

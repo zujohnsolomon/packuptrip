@@ -7,6 +7,7 @@ import {
   toggleUserVerified,
   suspendUser,
   unsuspendUser,
+  setUserPlus,
 } from "../actions";
 import type { UserRole } from "@/types/db";
 
@@ -16,17 +17,20 @@ export function UserActions({
   idVerified,
   isSuspended,
   isSelf,
+  isPlus,
 }: {
   userId: string;
   currentRole: UserRole;
   idVerified: boolean;
   isSuspended: boolean;
   isSelf: boolean;
+  isPlus: boolean;
 }) {
   return (
     <div className="space-y-3">
       <RoleCard userId={userId} currentRole={currentRole} isSelf={isSelf} />
       <VerificationCard userId={userId} idVerified={idVerified} />
+      <PlusCard userId={userId} isPlus={isPlus} />
       <SuspensionCard
         userId={userId}
         isSuspended={isSuspended}
@@ -103,6 +107,29 @@ function VerificationCard({
           label={idVerified ? "Remove verification" : "Mark as verified"}
           pendingLabel="Saving…"
           variant={idVerified ? "neutral" : "primary"}
+        />
+      </form>
+    </Card>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Plus membership                                                            */
+/* -------------------------------------------------------------------------- */
+
+function PlusCard({ userId, isPlus }: { userId: string; isPlus: boolean }) {
+  return (
+    <Card title="Packuptrip Plus">
+      <p className="text-xs text-stone-500">
+        Plus members pay a 4% service fee and earn double referral credits.
+      </p>
+      <form action={setUserPlus} className="mt-3">
+        <input type="hidden" name="id" value={userId} />
+        <input type="hidden" name="plus" value={isPlus ? "0" : "1"} />
+        <SubmitButton
+          label={isPlus ? "Revoke Plus" : "Grant Plus (1 year)"}
+          pendingLabel="Saving…"
+          variant={isPlus ? "neutral" : "primary"}
         />
       </form>
     </Card>

@@ -95,6 +95,11 @@ export default async function PassportPage({
                       <div className="flex flex-wrap items-center justify-center gap-1.5">
                         <h1 className="text-lg font-bold text-ink">{profile.name}</h1>
                         {profile.id_verified && <VerifiedBadge size="md" />}
+                        {profile.plus_member && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-800">
+                            ✦ Plus
+                          </span>
+                        )}
                       </div>
                       {profile.home_city && (
                         <p className="mt-0.5 text-xs text-stone-500">📍 {profile.home_city}</p>

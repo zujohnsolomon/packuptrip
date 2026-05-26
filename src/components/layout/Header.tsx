@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: "/packages", label: "Packages" },
   { href: "/trips", label: "Community trips" },
   { href: "/host", label: "Host a trip" },
+  { href: "/plus", label: "✦ Plus" },
 ];
 
 export function Header({ overlay = false }: { overlay?: boolean }) {

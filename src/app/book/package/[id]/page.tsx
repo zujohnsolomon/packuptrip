@@ -25,11 +25,15 @@ export default async function BookPackagePage({
     redirect(`/login?redirectTo=/book/package/${id}`);
   }
 
-  const [pkg, { serviceFeeRate }] = await Promise.all([
+  const [pkg, rates, profileResult] = await Promise.all([
     getLivePackage(id),
     getLivePricingRates(),
+    supabase.from("profiles").select("plus_member").eq("id", user.id).maybeSingle<{ plus_member: boolean }>(),
   ]);
   if (!pkg) notFound();
+
+  const isPlus = profileResult.data?.plus_member === true;
+  const serviceFeeRate = isPlus ? rates.plusFeeRate : rates.serviceFeeRate;
 
   if (pkg.spots_left <= 0) {
     return <SoldOut href={`/packages/${pkg.id}`} title={pkg.title} />;
@@ -70,6 +74,7 @@ export default async function BookPackagePage({
               basePrice={Number(pkg.price)}
               accent="amber"
               serviceFeeRate={serviceFeeRate}
+              isPlus={isPlus}
             />
           </div>
         </div>

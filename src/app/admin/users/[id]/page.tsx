@@ -20,6 +20,7 @@ export default async function AdminUserDetailPage({
     role?: string;
     verified?: string;
     suspended?: string;
+    plus?: string;
   }>;
 }) {
   const [{ id }, sp, res] = await Promise.all([
@@ -102,6 +103,11 @@ export default async function AdminUserDetailPage({
                     ) : (
                       <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-700 ring-1 ring-inset ring-stone-200">
                         Not verified
+                      </span>
+                    )}
+                    {(profile as { plus_member?: boolean }).plus_member && (
+                      <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800 ring-1 ring-inset ring-teal-200">
+                        ✦ Plus
                       </span>
                     )}
                   </div>
@@ -251,6 +257,7 @@ export default async function AdminUserDetailPage({
               idVerified={profile.id_verified}
               isSuspended={isSuspended}
               isSelf={isSelf}
+              isPlus={(profile as { plus_member?: boolean }).plus_member === true}
             />
           </aside>
         </div>
@@ -323,7 +330,7 @@ function TripStatusChip({ status }: { status: string }) {
 function FlashBanner({
   sp,
 }: {
-  sp: { role?: string; verified?: string; suspended?: string };
+  sp: { role?: string; verified?: string; suspended?: string; plus?: string };
 }) {
   if (sp.role) {
     return (
@@ -343,6 +350,12 @@ function FlashBanner({
   }
   if (sp.suspended === "0") {
     return <Banner variant="success">User unsuspended.</Banner>;
+  }
+  if (sp.plus === "1") {
+    return <Banner variant="success">✦ Plus membership granted (1 year).</Banner>;
+  }
+  if (sp.plus === "0") {
+    return <Banner variant="info">Plus membership revoked.</Banner>;
   }
   return null;
 }

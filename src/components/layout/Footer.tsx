@@ -18,6 +18,7 @@ export function Footer() {
             { href: "/packages", label: "Packages" },
             { href: "/trips", label: "Community trips" },
             { href: "/host", label: "Host a trip" },
+            { href: "/plus", label: "✦ Packuptrip Plus" },
           ]}
         />
         <FooterColumn
