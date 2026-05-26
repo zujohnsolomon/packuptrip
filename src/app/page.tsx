@@ -5,8 +5,8 @@ import { Footer } from "@/components/layout/Footer";
 import { PackageCard } from "@/components/ui/PackageCard";
 import { TripCard, type TripCardHost } from "@/components/ui/TripCard";
 import { Badge } from "@/components/ui/Badge";
-import { DatePickerField } from "@/components/ui/DatePickerField";
 import { DestinationPicker } from "@/components/ui/DestinationPicker";
+import { MonthPicker } from "@/components/ui/MonthPicker";
 import { createClient } from "@/lib/supabase/server";
 import { listLiveTrips, listLivePackages } from "@/lib/supabase/queries";
 import { engineImages, heroImage, testimonials } from "@/lib/seed-data";
@@ -149,15 +149,7 @@ function SearchBar() {
 
         <div className="hidden w-px self-stretch bg-stone-200 sm:block" />
 
-        <div className="flex-1">
-          <DatePickerField
-            name="from"
-            label="From"
-            placeholder="Any date"
-            minDate={new Date()}
-            tone="light"
-          />
-        </div>
+        <MonthPicker />
 
         <button
           type="submit"
