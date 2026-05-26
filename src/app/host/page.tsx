@@ -39,7 +39,7 @@ export default async function HostLandingPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         {/* Hero */}
         <section className="relative isolate overflow-hidden">
           <div className="pointer-events-none absolute -top-32 -right-20 h-[420px] w-[420px] rounded-full bg-teal-200/40 blur-3xl" />
@@ -109,7 +109,7 @@ export default async function HostLandingPage() {
         </section>
 
         {/* Commission + fees */}
-        <section className="bg-cream">
+        <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
               <div>
@@ -215,7 +215,7 @@ function Step({
   body: string;
 }) {
   return (
-    <div className="rounded-2xl bg-cream p-6 shadow-[var(--shadow-card)]">
+    <div className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-teal-600 text-sm font-semibold text-white">
         {n}
       </div>
@@ -303,7 +303,7 @@ function Row({
 
 function Expectation({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-2xl bg-cream p-6">
+    <div className="rounded-2xl bg-white p-6">
       <div className="font-semibold text-ink">{title}</div>
       <p className="mt-1 text-sm text-stone-600">{body}</p>
     </div>

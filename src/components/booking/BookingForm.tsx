@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { confirmBooking } from "@/actions/booking";
 import { formatINR } from "@/lib/utils";
 import {
   SERVICE_FEE_RATE,
@@ -37,19 +37,15 @@ export function BookingForm({
   async function onConfirm() {
     setError(null);
     setLoading(true);
-    const supabase = createClient();
-    const { data, error } = await supabase.rpc("create_booking", {
-      p_item_type: itemType,
-      p_item_id: itemId,
-    });
+    const { bookingId, error: err } = await confirmBooking(itemType, itemId);
     setLoading(false);
 
-    if (error) {
-      setError(messageForError(error.code, error.message));
+    if (err) {
+      setError(err);
       return;
     }
-    if (typeof data === "string" && data.length > 0) {
-      router.push(`/bookings/${data}`);
+    if (bookingId) {
+      router.push(`/bookings/${bookingId}`);
       router.refresh();
     } else {
       setError("Something went wrong creating your booking. Please try again.");
@@ -120,16 +116,3 @@ function Row({
   );
 }
 
-/** Map Postgres errcodes raised by create_booking to friendly messages. */
-function messageForError(code: string | undefined, fallback: string) {
-  switch (code) {
-    case "42501":
-      return "Please sign in to confirm your booking.";
-    case "P0001":
-      return "Sorry, this trip just sold out. Try another departure.";
-    case "P0002":
-      return "This trip isn't available anymore.";
-    default:
-      return fallback || "Couldn't create the booking. Please try again.";
-  }
-}

@@ -11,7 +11,7 @@ export default function ReportSentPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="rounded-2xl bg-white p-8 text-center shadow-[var(--shadow-card)]">
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-emerald-700">

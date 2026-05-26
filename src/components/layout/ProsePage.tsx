@@ -22,7 +22,7 @@ export function ProsePage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         {/* Page header */}
         <div className="border-b border-stone-200 bg-white">
           <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">

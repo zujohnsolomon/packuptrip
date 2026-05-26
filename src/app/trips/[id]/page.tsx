@@ -22,9 +22,14 @@ export async function generateMetadata({
   const { id } = await params;
   const res = await getLiveTrip(id);
   if (!res) return { title: "Trip not found · Packuptrip" };
+  const image = res.trip.images[0];
   return {
     title: `${res.trip.title} · Community trip`,
     description: res.trip.description?.slice(0, 160) ?? undefined,
+    openGraph: image ? {
+      images: [{ url: image, width: 1200, height: 630, alt: res.trip.title }],
+    } : undefined,
+    twitter: image ? { card: "summary_large_image" as const, images: [image] } : undefined,
   };
 }
 
@@ -64,7 +69,7 @@ export default async function TripDetailPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream">
+      <main className="flex-1 bg-white">
         <DetailHero
           images={trip.images}
           title={trip.title}
@@ -76,7 +81,7 @@ export default async function TripDetailPage({
 
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12 lg:px-8 lg:py-16">
           <div className="min-w-0 space-y-12">
-            {host && <HostCard host={host} />}
+            {host && <HostCard host={host} currentUserId={user?.id} />}
 
             {trip.description && (
               <section>
@@ -194,39 +199,64 @@ function ReportLink({
   );
 }
 
-function HostCard({ host }: { host: Profile }) {
+function HostCard({
+  host,
+  currentUserId,
+}: {
+  host: Profile;
+  currentUserId?: string;
+}) {
+  const canMessage = currentUserId && currentUserId !== host.id;
+
   return (
-    <Link
-      href={`/hosts/${host.id}`}
-      className="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]"
-    >
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-teal-100 ring-2 ring-white">
-        {host.avatar_url ? (
-          <Image
-            src={host.avatar_url}
-            alt={host.name}
-            fill
-            sizes="56px"
-            className="object-cover"
-          />
-        ) : (
-          <span className="grid h-full w-full place-items-center text-base font-semibold text-teal-800">
-            {host.name.charAt(0)}
-          </span>
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
-          Your host
+    <div className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)]">
+      <Link
+        href={`/hosts/${host.id}`}
+        className="group flex items-center gap-4"
+      >
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-teal-100 ring-2 ring-white">
+          {host.avatar_url ? (
+            <Image
+              src={host.avatar_url}
+              alt={host.name}
+              fill
+              sizes="56px"
+              className="object-cover"
+            />
+          ) : (
+            <span className="grid h-full w-full place-items-center text-base font-semibold text-teal-800">
+              {host.name.charAt(0)}
+            </span>
+          )}
         </div>
-        <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">
-          {host.name}
-          {host.id_verified && <VerifiedBadge size="md" />}
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
+            Your host
+          </div>
+          <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">
+            {host.name}
+            {host.id_verified && <VerifiedBadge size="md" />}
+          </div>
+          <div className="text-xs text-stone-500">
+            {host.id_verified ? "ID verified · " : ""}
+            <span className="text-teal-600">View profile →</span>
+          </div>
         </div>
-        <div className="text-xs text-stone-500">
-          {host.id_verified ? "ID verified · " : ""}<span className="text-teal-600">View profile →</span>
+      </Link>
+
+      {canMessage && (
+        <div className="mt-4 border-t border-stone-100 pt-4">
+          <Link
+            href={`/messages?hostId=${host.id}`}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+          >
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden>
+              <path d="M13 1H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3l2.5 3L10 10h3a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+            </svg>
+            Message {host.name.split(" ")[0]}
+          </Link>
         </div>
-      </div>
-    </Link>
+      )}
+    </div>
   );
 }

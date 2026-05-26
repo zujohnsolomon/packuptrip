@@ -35,7 +35,7 @@ export default async function TripsPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <section className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6 lg:px-8">
           <Badge variant="community">Community Trips</Badge>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
@@ -63,7 +63,7 @@ export default async function TripsPage({
               <div className="mb-4 text-sm text-stone-500">
                 Showing {trips.length} trip{trips.length === 1 ? "" : "s"}
               </div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-5 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trips.map((t) => (
                   <TripCard key={t.id} trip={t} />
                 ))}

@@ -18,9 +18,14 @@ export async function generateMetadata({
   const { id } = await params;
   const pkg = await getLivePackage(id);
   if (!pkg) return { title: "Package not found · Packuptrip" };
+  const image = pkg.images[0];
   return {
     title: `${pkg.title} · Packuptrip Originals`,
     description: pkg.description?.slice(0, 160) ?? undefined,
+    openGraph: image ? {
+      images: [{ url: image, width: 1200, height: 630, alt: pkg.title }],
+    } : undefined,
+    twitter: image ? { card: "summary_large_image" as const, images: [image] } : undefined,
   };
 }
 
@@ -39,7 +44,7 @@ export default async function PackageDetailPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream">
+      <main className="flex-1 bg-white">
         <DetailHero
           images={pkg.images}
           title={pkg.title}

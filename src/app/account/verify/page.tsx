@@ -38,7 +38,7 @@ export default async function VerifyPage() {
     return (
       <>
         <Header />
-        <main className="flex-1 bg-cream pt-20">
+        <main className="flex-1 bg-white pt-20">
           <div className="mx-auto max-w-lg px-4 py-20 sm:px-6">
             <div className={`rounded-2xl p-8 ring-1 ring-inset text-center ${cfg.color}`}>
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-70">
@@ -58,7 +58,7 @@ export default async function VerifyPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
           <div className="mb-8">
             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">

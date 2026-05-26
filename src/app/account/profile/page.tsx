@@ -26,7 +26,7 @@ export default async function EditProfilePage() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-8">
             <Link

@@ -36,7 +36,7 @@ export default async function BookTripPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <Link
             href={`/trips/${trip.id}`}
@@ -82,7 +82,7 @@ function SoldOut({ href, title }: { href: string; title: string }) {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="rounded-2xl bg-white p-8 text-center shadow-[var(--shadow-card)]">
             <h1 className="text-2xl font-semibold text-ink">All spots taken</h1>

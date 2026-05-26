@@ -39,7 +39,7 @@ export default async function ReviewPage({
     return (
       <>
         <Header />
-        <main className="flex-1 bg-cream pt-20">
+        <main className="flex-1 bg-white pt-20">
           <div className="mx-auto max-w-xl px-4 py-24 text-center">
             <p className="text-2xl font-semibold text-ink">Review window closed</p>
             <p className="mt-2 text-stone-500">
@@ -58,7 +58,7 @@ export default async function ReviewPage({
     return (
       <>
         <Header />
-        <main className="flex-1 bg-cream pt-20">
+        <main className="flex-1 bg-white pt-20">
           <div className="mx-auto max-w-xl px-4 py-24 text-center">
             <div className="text-4xl">✓</div>
             <p className="mt-4 text-2xl font-semibold text-ink">Review submitted</p>
@@ -128,7 +128,7 @@ export default async function ReviewPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
           <div className="mb-8">
             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">

@@ -8,6 +8,7 @@ export type UpdateProfilePayload = {
   bio: string;
   homeCity: string;
   travelStyleTags: string[];
+  languages: string[];
   avatarUrl?: string | null;
 };
 
@@ -25,6 +26,7 @@ export async function updateProfile(
     bio: payload.bio.trim() || null,
     home_city: payload.homeCity.trim() || null,
     travel_style_tags: payload.travelStyleTags,
+    languages: payload.languages,
   };
 
   if (payload.avatarUrl !== undefined) {

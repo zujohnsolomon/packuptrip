@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { NotificationType } from "@/types/db";
 
-export type { NotificationType };
-
 export type Notification = {
   id: string;
   user_id: string;

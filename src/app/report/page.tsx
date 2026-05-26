@@ -49,7 +49,7 @@ export default async function ReportPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-700">
             Trust &amp; safety
@@ -112,7 +112,7 @@ function MissingSubject() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="rounded-2xl bg-white p-8 text-center shadow-[var(--shadow-card)]">
             <h1 className="text-xl font-semibold text-ink">

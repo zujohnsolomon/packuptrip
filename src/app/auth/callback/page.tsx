@@ -166,7 +166,7 @@ function safeNext(raw: string | null): string {
 
 function Pending({ detail }: { detail: string }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-cream px-4">
+    <main className="grid min-h-screen place-items-center bg-white px-4">
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="h-9 w-9 animate-spin text-amber-600">
           <svg
@@ -198,7 +198,7 @@ function Pending({ detail }: { detail: string }) {
 
 function Failed({ message }: { message: string }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-cream px-4">
+    <main className="grid min-h-screen place-items-center bg-white px-4">
       <div className="max-w-sm text-center">
         <div className="text-sm font-semibold text-red-700">Sign-in failed</div>
         <p className="mt-1 text-xs text-stone-500">{message}</p>

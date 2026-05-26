@@ -22,6 +22,24 @@ const STYLE_TAGS = [
   { key: "Spiritual", emoji: "🙏" },
 ];
 
+const LANGUAGES = [
+  { key: "English", flag: "🇬🇧" },
+  { key: "Hindi", flag: "🇮🇳" },
+  { key: "Tamil", flag: "🇮🇳" },
+  { key: "Telugu", flag: "🇮🇳" },
+  { key: "Kannada", flag: "🇮🇳" },
+  { key: "Malayalam", flag: "🇮🇳" },
+  { key: "Marathi", flag: "🇮🇳" },
+  { key: "Bengali", flag: "🇮🇳" },
+  { key: "Gujarati", flag: "🇮🇳" },
+  { key: "Punjabi", flag: "🇮🇳" },
+  { key: "French", flag: "🇫🇷" },
+  { key: "Spanish", flag: "🇪🇸" },
+  { key: "German", flag: "🇩🇪" },
+  { key: "Japanese", flag: "🇯🇵" },
+  { key: "Arabic", flag: "🇦🇪" },
+];
+
 // ─── Avatar uploader ──────────────────────────────────────────────────────────
 
 function AvatarUploader({
@@ -41,6 +59,10 @@ function AvatarUploader({
   const [err, setErr] = useState<string | null>(null);
 
   async function handleFile(file: File) {
+    if (file.size > 5 * 1024 * 1024) {
+      setErr("File too large — max 5 MB");
+      return;
+    }
     setUploading(true);
     setErr(null);
     setPreview(URL.createObjectURL(file));
@@ -57,7 +79,6 @@ function AvatarUploader({
       if (uploadErr) throw new Error(uploadErr.message);
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      // Cache-bust so the new image is fetched immediately
       onUploaded(`${data.publicUrl}?t=${Date.now()}`);
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "Upload failed");
@@ -75,15 +96,11 @@ function AvatarUploader({
     .slice(0, 2);
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative">
+    <div className="flex items-center gap-6">
+      <div className="relative shrink-0">
         <div className="h-24 w-24 overflow-hidden rounded-full bg-amber-100 ring-4 ring-white shadow-md">
           {preview ? (
-            <img
-              src={preview}
-              alt="Avatar"
-              className="h-full w-full object-cover"
-            />
+            <img src={preview} alt="Avatar" className="h-full w-full object-cover object-top" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-amber-700">
               {initials}
@@ -93,8 +110,8 @@ function AvatarUploader({
         {uploading && (
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
             <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
           </div>
         )}
@@ -106,20 +123,69 @@ function AvatarUploader({
           aria-label="Change photo"
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-            <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
-      {err && <p className="text-xs text-red-600">{err}</p>}
+
+      <div>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="text-sm font-medium text-amber-600 hover:text-amber-700 disabled:opacity-50"
+        >
+          {uploading ? "Uploading…" : "Change photo"}
+        </button>
+        {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
+        <p className="mt-0.5 text-[11px] text-stone-400">JPG, PNG or WebP · max 5 MB</p>
+      </div>
+
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="sr-only"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f);
+        }}
       />
-      <p className="text-[11px] text-stone-400">JPG, PNG or WebP · max 5 MB</p>
     </div>
+  );
+}
+
+// ─── Pill toggle button ───────────────────────────────────────────────────────
+
+function PillToggle({
+  label,
+  prefix,
+  selected,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  prefix?: string;
+  selected: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+        selected
+          ? "bg-amber-500 text-white shadow-sm"
+          : disabled
+          ? "cursor-not-allowed bg-stone-100 text-stone-300"
+          : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+      }`}
+    >
+      {prefix && <span>{prefix}</span>}
+      {label}
+    </button>
   );
 }
 
@@ -130,15 +196,14 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   const [bio, setBio] = useState(profile.bio ?? "");
   const [homeCity, setHomeCity] = useState(profile.home_city ?? "");
   const [styleTags, setStyleTags] = useState<string[]>(profile.travel_style_tags ?? []);
+  const [languages, setLanguages] = useState<string[]>(profile.languages ?? []);
   const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(undefined);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function toggleTag(key: string) {
-    setStyleTags((prev) =>
-      prev.includes(key) ? prev.filter((t) => t !== key) : [...prev, key],
-    );
+  function toggleTag(key: string, list: string[], setList: (v: string[]) => void) {
+    setList(list.includes(key) ? list.filter((t) => t !== key) : [...list, key]);
   }
 
   function handleSave() {
@@ -150,6 +215,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
         bio,
         homeCity,
         travelStyleTags: styleTags,
+        languages,
         avatarUrl,
       });
       if (err) {
@@ -161,22 +227,27 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     });
   }
 
-  // Profile completeness score (shown as a nudge)
-  const fields = [!!name, !!bio, !!homeCity, styleTags.length > 0, !!(avatarUrl ?? profile.avatar_url)];
+  // Profile completeness score
+  const fields = [
+    !!name,
+    !!bio,
+    !!homeCity,
+    styleTags.length > 0,
+    languages.length > 0,
+    !!(avatarUrl ?? profile.avatar_url),
+  ];
   const pct = Math.round((fields.filter(Boolean).length / fields.length) * 100);
   const isComplete = pct === 100;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Completeness bar */}
       {!isComplete && (
         <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-inset ring-amber-200">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-amber-900">
-              Profile {pct}% complete
-            </span>
+            <span className="font-medium text-amber-900">Profile {pct}% complete</span>
             <span className="text-xs text-amber-700">
-              {100 - pct}% left — hosts with full profiles get 3× more joiners
+              Hosts with full profiles get 3× more joiners
             </span>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-amber-100">
@@ -230,7 +301,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               value={homeCity}
               onChange={(e) => setHomeCity(e.target.value)}
               maxLength={60}
-              placeholder="e.g. Mumbai, Bengaluru, Delhi…"
+              placeholder="e.g. Mumbai, Bengaluru, Chennai…"
               className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
             />
           </div>
@@ -259,43 +330,59 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-stone-400">
           Travel style
         </h2>
-        <p className="mb-4 text-xs text-stone-500">
-          Pick up to 5 tags that describe how you travel.
-        </p>
+        <p className="mb-4 text-xs text-stone-500">Pick up to 5 tags that describe how you travel.</p>
         <div className="flex flex-wrap gap-2">
           {STYLE_TAGS.map((t) => {
             const selected = styleTags.includes(t.key);
             const maxed = styleTags.length >= 5 && !selected;
             return (
-              <button
+              <PillToggle
                 key={t.key}
-                type="button"
+                label={t.key}
+                prefix={t.emoji}
+                selected={selected}
                 disabled={maxed}
-                onClick={() => toggleTag(t.key)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-                  selected
-                    ? "bg-amber-500 text-white shadow-sm"
-                    : maxed
-                    ? "cursor-not-allowed bg-stone-100 text-stone-300"
-                    : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-                }`}
-              >
-                <span>{t.emoji}</span>
-                {t.key}
-              </button>
+                onClick={() => toggleTag(t.key, styleTags, setStyleTags)}
+              />
             );
           })}
         </div>
       </div>
 
-      {/* Save */}
+      {/* Languages */}
+      <div className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
+        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-stone-400">
+          Spoken languages
+        </h2>
+        <p className="mb-4 text-xs text-stone-500">
+          Helps travellers know they can communicate with you.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {LANGUAGES.map((l) => {
+            const selected = languages.includes(l.key);
+            return (
+              <PillToggle
+                key={l.key}
+                label={l.key}
+                prefix={l.flag}
+                selected={selected}
+                disabled={false}
+                onClick={() => toggleTag(l.key, languages, setLanguages)}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Error */}
       {error && (
         <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700 ring-1 ring-inset ring-red-200">
           {error}
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-4">
+      {/* Save row */}
+      <div className="flex items-center justify-between gap-4 pb-4">
         <a
           href={`/hosts/${profile.id}`}
           target="_blank"
@@ -308,7 +395,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-full bg-amber-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 disabled:opacity-60"
+          className="rounded-full bg-amber-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 disabled:opacity-60 transition-colors"
         >
           {isPending ? "Saving…" : saved ? "✓ Saved" : "Save profile"}
         </button>

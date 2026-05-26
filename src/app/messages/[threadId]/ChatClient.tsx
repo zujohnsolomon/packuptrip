@@ -263,7 +263,7 @@ export function ChatClient({
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-cream">
+    <div className="flex h-dvh flex-col bg-white">
       {/* ── Header ── */}
       <header className="flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3 shadow-sm">
         <Link

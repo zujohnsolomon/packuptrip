@@ -57,6 +57,7 @@ export type Profile = {
   bio: string | null;
   home_city: string | null;
   travel_style_tags: string[];
+  languages: string[];
   id_verified: boolean;
   role: UserRole;
   created_at: string;

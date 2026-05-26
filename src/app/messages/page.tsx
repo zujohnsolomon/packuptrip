@@ -107,7 +107,7 @@ export default async function MessagesPage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-cream pt-20">
+      <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
