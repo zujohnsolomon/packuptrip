@@ -87,7 +87,8 @@ function HostMenu({ tripId, message, senderName, senderId, isOwnMessage, onDelet
       <button
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
-        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-400 opacity-0 transition-opacity group-hover/msg:opacity-100 hover:bg-stone-100 hover:text-stone-600"
+        title="Message actions"
+        className="flex h-6 w-6 items-center justify-center rounded-full text-stone-300 opacity-40 transition-all group-hover/msg:opacity-100 group-hover/msg:text-stone-500 hover:bg-stone-100 hover:text-stone-600"
         aria-label="Message actions"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -359,12 +360,17 @@ export function TripChatClient({
         <span className="text-xs text-stone-500">
           {members.length} member{members.length !== 1 ? "s" : ""}
         </span>
-        <div className="ml-auto flex flex-wrap gap-1">
+        <div className="ml-auto flex flex-wrap items-center gap-1">
           {members.filter(m => m.is_host).map(m => (
             <span key={m.id} className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
               {m.name.split(" ")[0]} · Host
             </span>
           ))}
+          {isHost && (
+            <span className="ml-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] text-stone-400">
+              Hover a message to moderate
+            </span>
+          )}
         </div>
       </div>
 
@@ -415,11 +421,11 @@ export function TripChatClient({
                 </div>
 
                 <div className={`flex max-w-[72%] flex-col ${isMe ? "items-end" : "items-start"}`}>
-                  {/* Sender name — only first in group, not for me */}
-                  {!isMe && isFirstInGroup && sender && (
+                  {/* Sender name — first in every group, for everyone (group chat needs it) */}
+                  {isFirstInGroup && sender && (
                     <div className="mb-1 flex items-center gap-1.5 px-1">
-                      <span className="text-[11px] font-semibold text-stone-600">
-                        {sender.name}
+                      <span className={`text-[11px] font-semibold ${isMe ? "text-amber-600" : "text-stone-600"}`}>
+                        {isMe ? "You" : sender.name}
                       </span>
                       {sender.is_host && (
                         <span className="rounded-full bg-teal-50 px-1.5 py-0.5 text-[9px] font-semibold text-teal-700">
