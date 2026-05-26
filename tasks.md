@@ -88,7 +88,7 @@ calculation; changing one requires a migration that updates both.
 - [ ] Hold-until-trip-start logic via provider's escrow
 - [ ] Refund + cancellation paths
 - [ ] T9.10 admin slice builds alongside this
-- [ ] **Split the admin Overview revenue metric** into **Reserved** (`bookings.status = 'requested'`), **Captured** (`status = 'confirmed'`), and **Refunded** (`status = 'refunded'`). Right now Gross Revenue includes unpaid bookings — once real payments land, this is misleading. Replace the single "Gross revenue" KPI with three.
+- [x] **Split the admin Overview revenue metric** into **Reserved** (`bookings.status = 'requested'`), **Captured** (`status = 'confirmed'`), and **Refunded** (`status = 'refunded'`). Right now Gross Revenue includes unpaid bookings — once real payments land, this is misleading. Replace the single "Gross revenue" KPI with three.
 
 ### Epic 8 — Reviews + messaging + ID verification ⏳
 
