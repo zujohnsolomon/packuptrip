@@ -53,12 +53,12 @@ function ThreadRow({ thread, userId }: { thread: ThreadSummary; userId: string }
             className="h-12 w-12 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-800">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800">
             {initials}
           </div>
         )}
         {isUnread && (
-          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-indigo-500 ring-2 ring-white" />
+          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-amber-500 ring-2 ring-white" />
         )}
       </div>
 

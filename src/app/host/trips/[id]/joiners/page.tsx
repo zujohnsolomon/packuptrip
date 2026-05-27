@@ -217,7 +217,7 @@ function JoinerCard({
 
 function StatusChip({ status }: { status: BookingStatus }) {
   const styles: Record<BookingStatus, string> = {
-    requested: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+    requested: "bg-amber-100 text-amber-800 ring-amber-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-100 text-stone-600 ring-stone-200",
     refunded: "bg-red-100 text-red-700 ring-red-200",

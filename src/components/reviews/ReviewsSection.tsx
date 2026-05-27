@@ -44,10 +44,10 @@ function RatingSummary({
         {dist.map(({ star, count }) => (
           <div key={star} className="flex items-center gap-3 text-xs">
             <span className="w-4 text-right text-stone-500">{star}</span>
-            <span className="text-indigo-400">★</span>
+            <span className="text-amber-400">★</span>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-100">
               <div
-                className="h-full rounded-full bg-indigo-400 transition-all"
+                className="h-full rounded-full bg-amber-400 transition-all"
                 style={{
                   width:
                     reviewCount > 0 ? `${(count / reviewCount) * 100}%` : "0%",

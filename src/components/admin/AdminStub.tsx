@@ -11,7 +11,7 @@ export function AdminStub({
   return (
     <div className="mx-auto max-w-3xl px-6 py-12 lg:px-8">
       <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-700">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-700">
           Coming with {taskId}
         </div>
         <h2 className="mt-2 text-xl font-semibold text-ink">{title}</h2>

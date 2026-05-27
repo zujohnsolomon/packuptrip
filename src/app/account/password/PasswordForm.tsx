@@ -22,7 +22,7 @@ export function PasswordForm() {
 
   const strength = rules.filter((r) => r.test(newPw)).length;
   const strengthLabel = ["Weak", "Fair", "Good", "Strong"][strength];
-  const strengthColor = ["bg-red-400", "bg-orange-400", "bg-indigo-400", "bg-green-600"][strength];
+  const strengthColor = ["bg-red-400", "bg-orange-400", "bg-amber-400", "bg-green-600"][strength];
   const canSubmit = strength === rules.length && newPw === confirmPw && newPw.length > 0;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -74,7 +74,7 @@ export function PasswordForm() {
               onChange={(e) => setNewPw(e.target.value)}
               autoComplete="new-password"
               placeholder="Enter new password"
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 pr-11 text-sm text-ink placeholder:text-stone-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 pr-11 text-sm text-ink placeholder:text-stone-400 focus:border-amber-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
             />
             <button
               type="button"
@@ -113,7 +113,7 @@ export function PasswordForm() {
                   ))}
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  strength === 3 ? "text-green-700" : strength === 2 ? "text-indigo-600" : "text-red-500"
+                  strength === 3 ? "text-green-700" : strength === 2 ? "text-amber-600" : "text-red-500"
                 }`}>
                   {strengthLabel}
                 </span>
@@ -139,7 +139,7 @@ export function PasswordForm() {
                   ? "border-red-300 focus:border-red-300 focus:ring-red-100"
                   : confirmPw && newPw === confirmPw
                   ? "border-green-300 focus:border-green-300 focus:ring-green-100"
-                  : "border-stone-200 focus:border-indigo-300 focus:ring-indigo-100"
+                  : "border-stone-200 focus:border-amber-300 focus:ring-amber-100"
               }`}
             />
             <button
@@ -176,7 +176,7 @@ export function PasswordForm() {
         <button
           type="submit"
           disabled={!canSubmit || loading}
-          className="rounded-full bg-indigo-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 disabled:opacity-50 transition-colors"
+          className="rounded-full bg-amber-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 disabled:opacity-50 transition-colors"
         >
           {loading ? "Updating…" : "Update password"}
         </button>

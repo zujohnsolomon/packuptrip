@@ -135,7 +135,7 @@ export default async function BookingDetailPage({
               {item.type === "trip" && now >= startDate && booking.status !== "cancelled" && booking.status !== "refunded" && (
                 <Link
                   href={`/trips/${item.item.id}/memory`}
-                  className="mt-3 inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+                  className="mt-3 inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-5 text-sm font-medium text-amber-700 hover:bg-amber-100 transition-colors"
                 >
                   <span>🎒</span>
                   {tripEnded ? "View trip memory" : "Trip memory (in progress)"}
@@ -203,9 +203,9 @@ function ConfirmationBanner({
   reference: string;
   accent: "amber" | "teal";
 }) {
-  const bg = accent === "amber" ? "bg-indigo-50" : "bg-green-50";
-  const ring = accent === "amber" ? "ring-indigo-100" : "ring-green-100";
-  const fg = accent === "amber" ? "text-indigo-800" : "text-green-900";
+  const bg = accent === "amber" ? "bg-amber-50" : "bg-green-50";
+  const ring = accent === "amber" ? "ring-amber-100" : "ring-green-100";
+  const fg = accent === "amber" ? "text-amber-800" : "text-green-900";
   return (
     <div className={`rounded-2xl p-6 sm:p-8 ring-1 ring-inset ${bg} ${ring}`}>
       <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${fg}`}>
@@ -263,19 +263,19 @@ function ReviewPrompt({
     ? `${Math.ceil(hoursLeft / 24)} day${Math.ceil(hoursLeft / 24) !== 1 ? "s" : ""}`
     : `${hoursLeft} hour${hoursLeft !== 1 ? "s" : ""}`;
   return (
-    <div className="mt-6 rounded-2xl bg-indigo-50 p-5 ring-1 ring-inset ring-indigo-200">
+    <div className="mt-6 rounded-2xl bg-amber-50 p-5 ring-1 ring-inset ring-amber-200">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-indigo-900">
+          <p className="text-sm font-semibold text-amber-900">
             How was your trip?
           </p>
-          <p className="mt-0.5 text-xs text-indigo-700">
+          <p className="mt-0.5 text-xs text-amber-700">
             You have {timeLabel} to leave a review.
           </p>
         </div>
         <Link
           href={`/bookings/${bookingId}/review`}
-          className="shrink-0 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-600"
+          className="shrink-0 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-600"
         >
           Leave a review
         </Link>
@@ -286,7 +286,7 @@ function ReviewPrompt({
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+    requested: "bg-amber-100 text-amber-800 ring-amber-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-stone-200 text-stone-700 ring-stone-300",

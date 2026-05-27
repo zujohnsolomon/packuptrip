@@ -39,7 +39,7 @@ export default function NotFound() {
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/trips"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-indigo-500 px-7 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-600"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-amber-500 px-7 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-amber-600"
             >
               Browse trips
             </Link>

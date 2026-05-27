@@ -65,10 +65,10 @@ export function LoginForm() {
       {googleLoading && (
         <div className="absolute inset-x-0 -top-6 -bottom-6 bg-white/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center animate-tag-reveal rounded-[2rem]">
           <div className="flex flex-col items-center gap-3 text-center px-4">
-            <div className="h-9 w-9 text-indigo-600 animate-spin flex items-center justify-center">
+            <div className="h-9 w-9 text-amber-600 animate-spin flex items-center justify-center">
               <svg className="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="12" cy="12" r="9" className="opacity-20" />
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" className="stroke-indigo-600 fill-indigo-600/20" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" className="stroke-amber-600 fill-amber-600/20" />
               </svg>
             </div>
             <div>
@@ -116,7 +116,7 @@ export function LoginForm() {
           type="button"
           onClick={onGoogleLogin}
           disabled={loading}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-stone-200 shadow-sm hover:scale-108 hover:border-indigo-500/20 active:scale-95 transition-all focus:outline-none"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-stone-200 shadow-sm hover:scale-108 hover:border-amber-500/20 active:scale-95 transition-all focus:outline-none"
           title="Continue with Google"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">

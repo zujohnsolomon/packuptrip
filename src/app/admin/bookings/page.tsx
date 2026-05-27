@@ -48,7 +48,7 @@ export default async function AdminBookingsPage({
         title="Bookings"
         description="Every booking across Originals and Community Trips. Filter, inspect, cancel, refund."
         actions={
-          <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
+          <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
             {rows.length} matching
           </span>
         }
@@ -91,7 +91,7 @@ export default async function AdminBookingsPage({
                             href={`/admin/bookings/${booking.id}`}
                             className="block"
                           >
-                            <div className="truncate font-medium text-ink group-hover:text-indigo-700">
+                            <div className="truncate font-medium text-ink group-hover:text-amber-700">
                               {itemTitle ?? "Unknown trip"}
                             </div>
                             <div className="font-mono text-[10px] text-stone-400">
@@ -133,7 +133,7 @@ export default async function AdminBookingsPage({
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`/admin/bookings/${booking.id}`}
-                            className="text-xs font-semibold text-indigo-700 hover:text-indigo-800"
+                            className="text-xs font-semibold text-amber-700 hover:text-amber-800"
                           >
                             Open →
                           </Link>
@@ -163,7 +163,7 @@ function FilterRow({ current }: { current: SP }) {
         name="q"
         defaultValue={current.q ?? ""}
         placeholder="Search ref, traveller, trip…"
-        className="h-9 flex-1 min-w-[200px] rounded-lg border border-stone-200 bg-white px-3 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        className="h-9 flex-1 min-w-[200px] rounded-lg border border-stone-200 bg-white px-3 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
       />
       <select
         name="status"
@@ -205,7 +205,7 @@ function FilterRow({ current }: { current: SP }) {
       </label>
       <button
         type="submit"
-        className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+        className="inline-flex h-9 items-center rounded-lg bg-amber-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
       >
         Filter
       </button>
@@ -270,7 +270,7 @@ function SummaryCard({
 }) {
   const dot = {
     stone: "bg-stone-400",
-    amber: "bg-indigo-500",
+    amber: "bg-amber-500",
     emerald: "bg-emerald-500",
     red: "bg-red-500",
   }[tone];
@@ -293,7 +293,7 @@ function SummaryCard({
 function ItemTypeChip({ type }: { type: "package" | "trip" }) {
   const cls =
     type === "package"
-      ? "bg-indigo-100 text-indigo-800 ring-indigo-200"
+      ? "bg-amber-100 text-amber-800 ring-amber-200"
       : "bg-green-100 text-green-900 ring-green-200";
   const label = type === "package" ? "Original" : "Community";
   return (
@@ -307,7 +307,7 @@ function ItemTypeChip({ type }: { type: "package" | "trip" }) {
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+    requested: "bg-amber-100 text-amber-800 ring-amber-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-red-100 text-red-800 ring-red-200",

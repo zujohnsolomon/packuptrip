@@ -130,7 +130,7 @@ export function DatePickerField({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-xs font-semibold text-indigo-700 hover:text-indigo-800"
+                className="text-xs font-semibold text-amber-700 hover:text-amber-800"
               >
                 Done
               </button>
@@ -177,11 +177,11 @@ function Calendar({
         week: "flex w-full mt-1",
         day: "h-10 w-10 p-0 text-sm text-stone-700 relative",
         day_button:
-          "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors hover:bg-indigo-100 hover:text-indigo-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300",
+          "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors hover:bg-amber-100 hover:text-amber-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300",
         selected:
-          "[&_button]:bg-indigo-600 [&_button]:text-white [&_button:hover]:bg-indigo-700 [&_button:hover]:text-white",
+          "[&_button]:bg-amber-600 [&_button]:text-white [&_button:hover]:bg-amber-700 [&_button:hover]:text-white",
         today:
-          "[&_button]:ring-1 [&_button]:ring-inset [&_button]:ring-indigo-300 [&_button]:font-semibold",
+          "[&_button]:ring-1 [&_button]:ring-inset [&_button]:ring-amber-300 [&_button]:font-semibold",
         outside: "text-stone-300",
         disabled: "text-stone-300 [&_button]:cursor-not-allowed [&_button:hover]:bg-transparent [&_button:hover]:text-stone-300",
         hidden: "invisible",

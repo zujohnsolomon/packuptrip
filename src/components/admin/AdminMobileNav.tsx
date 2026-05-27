@@ -44,7 +44,7 @@ export function AdminMobileNav() {
               className={cn(
                 "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                 active
-                  ? "bg-indigo-50 text-indigo-800"
+                  ? "bg-amber-50 text-amber-800"
                   : "text-stone-600 hover:bg-stone-50 hover:text-ink",
               )}
             >

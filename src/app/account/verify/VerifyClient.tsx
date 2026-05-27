@@ -84,7 +84,7 @@ function UploadZone({
     <div>
       <div className="mb-2 text-sm font-medium text-ink">{label}</div>
       <div
-        className="relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 transition-colors hover:border-indigo-300 hover:bg-indigo-50/40"
+        className="relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 transition-colors hover:border-amber-300 hover:bg-amber-50/40"
         style={{ minHeight: 160 }}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
@@ -136,7 +136,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
     <div className="flex flex-col items-center gap-1">
       <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
         done ? "bg-green-600 text-white" :
-        active ? "bg-indigo-500 text-white" :
+        active ? "bg-amber-500 text-white" :
         "bg-stone-100 text-stone-400"
       }`}>
         {done ? "✓" : n}
@@ -253,11 +253,11 @@ export function VerifyClient({ userId }: { userId: string }) {
                 onClick={() => { setIdType(t.key); if (step === 1) setStep(2); }}
                 className={`flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-all ${
                   selected
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-900 shadow-sm"
+                    ? "border-amber-400 bg-amber-50 text-amber-900 shadow-sm"
                     : "border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50"
                 }`}
               >
-                <span className={selected ? "text-indigo-600" : "text-stone-400"}>{t.icon}</span>
+                <span className={selected ? "text-amber-600" : "text-stone-400"}>{t.icon}</span>
                 <span>
                   <div className="text-sm font-semibold">{t.label}</div>
                   <div className="text-xs opacity-70">{t.desc}</div>
@@ -283,7 +283,7 @@ export function VerifyClient({ userId }: { userId: string }) {
           {idDocFile && idDocFile.name && (
             <button
               type="button"
-              className="mt-4 w-full rounded-full bg-indigo-500 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600"
+              className="mt-4 w-full rounded-full bg-amber-500 py-2.5 text-sm font-semibold text-white hover:bg-amber-600"
               onClick={() => setStep(3)}
             >
               Continue →

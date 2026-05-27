@@ -66,16 +66,16 @@ export default async function AccountPage() {
 
           {/* Profile completeness nudge */}
           {profile && (!profile.bio || !profile.avatar_url || !profile.home_city) && (
-            <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-indigo-50 px-5 py-4 ring-1 ring-inset ring-indigo-200">
+            <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-amber-50 px-5 py-4 ring-1 ring-inset ring-amber-200">
               <div>
-                <p className="text-sm font-semibold text-indigo-900">Complete your profile</p>
-                <p className="text-xs text-indigo-700">
+                <p className="text-sm font-semibold text-amber-900">Complete your profile</p>
+                <p className="text-xs text-amber-700">
                   Add a photo, bio, and home city — travellers trust hosts they can see.
                 </p>
               </div>
               <Link
                 href="/account/profile"
-                className="shrink-0 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-600"
+                className="shrink-0 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600"
               >
                 Edit profile
               </Link>
@@ -183,7 +183,7 @@ export default async function AccountPage() {
             </Link>
             <Link
               href="/account/referrals"
-              className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 transition-colors"
             >
               🎁 Refer &amp; earn ₹200
             </Link>
@@ -300,7 +300,7 @@ function BookingRow({
           </Badge>
           <StatusChip status={booking.status} />
         </div>
-        <div className="mt-1 truncate font-semibold text-ink group-hover:text-indigo-700">
+        <div className="mt-1 truncate font-semibold text-ink group-hover:text-amber-700">
           {item?.item.title ?? "Trip details unavailable"}
         </div>
         <div className="mt-0.5 truncate text-xs text-stone-500">
@@ -328,7 +328,7 @@ function BookingRow({
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+    requested: "bg-amber-100 text-amber-800 ring-amber-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-stone-200 text-stone-700 ring-stone-300",
@@ -355,7 +355,7 @@ function EmptyBookings() {
       <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
         <Link
           href="/packages"
-          className="inline-flex h-10 items-center justify-center rounded-full bg-indigo-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-amber-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
         >
           Browse packages
         </Link>
@@ -372,7 +372,7 @@ function EmptyBookings() {
 
 const TRIP_STATUS_STYLES: Record<TripStatus, string> = {
   draft: "bg-stone-100 text-stone-600 ring-stone-200",
-  pending: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+  pending: "bg-amber-100 text-amber-800 ring-amber-200",
   live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   completed: "bg-sky-100 text-sky-800 ring-sky-200",
   cancelled: "bg-stone-200 text-stone-600 ring-stone-300",

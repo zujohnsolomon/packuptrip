@@ -104,7 +104,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-full bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600 disabled:opacity-60"
+      className="w-full rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-60"
     >
       {pending ? "Submitting…" : "Submit review"}
     </button>
@@ -156,7 +156,7 @@ export function ReviewForm({
   return (
     <form ref={formRef} action={handleAction} className="space-y-8">
       {/* Deadline notice */}
-      <div className="rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-800 ring-1 ring-inset ring-indigo-200">
+      <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-inset ring-amber-200">
         {isPackage
           ? "Your review will be published immediately."
           : `Your review stays hidden until the ${isHost ? "joiner" : "host"} also reviews, or in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} — whichever comes first.`}
@@ -208,7 +208,7 @@ export function ReviewForm({
                 onClick={() => toggleTag(tag)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                   active
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-800"
+                    ? "border-amber-400 bg-amber-50 text-amber-800"
                     : "border-stone-200 bg-white text-stone-600 hover:border-stone-300"
                 }`}
               >
@@ -237,7 +237,7 @@ export function ReviewForm({
               ? "What was it like having them as a travel companion?"
               : "What made this trip memorable? What should future joiners know?"
           }
-          className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-ink placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+          className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-ink placeholder:text-stone-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
         />
       </div>
 

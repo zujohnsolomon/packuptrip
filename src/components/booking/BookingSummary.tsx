@@ -23,7 +23,7 @@ export function BookingSummary({
 }) {
   const ribbon =
     variant === "originals"
-      ? "bg-indigo-100 text-indigo-800 ring-indigo-200"
+      ? "bg-amber-100 text-amber-800 ring-amber-200"
       : "bg-green-100 text-green-900 ring-green-200";
 
   return (

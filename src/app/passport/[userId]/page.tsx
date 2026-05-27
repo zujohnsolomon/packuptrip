@@ -70,7 +70,7 @@ export default async function PassportPage({
                     <div>
                       <p className="text-sm font-semibold text-ink">{profile.name}</p>
                       {avgRating !== null && (
-                        <p className="text-xs text-indigo-600">★ {avgRating.toFixed(1)} from hosts</p>
+                        <p className="text-xs text-amber-600">★ {avgRating.toFixed(1)} from hosts</p>
                       )}
                     </div>
                   </div>
@@ -302,7 +302,7 @@ function HostReviewCard({
                 </Link>
               ) : "Host"}
             </span>
-            <span className="shrink-0 text-xs font-semibold text-indigo-600">
+            <span className="shrink-0 text-xs font-semibold text-amber-600">
               {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
             </span>
           </div>

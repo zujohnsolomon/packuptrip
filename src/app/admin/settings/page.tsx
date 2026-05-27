@@ -118,12 +118,12 @@ export default async function AdminSettingsPage() {
                         step={inputStep}
                         min={inputMin}
                         max={inputMax}
-                        className="w-28 rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        className="w-28 rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
                         aria-label={`New value for ${displayLabel}`}
                       />
                       <button
                         type="submit"
-                        className="rounded-xl bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600 transition-colors"
+                        className="rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition-colors"
                       >
                         Save
                       </button>

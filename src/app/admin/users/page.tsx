@@ -80,11 +80,11 @@ export default async function AdminUsersPage({
                           href={`/admin/users/${profile.id}`}
                           className="flex items-center gap-3"
                         >
-                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-800">
+                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-semibold text-amber-800">
                             {profile.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate font-medium text-ink group-hover:text-indigo-700">
+                            <div className="truncate font-medium text-ink group-hover:text-amber-700">
                               {profile.name}
                             </div>
                             <div className="truncate text-xs text-stone-500">
@@ -133,7 +133,7 @@ export default async function AdminUsersPage({
                       <td className="px-4 py-3 text-right">
                         <Link
                           href={`/admin/users/${profile.id}`}
-                          className="text-xs font-semibold text-indigo-700 hover:text-indigo-800"
+                          className="text-xs font-semibold text-amber-700 hover:text-amber-800"
                         >
                           Manage →
                         </Link>
@@ -162,7 +162,7 @@ function FilterRow({ current }: { current: SP }) {
         name="q"
         defaultValue={current.q ?? ""}
         placeholder="Search name or email…"
-        className="h-9 flex-1 min-w-[200px] rounded-lg border border-stone-200 bg-white px-3 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        className="h-9 flex-1 min-w-[200px] rounded-lg border border-stone-200 bg-white px-3 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
       />
       <select
         name="role"
@@ -186,7 +186,7 @@ function FilterRow({ current }: { current: SP }) {
       </select>
       <button
         type="submit"
-        className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+        className="inline-flex h-9 items-center rounded-lg bg-amber-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
       >
         Filter
       </button>
@@ -237,7 +237,7 @@ function SummaryCard({
 }) {
   const dot = {
     stone: "bg-stone-400",
-    amber: "bg-indigo-500",
+    amber: "bg-amber-500",
     teal: "bg-green-600",
     emerald: "bg-emerald-500",
     red: "bg-red-500",
@@ -259,7 +259,7 @@ function RoleChip({ role }: { role: UserRole }) {
   const styles: Record<UserRole, string> = {
     traveller: "bg-stone-100 text-stone-700 ring-stone-200",
     host: "bg-green-100 text-green-900 ring-green-200",
-    admin: "bg-indigo-100 text-indigo-800 ring-indigo-200",
+    admin: "bg-amber-100 text-amber-800 ring-amber-200",
   };
   return (
     <span
