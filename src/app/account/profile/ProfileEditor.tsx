@@ -71,19 +71,19 @@ function AvatarUploader({
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
 
-  // Compute displayed image size (scale=1 → covers the crop circle)
-  function dispSize(s: number) {
+  // Base size of the image at scale=1 (covers the crop circle exactly).
+  // Computed from natural dimensions — does NOT include current scale.
+  const baseSize = (() => {
     const asp = imgNatural.w / imgNatural.h;
-    const base = asp >= 1
+    return asp >= 1
       ? { w: CROP_DISPLAY * asp, h: CROP_DISPLAY }
       : { w: CROP_DISPLAY, h: CROP_DISPLAY / asp };
-    return { w: base.w * s, h: base.h * s };
-  }
+  })();
 
   function clamp(ox: number, oy: number, s: number) {
-    const { w, h } = dispSize(s);
-    const mx = Math.max(0, (w - CROP_DISPLAY) / 2);
-    const my = Math.max(0, (h - CROP_DISPLAY) / 2);
+    // After scale(s) around center, visual size is baseW*s × baseH*s
+    const mx = Math.max(0, (baseSize.w * s - CROP_DISPLAY) / 2);
+    const my = Math.max(0, (baseSize.h * s - CROP_DISPLAY) / 2);
     return { x: Math.max(-mx, Math.min(mx, ox)), y: Math.max(-my, Math.min(my, oy)) };
   }
 
@@ -129,17 +129,19 @@ function AvatarUploader({
     canvas.height = CROP_OUTPUT;
     const ctx = canvas.getContext("2d")!;
 
-    // Circular clip
-    ctx.beginPath();
-    ctx.arc(CROP_OUTPUT / 2, CROP_OUTPUT / 2, CROP_OUTPUT / 2, 0, Math.PI * 2);
-    ctx.clip();
+    // White background (JPEG has no transparency). The displayed avatar
+    // will be clipped to a circle by CSS wherever it appears.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, CROP_OUTPUT, CROP_OUTPUT);
 
-    // Scale display coords → canvas coords
+    // Mirror what the user sees: image at baseSize, then scale(s) around center,
+    // then translate(offset). Canvas coords = display coords * ratio.
     const ratio = CROP_OUTPUT / CROP_DISPLAY;
-    const { w: dw, h: dh } = dispSize(scale);
-    const left = (CROP_DISPLAY / 2 + offset.x - dw / 2) * ratio;
-    const top  = (CROP_DISPLAY / 2 + offset.y - dh / 2) * ratio;
-    ctx.drawImage(img, left, top, dw * ratio, dh * ratio);
+    const visW = baseSize.w * scale;
+    const visH = baseSize.h * scale;
+    const left = (CROP_DISPLAY / 2 + offset.x - visW / 2) * ratio;
+    const top  = (CROP_DISPLAY / 2 + offset.y - visH / 2) * ratio;
+    ctx.drawImage(img, left, top, visW * ratio, visH * ratio);
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
@@ -169,7 +171,6 @@ function AvatarUploader({
   }
 
   const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-  const { w: dw, h: dh } = dispSize(scale);
 
   return (
     <>
@@ -204,12 +205,15 @@ function AvatarUploader({
                   draggable={false}
                   style={{
                     position: "absolute",
-                    width: dw,
-                    height: dh,
-                    left: CROP_DISPLAY / 2 + offset.x - dw / 2,
-                    top:  CROP_DISPLAY / 2 + offset.y - dh / 2,
+                    width: baseSize.w,
+                    height: baseSize.h,
+                    left: CROP_DISPLAY / 2 - baseSize.w / 2,
+                    top:  CROP_DISPLAY / 2 - baseSize.h / 2,
+                    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                    transformOrigin: "center center",
                     pointerEvents: "none",
                     userSelect: "none",
+                    maxWidth: "none",
                   }}
                 />
                 {!imgLoaded && (
