@@ -6,6 +6,29 @@ import { useState } from "react";
 import { formatINR } from "@/lib/utils";
 import type { Package } from "@/types/db";
 
+/* Try the native share sheet (mobile), fall back to clipboard. */
+async function shareOrCopy(opts: { title: string; text: string; url: string }) {
+  if (typeof navigator === "undefined") return "cancelled" as const;
+
+  // Use a separate boolean so TS doesn't narrow `navigator` itself
+  const canShare = typeof navigator.share === "function";
+  if (canShare) {
+    try {
+      await navigator.share(opts);
+      return "shared" as const;
+    } catch {
+      return "cancelled" as const;
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(opts.url);
+    return "copied" as const;
+  } catch {
+    return "cancelled" as const;
+  }
+}
+
 function spotsLabel(left: number, total: number) {
   if (left === 0) return { label: "Sold out", cls: "bg-stone-500/80 text-white" };
   if (left <= 2) return { label: "Almost full", cls: "bg-red-500/90 text-white" };
@@ -14,7 +37,7 @@ function spotsLabel(left: number, total: number) {
 }
 
 export function PackageCard({ pkg }: { pkg: Package }) {
-  const [hearted, setHearted] = useState(false);
+  const [copied, setCopied] = useState(false);
   const image = pkg.images[0];
   const photoCount = pkg.images.length;
   const badge = spotsLabel(pkg.spots_left, pkg.spots_total);
@@ -117,18 +140,32 @@ export function PackageCard({ pkg }: { pkg: Package }) {
         </div>
       </Link>
 
-      {/* Heart — outside the link */}
+      {/* Share — native share sheet on mobile, copies link on desktop */}
       <button
-        onClick={() => setHearted((h) => !h)}
-        aria-label={hearted ? "Remove from wishlist" : "Save to wishlist"}
-        className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow transition-all duration-150 ${
-          hearted
-            ? "bg-white text-red-500 scale-110"
-            : "bg-white/90 text-stone-400 hover:text-red-400"
-        }`}
+        onClick={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const result = await shareOrCopy({
+            title: pkg.title,
+            text: `Check out this trip on Packuptrip: ${pkg.title}`,
+            url: `${window.location.origin}/packages/${pkg.id}`,
+          });
+          if (result === "copied") {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1800);
+          }
+        }}
+        aria-label="Share this package"
+        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-stone-600 shadow transition-colors hover:text-ink"
       >
-        <HeartIcon filled={hearted} />
+        <ShareIcon />
       </button>
+
+      {copied && (
+        <span className="pointer-events-none absolute right-3 top-12 z-10 rounded-md bg-ink px-2 py-1 text-[11px] font-medium text-white shadow-lg">
+          Link copied
+        </span>
+      )}
     </div>
   );
 }
@@ -151,13 +188,22 @@ function StarFillIcon() {
   );
 }
 
-function HeartIcon({ filled }: { filled: boolean }) {
+function ShareIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden
-      fill={filled ? "currentColor" : "none"}
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
     >
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
     </svg>
   );
 }

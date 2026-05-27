@@ -6,6 +6,31 @@ import { useState } from "react";
 import { formatINR } from "@/lib/utils";
 import type { Trip } from "@/types/db";
 
+/* Try the native share sheet (mobile), fall back to clipboard. Returns
+ * 'shared' if the OS sheet opened, 'copied' if we wrote the link, or
+ * 'cancelled' if neither worked / user dismissed. */
+async function shareOrCopy(opts: { title: string; text: string; url: string }) {
+  if (typeof navigator === "undefined") return "cancelled" as const;
+
+  // Use a separate boolean so TS doesn't narrow `navigator` itself
+  const canShare = typeof navigator.share === "function";
+  if (canShare) {
+    try {
+      await navigator.share(opts);
+      return "shared" as const;
+    } catch {
+      return "cancelled" as const;
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(opts.url);
+    return "copied" as const;
+  } catch {
+    return "cancelled" as const;
+  }
+}
+
 /** Host info shown on the card. Either passed in from a join query, or
  *  a placeholder if we don't have it yet. */
 export type TripCardHost = {
@@ -22,7 +47,7 @@ function spotsLabel(left: number, total: number) {
 }
 
 export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
-  const [hearted, setHearted] = useState(false);
+  const [copied, setCopied] = useState(false);
   const image = trip.images[0];
   const photoCount = trip.images.length;
   const badge = spotsLabel(trip.spots_left, trip.spots_total);
@@ -154,18 +179,34 @@ export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
         </div>
       </Link>
 
-      {/* Heart — outside the link so it doesn't trigger navigation */}
+      {/* Share — outside the link so it doesn't trigger navigation. Uses
+         native share sheet on mobile, copies link on desktop. */}
       <button
-        onClick={() => setHearted((h) => !h)}
-        aria-label={hearted ? "Remove from wishlist" : "Save to wishlist"}
-        className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow transition-all duration-150 ${
-          hearted
-            ? "bg-white text-red-500 scale-110"
-            : "bg-white/90 text-stone-400 hover:text-red-400"
-        }`}
+        onClick={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const result = await shareOrCopy({
+            title: trip.title,
+            text: `Check out this trip on Packuptrip: ${trip.title}`,
+            url: `${window.location.origin}/trips/${trip.id}`,
+          });
+          if (result === "copied") {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1800);
+          }
+        }}
+        aria-label="Share this trip"
+        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-stone-600 shadow transition-colors hover:text-ink"
       >
-        <HeartIcon filled={hearted} />
+        <ShareIcon />
       </button>
+
+      {/* Tiny copied toast — only on desktop where share() isn't available */}
+      {copied && (
+        <span className="pointer-events-none absolute right-3 top-12 z-10 rounded-md bg-ink px-2 py-1 text-[11px] font-medium text-white shadow-lg">
+          Link copied
+        </span>
+      )}
     </div>
   );
 }
@@ -197,13 +238,22 @@ function StarFillIcon() {
   );
 }
 
-function HeartIcon({ filled }: { filled: boolean }) {
+function ShareIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden
-      fill={filled ? "currentColor" : "none"}
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
     >
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
     </svg>
   );
 }
