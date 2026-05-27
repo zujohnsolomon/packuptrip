@@ -158,6 +158,10 @@ export default async function HostsPage({
 
         {/* Results */}
         <section className="mx-auto max-w-7xl px-4 pt-6 pb-20 sm:px-6 lg:px-8">
+          {/* TEMP DEBUG — remove after diagnosis */}
+          <div className="mb-4 rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800 ring-1 ring-inset ring-yellow-200">
+            DEBUG: trips={trips.length} · hostIds={hostIds.length} · profiles={profiles.length} · filtered={filteredHosts.length}
+          </div>
           {filteredHosts.length === 0 ? (
             <EmptyState hasFilter={hasFilter} />
           ) : (
