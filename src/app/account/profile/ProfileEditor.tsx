@@ -40,7 +40,10 @@ const LANGUAGES = [
   { key: "Arabic", flag: "🇦🇪" },
 ];
 
-// ─── Avatar uploader ──────────────────────────────────────────────────────────
+// ─── Avatar uploader with crop modal ─────────────────────────────────────────
+
+const CROP_DISPLAY = 280; // px — size of the circular crop preview
+const CROP_OUTPUT = 400;  // px — canvas output resolution
 
 function AvatarUploader({
   userId,
@@ -54,30 +57,107 @@ function AvatarUploader({
   onUploaded: (url: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
   const [preview, setPreview] = useState<string | null>(current);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  async function handleFile(file: File) {
-    if (file.size > 5 * 1024 * 1024) {
-      setErr("File too large — max 5 MB");
-      return;
-    }
-    setUploading(true);
-    setErr(null);
-    setPreview(URL.createObjectURL(file));
+  // Crop state
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [imgNatural, setImgNatural] = useState({ w: 1, h: 1 });
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
 
+  // Compute displayed image size (scale=1 → covers the crop circle)
+  function dispSize(s: number) {
+    const asp = imgNatural.w / imgNatural.h;
+    const base = asp >= 1
+      ? { w: CROP_DISPLAY * asp, h: CROP_DISPLAY }
+      : { w: CROP_DISPLAY, h: CROP_DISPLAY / asp };
+    return { w: base.w * s, h: base.h * s };
+  }
+
+  function clamp(ox: number, oy: number, s: number) {
+    const { w, h } = dispSize(s);
+    const mx = Math.max(0, (w - CROP_DISPLAY) / 2);
+    const my = Math.max(0, (h - CROP_DISPLAY) / 2);
+    return { x: Math.max(-mx, Math.min(mx, ox)), y: Math.max(-my, Math.min(my, oy)) };
+  }
+
+  function onFileSelected(file: File) {
+    if (file.size > 5 * 1024 * 1024) { setErr("File too large — max 5 MB"); return; }
+    setErr(null);
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+    setImgLoaded(false);
+    setImgNatural({ w: 1, h: 1 });
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  function onImgLoad() {
+    const img = imgRef.current!;
+    setImgNatural({ w: img.naturalWidth, h: img.naturalHeight });
+    setImgLoaded(true);
+  }
+
+  // Drag handlers
+  function startDrag(cx: number, cy: number) {
+    dragRef.current = { sx: cx, sy: cy, ox: offset.x, oy: offset.y };
+  }
+  function moveDrag(cx: number, cy: number) {
+    if (!dragRef.current) return;
+    const dx = cx - dragRef.current.sx;
+    const dy = cy - dragRef.current.sy;
+    setOffset(clamp(dragRef.current.ox + dx, dragRef.current.oy + dy, scale));
+  }
+  function endDrag() { dragRef.current = null; }
+
+  function changeScale(s: number) {
+    setScale(s);
+    setOffset(clamp(offset.x, offset.y, s));
+  }
+
+  async function confirmCrop() {
+    const img = imgRef.current;
+    if (!img) return;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = CROP_OUTPUT;
+    canvas.height = CROP_OUTPUT;
+    const ctx = canvas.getContext("2d")!;
+
+    // Circular clip
+    ctx.beginPath();
+    ctx.arc(CROP_OUTPUT / 2, CROP_OUTPUT / 2, CROP_OUTPUT / 2, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Scale display coords → canvas coords
+    const ratio = CROP_OUTPUT / CROP_DISPLAY;
+    const { w: dw, h: dh } = dispSize(scale);
+    const left = (CROP_DISPLAY / 2 + offset.x - dw / 2) * ratio;
+    const top  = (CROP_DISPLAY / 2 + offset.y - dh / 2) * ratio;
+    ctx.drawImage(img, left, top, dw * ratio, dh * ratio);
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      setCropSrc(null);
+      await uploadFile(new File([blob], "avatar.jpg", { type: "image/jpeg" }));
+    }, "image/jpeg", 0.92);
+  }
+
+  async function uploadFile(file: File) {
+    setUploading(true);
+    setPreview(URL.createObjectURL(file));
     try {
       const supabase = createClient();
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${userId}/avatar.${ext}`;
-
+      const path = `${userId}/avatar.jpg`;
       const { error: uploadErr } = await supabase.storage
         .from("avatars")
-        .upload(path, file, { upsert: true, contentType: file.type });
-
+        .upload(path, file, { upsert: true, contentType: "image/jpeg" });
       if (uploadErr) throw new Error(uploadErr.message);
-
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       onUploaded(`${data.publicUrl}?t=${Date.now()}`);
     } catch (e: unknown) {
@@ -88,70 +168,150 @@ function AvatarUploader({
     }
   }
 
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  const { w: dw, h: dh } = dispSize(scale);
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative shrink-0">
-        <div className="h-24 w-24 overflow-hidden rounded-full bg-yellow-100 ring-4 ring-white shadow-md">
-          {preview ? (
-            <img src={preview} alt="Avatar" className="h-full w-full object-cover object-top" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-yellow-500">
-              {initials}
+    <>
+      {/* ── Crop modal ── */}
+      {cropSrc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-base font-semibold text-ink">Crop your photo</h3>
+            <p className="mt-0.5 mb-5 text-xs text-stone-500">
+              Drag to reposition · use the slider to zoom
+            </p>
+
+            {/* Crop circle */}
+            <div className="flex justify-center mb-5">
+              <div
+                className="relative overflow-hidden rounded-full bg-stone-100 cursor-grab active:cursor-grabbing select-none ring-4 ring-white shadow-lg"
+                style={{ width: CROP_DISPLAY, height: CROP_DISPLAY }}
+                onMouseDown={(e) => { e.preventDefault(); startDrag(e.clientX, e.clientY); }}
+                onMouseMove={(e) => moveDrag(e.clientX, e.clientY)}
+                onMouseUp={endDrag}
+                onMouseLeave={endDrag}
+                onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+                onTouchMove={(e) => { e.preventDefault(); moveDrag(e.touches[0].clientX, e.touches[0].clientY); }}
+                onTouchEnd={endDrag}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  ref={imgRef}
+                  src={cropSrc}
+                  alt="Crop"
+                  onLoad={onImgLoad}
+                  draggable={false}
+                  style={{
+                    position: "absolute",
+                    width: dw,
+                    height: dh,
+                    left: CROP_DISPLAY / 2 + offset.x - dw / 2,
+                    top:  CROP_DISPLAY / 2 + offset.y - dh / 2,
+                    pointerEvents: "none",
+                    userSelect: "none",
+                  }}
+                />
+                {!imgLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="h-6 w-6 animate-spin text-stone-300" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Zoom slider */}
+            <div className="flex items-center gap-3 mb-5">
+              <span className="text-sm text-stone-400 font-medium">−</span>
+              <input
+                type="range" min={1} max={3} step={0.01}
+                value={scale}
+                onChange={(e) => changeScale(Number(e.target.value))}
+                className="flex-1 accent-yellow-400"
+                disabled={!imgLoaded}
+              />
+              <span className="text-sm text-stone-400 font-medium">+</span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={confirmCrop}
+                disabled={!imgLoaded}
+                className="flex-1 rounded-xl bg-yellow-400 py-2.5 text-sm font-semibold text-stone-900 hover:bg-yellow-500 disabled:opacity-50"
+              >
+                Use this photo
+              </button>
+              <button
+                type="button"
+                onClick={() => setCropSrc(null)}
+                className="rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Avatar preview ── */}
+      <div className="flex items-center gap-6">
+        <div className="relative shrink-0">
+          <div className="h-24 w-24 overflow-hidden rounded-full bg-yellow-100 ring-4 ring-white shadow-md">
+            {preview ? (
+              <img src={preview} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-yellow-500">
+                {initials}
+              </div>
+            )}
+          </div>
+          {uploading && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+              <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
             </div>
           )}
-        </div>
-        {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-            <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500 text-stone-900 shadow ring-2 ring-white hover:bg-yellow-400 disabled:opacity-60"
+            aria-label="Change photo"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500 text-stone-900 shadow ring-2 ring-white hover:bg-yellow-400 disabled:opacity-60"
-          aria-label="Change photo"
-        >
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-            <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
+          </button>
+        </div>
 
-      <div>
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="text-sm font-medium text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
-        >
-          {uploading ? "Uploading…" : "Change photo"}
-        </button>
-        {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
-        <p className="mt-0.5 text-[11px] text-stone-400">JPG, PNG or WebP · max 5 MB</p>
-      </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="text-sm font-medium text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
+          >
+            {uploading ? "Uploading…" : "Change photo"}
+          </button>
+          {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
+          <p className="mt-0.5 text-[11px] text-stone-400">JPG, PNG or WebP · max 5 MB</p>
+        </div>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="sr-only"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handleFile(f);
-        }}
-      />
-    </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) onFileSelected(f); e.target.value = ""; }}
+        />
+      </div>
+    </>
   );
 }
 
