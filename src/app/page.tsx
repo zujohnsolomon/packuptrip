@@ -73,8 +73,8 @@ export default async function Home() {
         <SocialProofBar />
         <TwoEngines />
         <ExploreDestinations />
-        <FeaturedPackages packages={featuredPackages} />
         <TravelCategories />
+        <FeaturedPackages packages={featuredPackages} />
         <FeaturedTrips trips={featuredTrips} hostMap={hostMap} />
         {featuredHosts.length > 0 && (
           <FeaturedHosts hosts={featuredHosts} tripCounts={tripCounts} />
@@ -495,65 +495,43 @@ function ExploreDestinations() {
 /* -------------------------------------------------------------------------- */
 
 function TravelCategories() {
+  /* Compact horizontal pill row — a filter aid, not a hero. Small circular
+   * thumbnail + label, scrolls horizontally on mobile, fits inline on
+   * desktop. Lives right after Explore India since both are "browse-by". */
   const cats = [
-    {
-      label: "Beach",
-      href: "/trips?q=beach",
-      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      label: "Mountains",
-      href: "/trips?q=mountains",
-      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      label: "Heritage",
-      href: "/trips?q=heritage",
-      image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      label: "Backpacking",
-      href: "/trips?q=backpacking",
-      image: "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      label: "Wellness",
-      href: "/trips?q=wellness",
-      image: "https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      label: "City Breaks",
-      href: "/trips?q=city",
-      image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=400&q=80",
-    },
+    { label: "Beach",       href: "/trips?q=beach",       image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" },
+    { label: "Mountains",   href: "/trips?q=mountains",   image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=200&q=80" },
+    { label: "Heritage",    href: "/trips?q=heritage",    image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=200&q=80" },
+    { label: "Backpacking", href: "/trips?q=backpacking", image: "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=200&q=80" },
+    { label: "Wellness",    href: "/trips?q=wellness",    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=200&q=80" },
+    { label: "City Breaks", href: "/trips?q=city",        image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=200&q=80" },
   ];
 
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-stone-400">
-          Trip types
-        </p>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="flex items-baseline gap-4">
+          <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+            Or by mood
+          </span>
+        </div>
+        <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3">
           {cats.map((c) => (
             <Link
               key={c.label}
               href={c.href}
-              className="group relative aspect-[2/3] overflow-hidden rounded-xl shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
+              className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-stone-200 bg-white px-2 py-1.5 pr-4 text-sm font-medium text-stone-700 transition-all hover:border-stone-400 hover:text-ink"
             >
-              <Image
-                src={c.image}
-                alt={c.label}
-                fill
-                sizes="(max-width: 640px) 33vw, 180px"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-2.5">
-                <p className="text-center text-xs font-semibold text-white sm:text-sm">
-                  {c.label}
-                </p>
-              </div>
+              <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full bg-stone-100">
+                <Image
+                  src={c.image}
+                  alt=""
+                  fill
+                  sizes="28px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+              </span>
+              {c.label}
             </Link>
           ))}
         </div>
