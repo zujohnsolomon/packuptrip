@@ -616,7 +616,7 @@ function FeaturedHosts({
           eyebrow={count === 1 ? "Meet your host" : "Our top hosts"}
           accent="teal"
           title={count === 1 ? "The face behind your next trip" : "Led by hosts who've been there"}
-          link={{ href: "/trips", label: "Browse all trips" }}
+          link={{ href: "/hosts", label: "Meet all hosts" }}
         />
 
         <div className="mt-6">
