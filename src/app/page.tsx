@@ -299,17 +299,23 @@ function SocialProofBar() {
 function TwoEngines() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <SectionHeader
-          eyebrow="How Packuptrip works"
-          title="Two engines, one community"
-        />
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="mb-5 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+              How Packuptrip works
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+              Two ways to travel
+            </h2>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
           <EngineCard
             variant="originals"
             eyebrow="Packuptrip Originals"
             title="Hand-crafted trips, run by us"
-            body="Fixed dates, fixed itineraries, vetted local guides. The kind of trip you&rsquo;d book if a friend planned it for you."
+            body="Fixed dates, vetted local guides. The kind of trip you'd book if a friend planned it."
             image={engineImages.originals}
             cta={{ href: "/packages", label: "See packages" }}
           />
@@ -317,7 +323,7 @@ function TwoEngines() {
             variant="community"
             eyebrow="Community Trips"
             title="Real travellers, real plans"
-            body="Someone&rsquo;s already going where you want to go. Join their trip, split the costs, make a friend."
+            body="Someone's already going where you want to go. Join in, split costs, make a friend."
             image={engineImages.community}
             cta={{ href: "/trips", label: "Find your people" }}
           />
@@ -346,27 +352,32 @@ function EngineCard({
   return (
     <Link
       href={cta.href}
-      className="group block overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
+      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1 sm:aspect-[16/9]"
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          sizes="(max-width: 1024px) 100vw, 600px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/0" />
-        <div className="absolute left-4 top-4">
-          <Badge variant={variant}>{eyebrow}</Badge>
-        </div>
+      <Image
+        src={image}
+        alt={title}
+        fill
+        sizes="(max-width: 640px) 100vw, 50vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      {/* Gradient — heaviest at bottom for text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+
+      {/* Badge — top left */}
+      <div className="absolute left-4 top-4">
+        <Badge variant={variant}>{eyebrow}</Badge>
       </div>
-      <div className="p-6 sm:p-8">
-        <h3 className="text-2xl font-semibold text-ink">{title}</h3>
-        <p className="mt-2 max-w-md text-stone-600">{body}</p>
+
+      {/* Text — overlaid on gradient */}
+      <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+        <h3 className="text-lg font-semibold leading-snug text-white sm:text-xl">
+          {title}
+        </h3>
+        <p className="mt-1 line-clamp-2 text-sm text-white/75">{body}</p>
         <span
-          className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${
-            isOriginals ? "text-yellow-500" : "text-green-800"
+          className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold ${
+            isOriginals ? "text-yellow-400" : "text-emerald-300"
           }`}
         >
           {cta.label}
