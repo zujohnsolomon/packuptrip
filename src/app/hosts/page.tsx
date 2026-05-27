@@ -38,11 +38,13 @@ export default async function HostsPage({
   const sp = await searchParams;
   const supabase = await createClient();
 
-  // 1. All hosts who have ever hosted a non-archived trip
-  const { data: tripsRaw } = await supabase
+  // 1. All live trips (matches the homepage query — same RLS path)
+  const { data: tripsRaw, error: tripsErr } = await supabase
     .from("trips")
     .select("host_id, location, status")
-    .neq("status", "archived");
+    .eq("status", "live");
+
+  if (tripsErr) console.error("[/hosts] trips query failed:", tripsErr);
 
   const trips = (tripsRaw ?? []) as { host_id: string; location: string | null; status: string }[];
 
@@ -57,12 +59,17 @@ export default async function HostsPage({
   const hostIds = [...tripsByHost.keys()];
 
   // 2. Profile data for each host
-  const { data: profilesRaw } = await supabase
-    .from("profiles")
-    .select("id, name, avatar_url, id_verified, bio, home_city")
-    .in("id", hostIds.length > 0 ? hostIds : ["00000000-0000-0000-0000-000000000000"]);
+  let profiles: Omit<HostRow, "trip_count" | "destinations">[] = [];
+  if (hostIds.length > 0) {
+    const { data, error: profErr } = await supabase
+      .from("profiles")
+      .select("id, name, avatar_url, id_verified, bio, home_city")
+      .in("id", hostIds);
+    if (profErr) console.error("[/hosts] profiles query failed:", profErr);
+    profiles = (data ?? []) as Omit<HostRow, "trip_count" | "destinations">[];
+  }
 
-  const profiles = (profilesRaw ?? []) as Omit<HostRow, "trip_count" | "destinations">[];
+  console.log(`[/hosts] trips: ${trips.length}, hostIds: ${hostIds.length}, profiles: ${profiles.length}`);
 
   // 3. Build the rows
   const allHosts: HostRow[] = profiles.map((p) => {
