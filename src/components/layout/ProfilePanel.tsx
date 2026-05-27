@@ -501,9 +501,7 @@ export function ProfilePanel({
             {/* ── Nav group 1: Trips ── */}
             <div className="border-t border-stone-100 py-1.5">
               <PanelLink href="/account" icon={<BookingsIcon />} onClick={() => setOpen(false)}>My bookings</PanelLink>
-              {profile?.has_trips && (
-                <PanelLink href="/host/trips" icon={<TripsIcon />} onClick={() => setOpen(false)}>My trips</PanelLink>
-              )}
+              <PanelLink href="/host/trips" icon={<TripsIcon />} onClick={() => setOpen(false)}>My hosted trips</PanelLink>
               <PanelLink href="/host/new" icon={<CreateTripIcon />} onClick={() => setOpen(false)}>Create a trip</PanelLink>
             </div>
 
