@@ -48,8 +48,7 @@ export default async function Home() {
     const { data } = await supabase
       .from("profiles")
       .select("id, name, avatar_url, id_verified")
-      .in("id", allHostIds)
-      .not("avatar_url", "is", null);
+      .in("id", allHostIds);
     featuredHosts = (data ?? []).slice(0, 8);
   }
 
