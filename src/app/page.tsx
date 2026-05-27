@@ -74,11 +74,12 @@ export default async function Home() {
         <TwoEngines />
         <ExploreDestinations />
         <TravelCategories />
-        <FeaturedPackages packages={featuredPackages} />
+        {/* Community trips lead — that's the primary product */}
         <FeaturedTrips trips={featuredTrips} hostMap={hostMap} />
         {featuredHosts.length > 0 && (
           <FeaturedHosts hosts={featuredHosts} tripCounts={tripCounts} />
         )}
+        <FeaturedPackages packages={featuredPackages} />
         <HowItWorks />
         <TrustAndSafety />
         <Testimonials />
@@ -555,8 +556,10 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
           title="Curated journeys this season"
           link={{ href: "/packages", label: "View all packages" }}
         />
-        {/* Mobile: horizontal snap-scroll carousel (full-bleed). Desktop: 4-col grid. */}
-        <div className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+        {/* Mobile: horizontal snap-scroll carousel within the section padding
+           (cards align with the title, last card scrolls off the right
+           edge as the cue for "more"). Desktop: 4-col grid. */}
+        <div className="mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
           {packages.map((p) => (
             <div
               key={p.id}
@@ -841,8 +844,10 @@ function FeaturedTrips({
           title="Open trips looking for travellers"
           link={{ href: "/trips", label: "Browse community trips" }}
         />
-        {/* Mobile: horizontal snap-scroll carousel (full-bleed). Desktop: 4-col grid. */}
-        <div className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+        {/* Mobile: horizontal snap-scroll carousel within the section padding
+           (cards align with the title, last card scrolls off the right
+           edge as the cue for "more"). Desktop: 4-col grid. */}
+        <div className="mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
           {trips.map((t) => (
             <div
               key={t.id}
