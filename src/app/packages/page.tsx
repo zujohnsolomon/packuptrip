@@ -1,14 +1,14 @@
+import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PackageCard } from "@/components/ui/PackageCard";
-import { Badge } from "@/components/ui/Badge";
 import { FilterBar } from "@/components/browse/FilterBar";
 import { listLivePackages } from "@/lib/supabase/queries";
 
 export const metadata = {
-  title: "Packuptrip Originals - curated tours",
+  title: "Packuptrip Originals · Curated journeys",
   description:
-    "Hand-crafted tour packages with vetted local guides. Browse Packuptrip Originals by destination, date, and price.",
+    "Hand-crafted tours with vetted local guides. Fixed dates, small groups, real itineraries.",
 };
 
 type SP = {
@@ -31,40 +31,56 @@ export default async function PackagesPage({
     maxPrice: sp.max ? Number(sp.max) : undefined,
   });
 
+  const hasFilter = !!(sp.q || sp.from || sp.to || sp.max);
+
   return (
     <>
       <Header />
-      <main className="flex-1 bg-white pt-20">
-        <section className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6 lg:px-8">
-          <Badge variant="originals">Packuptrip Originals</Badge>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Curated tour packages
-          </h1>
-          <p className="mt-2 max-w-2xl text-stone-600">
-            Trips we run ourselves. Fixed dates, vetted guides, small groups.
-          </p>
+      <main className="flex-1 bg-stone-50 pt-20">
+        {/* ── Editorial hero ── */}
+        <section className="bg-white">
+          <div className="mx-auto max-w-5xl px-4 pt-16 pb-12 sm:px-6 sm:pt-24 sm:pb-16 lg:px-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-yellow-500">
+              · Originals ·
+            </p>
+            <h1
+              className="mt-4 font-serif font-medium leading-[1.05] tracking-tight text-ink"
+              style={{
+                fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
+                fontVariationSettings: "'opsz' 144",
+              }}
+            >
+              Curated journeys, run by us.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base text-stone-600 sm:text-lg">
+              Fixed departures, vetted local guides, small groups.
+              The kind of trip you&rsquo;d book if a friend planned it for you.
+            </p>
+          </div>
         </section>
 
-        <section className="sticky top-16 z-20 mx-auto max-w-7xl px-4 pb-2 sm:px-6 lg:px-8">
-          <FilterBar
-            action="/packages"
-            accent="amber"
-            defaults={{ q: sp.q, from: sp.from, to: sp.to, max: sp.max }}
-          />
-        </section>
-
-        <section className="mx-auto max-w-7xl px-4 pt-6 pb-20 sm:px-6 lg:px-8">
-          {packages.length === 0 ? (
-            <EmptyState
-              title="No packages match those filters"
-              body="Try widening the date range or removing the price cap."
+        {/* ── Filter bar ── */}
+        <section className="sticky top-16 z-20 border-y border-stone-200 bg-white/90 backdrop-blur">
+          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+            <FilterBar
+              action="/packages"
+              accent="amber"
+              defaults={{ q: sp.q, from: sp.from, to: sp.to, max: sp.max }}
             />
+          </div>
+        </section>
+
+        {/* ── Results ── */}
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          {packages.length === 0 ? (
+            <EmptyState hasFilter={hasFilter} />
           ) : (
             <>
-              <div className="mb-4 text-sm text-stone-500">
-                Showing {packages.length} package
-                {packages.length === 1 ? "" : "s"}
-              </div>
+              {hasFilter && (
+                <p className="mb-6 font-serif text-base italic text-stone-500">
+                  {packages.length} {packages.length === 1 ? "journey" : "journeys"} matching your search
+                </p>
+              )}
               <div className="grid gap-5 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {packages.map((p) => (
                   <PackageCard key={p.id} pkg={p} />
@@ -79,11 +95,23 @@ export default async function PackagesPage({
   );
 }
 
-function EmptyState({ title, body }: { title: string; body: string }) {
+function EmptyState({ hasFilter }: { hasFilter: boolean }) {
   return (
-    <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center">
-      <div className="text-base font-semibold text-ink">{title}</div>
-      <p className="mt-1 text-sm text-stone-600">{body}</p>
+    <div className="mx-auto max-w-md py-12 text-center">
+      <p className="font-serif text-3xl italic text-stone-400">
+        {hasFilter ? "Nothing matches, yet." : "Quiet season, for now."}
+      </p>
+      <p className="mt-4 text-sm leading-relaxed text-stone-500">
+        {hasFilter
+          ? "Try widening the dates, removing the price cap, or clearing where."
+          : "Our next departures are being curated. Check back soon, or join a community trip in the meantime."}
+      </p>
+      <Link
+        href={hasFilter ? "/packages" : "/trips"}
+        className="mt-7 inline-flex h-10 items-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+      >
+        {hasFilter ? "Clear filters" : "Browse community trips →"}
+      </Link>
     </div>
   );
 }
