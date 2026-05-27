@@ -117,21 +117,21 @@ export function AdminSidebar({
                   className={cn(
                     "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors relative",
                     active
-                      ? "bg-amber-50 text-amber-800 font-semibold"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
                       : "text-stone-700 hover:bg-stone-50 hover:text-ink",
                   )}
                 >
                   {active && (
                     <span
                       aria-hidden
-                      className="absolute -left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-amber-600"
+                      className="absolute -left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-indigo-600"
                     />
                   )}
                   <span
                     className={cn(
                       "shrink-0 transition-colors",
                       active
-                        ? "text-amber-700"
+                        ? "text-indigo-700"
                         : "text-stone-400 group-hover:text-stone-600",
                     )}
                   >
@@ -149,7 +149,7 @@ export function AdminSidebar({
                   {item.href === "/admin/verifications" && pendingVerificationsCount > 0 && (
                     <span
                       aria-label={`${pendingVerificationsCount} pending verifications`}
-                      className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-semibold leading-[18px] text-white"
+                      className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[10px] font-semibold leading-[18px] text-white"
                     >
                       {pendingVerificationsCount}
                     </span>
@@ -189,7 +189,7 @@ export function AdminSidebar({
             <div className="truncate text-xs font-semibold text-ink">
               {userName}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-amber-700">
+            <div className="text-[10px] uppercase tracking-wider text-indigo-700">
               Admin
             </div>
           </div>

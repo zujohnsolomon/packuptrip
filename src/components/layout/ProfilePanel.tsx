@@ -46,8 +46,8 @@ function NotifIcon({ type }: { type: NotificationType }) {
     trip_approved:          { bg: "bg-emerald-100", emoji: "✓" },
     trip_cancelled:         { bg: "bg-red-100",     emoji: "✕" },
     verification_approved:  { bg: "bg-green-100",    emoji: "🛡" },
-    verification_rejected:  { bg: "bg-amber-100",   emoji: "!" },
-    new_message:            { bg: "bg-amber-100",   emoji: "💬" },
+    verification_rejected:  { bg: "bg-indigo-100",   emoji: "!" },
+    new_message:            { bg: "bg-indigo-100",   emoji: "💬" },
     group_message:          { bg: "bg-green-100",    emoji: "👥" },
   };
   const { bg, emoji } = map[type] ?? { bg: "bg-stone-100", emoji: "•" };
@@ -112,16 +112,16 @@ function NotificationsTab({
     <div className="flex flex-col">
       {/* Email verification banner */}
       {!emailConfirmed && (
-        <div className="mx-3 mt-3 rounded-xl bg-amber-50 p-3 ring-1 ring-inset ring-amber-200">
-          <p className="text-xs font-semibold text-amber-900">Confirm your email</p>
-          <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
+        <div className="mx-3 mt-3 rounded-xl bg-indigo-50 p-3 ring-1 ring-inset ring-indigo-200">
+          <p className="text-xs font-semibold text-indigo-900">Confirm your email</p>
+          <p className="mt-0.5 text-xs text-indigo-700 leading-relaxed">
             We sent you an activation link. Check your inbox (and spam folder).
           </p>
           <button
             type="button"
             onClick={handleResendEmail}
             disabled={resending || resent}
-            className="mt-2 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+            className="mt-2 rounded-full bg-indigo-500 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-600 disabled:opacity-60"
           >
             {resent ? "Sent ✓" : resending ? "Sending…" : "Resend activation email"}
           </button>
@@ -148,7 +148,7 @@ function NotificationsTab({
               key={n.id}
               onClick={() => handleClick(n)}
               className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-stone-50 ${
-                !n.read_at ? "bg-amber-50/50" : ""
+                !n.read_at ? "bg-indigo-50/50" : ""
               }`}
             >
               <NotifIcon type={n.type} />
@@ -162,7 +162,7 @@ function NotificationsTab({
                 <p className="mt-0.5 text-[10px] text-stone-400">{timeAgo(n.created_at)}</p>
               </div>
               {!n.read_at && (
-                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
               )}
             </button>
           ))
@@ -209,7 +209,7 @@ function ChatTab({ userId, onClose }: { userId: string; onClose: () => void }) {
         <Link
           href="/trips"
           onClick={onClose}
-          className="rounded-full border border-amber-500 px-4 py-1.5 text-xs font-semibold text-amber-600 hover:bg-amber-50"
+          className="rounded-full border border-indigo-500 px-4 py-1.5 text-xs font-semibold text-indigo-600 hover:bg-indigo-50"
         >
           Find a trip
         </Link>
@@ -272,7 +272,7 @@ function ChatTab({ userId, onClose }: { userId: string; onClose: () => void }) {
           <Link
             href="/messages"
             onClick={onClose}
-            className="text-xs font-medium text-amber-600 hover:text-amber-700"
+            className="text-xs font-medium text-indigo-600 hover:text-indigo-700"
           >
             All messages →
           </Link>
@@ -387,8 +387,8 @@ export function ProfilePanel({
           "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-2 transition focus-visible:outline-none",
           transparent
             ? "ring-white/40 hover:ring-white/60"
-            : "ring-stone-200 hover:ring-amber-300",
-          open && !transparent && "ring-amber-400",
+            : "ring-stone-200 hover:ring-indigo-300",
+          open && !transparent && "ring-indigo-400",
         )}
       >
         {profile?.avatar_url ? (
@@ -403,7 +403,7 @@ export function ProfilePanel({
           <span
             className={cn(
               "flex h-full w-full select-none items-center justify-center rounded-full text-sm font-bold",
-              transparent ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800",
+              transparent ? "bg-white/20 text-white" : "bg-indigo-100 text-indigo-800",
             )}
           >
             {initial}
@@ -445,11 +445,11 @@ export function ProfilePanel({
 
             {/* ── Profile row ── */}
             <div className="flex items-center gap-3 px-4 py-4">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-amber-100">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-indigo-100">
                 {profile?.avatar_url ? (
                   <Image src={profile.avatar_url} alt={profile.name ?? ""} fill sizes="48px" className="object-cover object-top" />
                 ) : (
-                  <span className="grid h-full w-full place-items-center text-lg font-bold text-amber-700">
+                  <span className="grid h-full w-full place-items-center text-lg font-bold text-indigo-700">
                     {initial}
                   </span>
                 )}
@@ -459,7 +459,7 @@ export function ProfilePanel({
                 <Link
                   href="/account/profile"
                   onClick={() => setOpen(false)}
-                  className="mt-0.5 inline-flex items-center gap-1 text-xs text-stone-500 hover:text-amber-600"
+                  className="mt-0.5 inline-flex items-center gap-1 text-xs text-stone-500 hover:text-indigo-600"
                 >
                   <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M11 2l3 3-8 8H3V10l8-8z"/>
@@ -599,16 +599,16 @@ function PanelLink({
       href={href}
       onClick={onClick}
       className={`flex items-center justify-between px-4 py-2.5 transition-colors hover:bg-stone-50 ${
-        accent ? "text-amber-700" : highlight ? "text-amber-600" : "text-stone-700"
+        accent ? "text-indigo-700" : highlight ? "text-indigo-600" : "text-stone-700"
       }`}
     >
       <span className="flex items-center gap-3 text-sm">
-        <span className={`flex h-5 w-5 items-center justify-center ${highlight ? "text-amber-500" : "text-stone-400"}`}>
+        <span className={`flex h-5 w-5 items-center justify-center ${highlight ? "text-indigo-500" : "text-stone-400"}`}>
           {icon}
         </span>
         {children}
       </span>
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke={highlight ? "#f59e0b" : "currentColor"} strokeWidth="1.75" strokeLinecap="round" className={highlight ? "text-amber-400" : "text-stone-400"}>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke={highlight ? "#f59e0b" : "currentColor"} strokeWidth="1.75" strokeLinecap="round" className={highlight ? "text-indigo-400" : "text-stone-400"}>
         <path d="M6 4l4 4-4 4" />
       </svg>
     </Link>

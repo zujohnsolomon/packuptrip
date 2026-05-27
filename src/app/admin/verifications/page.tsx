@@ -4,7 +4,7 @@ import { listVerificationRequests } from "@/actions/verification";
 export const metadata = { title: "Verifications · Admin" };
 
 const STATUS_CHIP: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 ring-amber-200",
+  pending: "bg-indigo-100 text-indigo-800 ring-indigo-200",
   approved: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   rejected: "bg-red-100 text-red-800 ring-red-200",
 };
@@ -72,7 +72,7 @@ export default async function AdminVerificationsPage() {
                   <td className="px-5 py-4 text-right">
                     <Link
                       href={`/admin/verifications/${req.id}`}
-                      className="text-xs font-medium text-amber-700 hover:underline"
+                      className="text-xs font-medium text-indigo-700 hover:underline"
                     >
                       {req.status === "pending" ? "Review →" : "View →"}
                     </Link>

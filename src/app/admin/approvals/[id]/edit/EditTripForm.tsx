@@ -87,7 +87,7 @@ export function EditTripForm({
             type="checkbox"
             checked={publishOnSave}
             onChange={(e) => setPublishOnSave(e.target.checked)}
-            className="h-4 w-4 rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-stone-300 text-indigo-600 focus:ring-indigo-500"
           />
           Publish after saving (sets status to live)
         </label>
@@ -105,7 +105,7 @@ function SaveButton({ publishOnSave }: { publishOnSave: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 items-center justify-center rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? pendingLabel : label}
     </button>
@@ -113,7 +113,7 @@ function SaveButton({ publishOnSave }: { publishOnSave: boolean }) {
 }
 
 const inputCls =
-  "block w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100";
+  "block w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
 
 function Field({
   label,

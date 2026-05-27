@@ -98,11 +98,11 @@ function AvatarUploader({
   return (
     <div className="flex items-center gap-6">
       <div className="relative shrink-0">
-        <div className="h-24 w-24 overflow-hidden rounded-full bg-amber-100 ring-4 ring-white shadow-md">
+        <div className="h-24 w-24 overflow-hidden rounded-full bg-indigo-100 ring-4 ring-white shadow-md">
           {preview ? (
             <img src={preview} alt="Avatar" className="h-full w-full object-cover object-top" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-amber-700">
+            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-indigo-700">
               {initials}
             </div>
           )}
@@ -119,7 +119,7 @@ function AvatarUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-white shadow ring-2 ring-white hover:bg-amber-600 disabled:opacity-60"
+          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500 text-white shadow ring-2 ring-white hover:bg-indigo-600 disabled:opacity-60"
           aria-label="Change photo"
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
@@ -133,7 +133,7 @@ function AvatarUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="text-sm font-medium text-amber-600 hover:text-amber-700 disabled:opacity-50"
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : "Change photo"}
         </button>
@@ -177,7 +177,7 @@ function PillToggle({
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
         selected
-          ? "bg-amber-500 text-white shadow-sm"
+          ? "bg-indigo-500 text-white shadow-sm"
           : disabled
           ? "cursor-not-allowed bg-stone-100 text-stone-300"
           : "bg-stone-100 text-stone-600 hover:bg-stone-200"
@@ -243,16 +243,16 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     <div className="space-y-6">
       {/* Completeness bar */}
       {!isComplete && (
-        <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-inset ring-amber-200">
+        <div className="rounded-2xl bg-indigo-50 p-4 ring-1 ring-inset ring-indigo-200">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-amber-900">Profile {pct}% complete</span>
-            <span className="text-xs text-amber-700">
+            <span className="font-medium text-indigo-900">Profile {pct}% complete</span>
+            <span className="text-xs text-indigo-700">
               Hosts with full profiles get 3× more joiners
             </span>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-amber-100">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-indigo-100">
             <div
-              className="h-full rounded-full bg-amber-500 transition-all duration-500"
+              className="h-full rounded-full bg-indigo-500 transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -288,7 +288,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
               placeholder="How you want to appear to other travellers"
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
@@ -302,7 +302,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               onChange={(e) => setHomeCity(e.target.value)}
               maxLength={60}
               placeholder="e.g. Mumbai, Bengaluru, Chennai…"
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
@@ -319,7 +319,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               maxLength={280}
               rows={4}
               placeholder="What kind of traveller are you? What do you love about exploring?"
-              className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-amber-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
           </div>
         </div>
@@ -395,7 +395,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-full bg-amber-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 disabled:opacity-60 transition-colors"
+          className="rounded-full bg-indigo-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 disabled:opacity-60 transition-colors"
         >
           {isPending ? "Saving…" : saved ? "✓ Saved" : "Save profile"}
         </button>

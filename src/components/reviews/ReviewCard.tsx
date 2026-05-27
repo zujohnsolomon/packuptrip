@@ -22,7 +22,7 @@ function DimensionBar({ label, value }: { label: string; value: number }) {
       <span className="w-28 shrink-0 text-stone-500">{label}</span>
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-100">
         <div
-          className="h-full rounded-full bg-amber-400"
+          className="h-full rounded-full bg-indigo-400"
           style={{ width: `${(value / 5) * 100}%` }}
         />
       </div>
@@ -61,7 +61,7 @@ export function ReviewCard({ review }: { review: ReviewWithAuthor }) {
     <div className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
       {/* Header row */}
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-800">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -81,7 +81,7 @@ export function ReviewCard({ review }: { review: ReviewWithAuthor }) {
           {review.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 ring-1 ring-inset ring-amber-200"
+              className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-800 ring-1 ring-inset ring-indigo-200"
             >
               {tag}
             </span>

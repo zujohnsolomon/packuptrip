@@ -16,8 +16,8 @@ const VISIBILITY_OPTIONS = [
 ];
 
 const RATING_STARS: Record<number, string> = {
-  5: "text-amber-500",
-  4: "text-amber-400",
+  5: "text-indigo-500",
+  4: "text-indigo-400",
   3: "text-stone-400",
   2: "text-orange-500",
   1: "text-red-500",
@@ -61,7 +61,7 @@ export default async function AdminReviewsPage({
         title="Reviews"
         description="All user reviews. Hide inappropriate content or restore hidden reviews."
         actions={
-          <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+          <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
             {rows.length} reviews
           </span>
         }
@@ -89,7 +89,7 @@ export default async function AdminReviewsPage({
               name="q"
               defaultValue={sp.q}
               placeholder="Search review text…"
-              className="w-full max-w-xs rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+              className="w-full max-w-xs rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
             {sp.visible && <input type="hidden" name="visible" value={sp.visible} />}
           </form>
@@ -100,7 +100,7 @@ export default async function AdminReviewsPage({
                 href={`/admin/reviews?visible=${opt.value}${sp.q ? `&q=${sp.q}` : ""}`}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   visible === opt.value
-                    ? "bg-amber-500 text-white"
+                    ? "bg-indigo-500 text-white"
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
@@ -134,7 +134,7 @@ export default async function AdminReviewsPage({
                       {author ? (
                         <Link
                           href={`/admin/users?q=${author.id}`}
-                          className="text-xs font-medium text-amber-700 hover:underline"
+                          className="text-xs font-medium text-indigo-700 hover:underline"
                         >
                           {author.name}
                         </Link>

@@ -48,7 +48,7 @@ export default async function InvitePage({
         <div className="mx-auto max-w-md px-4 py-20 sm:px-6">
 
           {/* Card */}
-          <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-green-50 p-8 ring-1 ring-inset ring-amber-100 text-center">
+          <div className="rounded-3xl bg-gradient-to-br from-indigo-50 to-green-50 p-8 ring-1 ring-inset ring-indigo-100 text-center">
 
             {/* Referrer avatar */}
             <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-green-100 ring-4 ring-white shadow-md">
@@ -75,7 +75,7 @@ export default async function InvitePage({
             </h1>
 
             {/* Reward pill */}
-            <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-amber-500 px-5 py-2 text-sm font-bold text-white shadow">
+            <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-indigo-500 px-5 py-2 text-sm font-bold text-white shadow">
               🎁 Get ₹200 off your first trip
             </div>
 

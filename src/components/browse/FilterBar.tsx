@@ -18,11 +18,11 @@ export function FilterBar({
 }) {
   const ring =
     accent === "amber"
-      ? "focus:border-amber-500 focus:ring-amber-100"
+      ? "focus:border-indigo-500 focus:ring-indigo-100"
       : "focus:border-green-600 focus:ring-green-100";
   const btn =
     accent === "amber"
-      ? "bg-amber-600 hover:bg-amber-700"
+      ? "bg-indigo-600 hover:bg-indigo-700"
       : "bg-green-700 hover:bg-green-800";
 
   return (

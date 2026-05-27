@@ -114,7 +114,7 @@ export default async function ReferralsPage() {
 
           {/* Pending status */}
           {stats.pendingCount > 0 && (
-            <div className="mt-6 rounded-2xl bg-amber-50 px-5 py-4 ring-1 ring-inset ring-amber-200 text-sm text-amber-800">
+            <div className="mt-6 rounded-2xl bg-indigo-50 px-5 py-4 ring-1 ring-inset ring-indigo-200 text-sm text-indigo-800">
               <strong>{stats.pendingCount} friend{stats.pendingCount !== 1 ? "s" : ""} signed up</strong> but {stats.pendingCount !== 1 ? "haven't" : "hasn't"} made a first booking yet.
               Your ₹{200 * stats.pendingCount} credit is pending and will unlock once they book.
             </div>

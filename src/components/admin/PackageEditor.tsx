@@ -281,7 +281,7 @@ function ItineraryEditor({
           className="rounded-xl border border-stone-200 bg-white p-4"
         >
           <div className="flex items-start gap-3">
-            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
+            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
               {idx + 1}
             </div>
             <div className="flex-1 space-y-3">
@@ -321,7 +321,7 @@ function ItineraryEditor({
       <button
         type="button"
         onClick={add}
-        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700"
       >
         + Add day
       </button>
@@ -369,7 +369,7 @@ function SaveButton({
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 items-center justify-center rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? pendingLabel : submitLabel}
     </button>
@@ -381,7 +381,7 @@ function SaveButton({
 /* -------------------------------------------------------------------------- */
 
 const inputCls =
-  "block w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100";
+  "block w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
 
 function Section({
   title,
