@@ -275,16 +275,18 @@ function SocialProofBar() {
 
   return (
     <section className="border-b border-stone-100 bg-white">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-5 sm:px-6 lg:px-8">
-        {items.map((item, i) => (
-          <span
-            key={i}
-            className="inline-flex items-center gap-2 text-sm font-medium text-stone-600"
-          >
-            <span className="text-teal-600">{item.icon}</span>
-            {item.label}
-          </span>
-        ))}
+      <div className="overflow-x-auto scrollbar-none">
+        <div className="mx-auto flex w-max min-w-full items-center justify-start gap-6 px-5 py-4 sm:justify-center sm:gap-10 sm:px-6">
+          {items.map((item, i) => (
+            <span
+              key={i}
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-stone-600"
+            >
+              <span className="text-teal-600">{item.icon}</span>
+              {item.label}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );
