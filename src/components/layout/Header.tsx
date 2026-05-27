@@ -12,6 +12,8 @@ import type { User } from "@supabase/supabase-js";
 const NAV_LINKS = [
   { href: "/packages", label: "Packages" },
   { href: "/trips", label: "Community trips" },
+  { href: "/hosts", label: "Hosts" },
+  { href: "/stories", label: "Stories" },
   { href: "/host", label: "Host a trip" },
   { href: "/plus", label: "✦ Plus" },
 ];

@@ -264,3 +264,23 @@ export type Referral = {
   credited_at: string | null;
   created_at: string;
 };
+
+export type StoryStatus = "draft" | "published";
+
+export type Story = {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  excerpt: string | null;
+  cover_image: string | null;
+  body: string;
+  author_id: string | null;
+  tags: string[];
+  featured: boolean;
+  status: StoryStatus;
+  published_at: string | null;
+  reading_minutes: number;
+  created_at: string;
+  updated_at: string;
+};
