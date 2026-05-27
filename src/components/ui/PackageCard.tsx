@@ -92,17 +92,28 @@ export function PackageCard({ pkg }: { pkg: Package }) {
             {pkg.title}
           </h3>
 
-          {/* Date · Duration */}
-          <p className="mt-1 text-xs text-stone-400">
-            {dateStr} · {pkg.days} {pkg.days === 1 ? "day" : "days"}
-          </p>
-
-          {/* Price */}
-          <div className="mt-2.5 flex items-baseline gap-1">
-            <span className="text-base font-bold text-ink">
-              {formatINR(Number(pkg.price))}
-            </span>
-            <span className="text-xs text-stone-400">/ person</span>
+          {/* Date + price — primary decision row. Side-by-side, both prominent. */}
+          <div className="mt-3 flex items-end justify-between gap-2 border-t border-stone-100 pt-2.5">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                Departs
+              </div>
+              <div className="mt-0.5 truncate text-sm font-semibold text-ink">
+                {dateStr}
+                <span className="ml-1 text-xs font-normal text-stone-500">
+                  · {pkg.days}d
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                Price
+              </div>
+              <div className="mt-0.5 text-sm font-bold text-ink">
+                {formatINR(Number(pkg.price))}
+                <span className="ml-0.5 text-xs font-normal text-stone-500">/p</span>
+              </div>
+            </div>
           </div>
         </div>
       </Link>
