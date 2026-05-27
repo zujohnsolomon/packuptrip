@@ -793,50 +793,41 @@ function HostPortraitTile({
 /* -------------------------------------------------------------------------- */
 
 function HowItWorks() {
+  /* Distinctive style: horizontal flow with chevrons. Sequence is the
+   * visual language. */
   const steps = [
-    {
-      n: "01",
-      title: "Find a trip that fits",
-      body: "Filter by destination, dates, budget. See who else is going.",
-    },
-    {
-      n: "02",
-      title: "Book or join in minutes",
-      body: "Pay through Packuptrip. Funds are held until the trip starts.",
-    },
-    {
-      n: "03",
-      title: "Travel together",
-      body: "Meet your group, follow the plan, come back with stories.",
-    },
+    { title: "Find a trip", body: "Filter by destination, dates, budget." },
+    { title: "Book in minutes", body: "Pay securely. Funds held until trip starts." },
+    { title: "Travel together", body: "Meet your group. Come back with stories." },
   ];
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-          · Three steps ·
-        </p>
-        <div className="mt-8 grid gap-y-8 sm:grid-cols-3 sm:gap-x-10">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:gap-4">
           {steps.map((s, i) => (
-            <div key={s.n} className="relative">
-              {/* Hairline divider above each item on mobile, left of items 2 & 3 on desktop */}
-              <div
-                className={`mb-4 h-px w-12 bg-stone-300 sm:mb-5 ${
-                  i > 0 ? "sm:absolute sm:-left-5 sm:top-2 sm:h-12 sm:w-px" : ""
-                }`}
-              />
+            <div key={s.title} className="flex items-start gap-3 sm:flex-1">
               <span
-                className="font-serif italic text-stone-400"
-                style={{ fontSize: "1.5rem", fontVariationSettings: "'opsz' 144" }}
+                className="font-serif italic leading-none text-stone-300"
+                style={{ fontSize: "2.5rem", fontVariationSettings: "'opsz' 144" }}
               >
-                {s.n}
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-2 text-base font-semibold text-ink sm:text-lg">
-                {s.title}
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-stone-600">
-                {s.body}
-              </p>
+              <div className="min-w-0 pt-1">
+                <h3 className="text-sm font-semibold text-ink sm:text-[15px]">
+                  {s.title}
+                </h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-stone-500 sm:text-[13px]">
+                  {s.body}
+                </p>
+              </div>
+              {i < steps.length - 1 && (
+                <span
+                  aria-hidden
+                  className="hidden self-center text-stone-300 sm:block"
+                >
+                  <ChevronRightIcon />
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -881,54 +872,37 @@ function FeaturedTrips({
 /* -------------------------------------------------------------------------- */
 
 function TrustAndSafety() {
+  /* Distinctive style: horizontal "trust bar" — icons inline as compact
+   * badges, with the italic strapline tucked alongside. Reads like a
+   * certifications row, not a SaaS feature grid. */
   const points = [
-    {
-      icon: <ShieldIcon />,
-      title: "Verified hosts",
-      body: "Every Community Trip host completes ID verification.",
-    },
-    {
-      icon: <LockIcon />,
-      title: "Secure payments",
-      body: "Funds are held by our partner until the trip begins.",
-    },
-    {
-      icon: <StarsIcon />,
-      title: "Two-way reviews",
-      body: "Travellers review hosts. Hosts review travellers.",
-    },
-    {
-      icon: <SupportIcon />,
-      title: "Human support",
-      body: "Real humans on call before, during, and after every trip.",
-    },
+    { icon: <ShieldIcon />, title: "Verified hosts" },
+    { icon: <LockIcon />, title: "Secure payments" },
+    { icon: <StarsIcon />, title: "Two-way reviews" },
+    { icon: <SupportIcon />, title: "Human support" },
   ];
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-        <div className="text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-            · Built to be trusted ·
-          </p>
-          <p className="mx-auto mt-3 max-w-xl font-serif text-lg italic leading-relaxed text-stone-500 sm:text-xl">
-            Joining a stranger&rsquo;s trip should never feel like a risk.
-          </p>
-        </div>
-
-        <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 lg:grid-cols-4">
-          {points.map((p) => (
-            <div key={p.title}>
-              <span className="inline-flex h-8 w-8 items-center justify-center text-stone-700">
-                {p.icon}
-              </span>
-              <h3 className="mt-3 text-[15px] font-semibold text-ink">
-                {p.title}
-              </h3>
-              <p className="mt-1 text-[13px] leading-relaxed text-stone-500">
-                {p.body}
-              </p>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="border-y border-stone-200 py-6 sm:py-8">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-10">
+            <p className="font-serif text-base italic leading-snug text-stone-500 sm:max-w-xs sm:text-[17px]">
+              Joining a stranger&rsquo;s trip should never feel like a risk.
+            </p>
+            <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-7 sm:gap-y-3">
+              {points.map((p) => (
+                <span
+                  key={p.title}
+                  className="inline-flex items-center gap-2 text-[13px] font-medium text-stone-700"
+                >
+                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center text-stone-400">
+                    {p.icon}
+                  </span>
+                  {p.title}
+                </span>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
@@ -940,50 +914,65 @@ function TrustAndSafety() {
 /* -------------------------------------------------------------------------- */
 
 function Testimonials() {
-  return (
-    <section className="bg-stone-50">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
-        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-          · In their words ·
-        </p>
+  /* Distinctive style: one giant magazine pull quote — the loudest
+   * editorial moment on the page. Other voices sit as small attributions
+   * below so we don't lose them. */
+  const featured = testimonials[1] ?? testimonials[0];
+  const others = testimonials.filter((t) => t.name !== featured.name);
 
-        <div className="mt-10 grid gap-10 sm:gap-12 lg:grid-cols-3 lg:gap-14">
-          {testimonials.map((t, i) => (
-            <figure
-              key={t.name}
-              className={`flex flex-col ${
-                i > 0
-                  ? "border-t border-stone-200 pt-10 lg:border-l lg:border-t-0 lg:pl-14 lg:pt-0"
-                  : ""
-              }`}
-            >
-              <blockquote
-                className="font-serif italic leading-[1.4] text-ink"
-                style={{
-                  fontSize: "clamp(1.25rem, 1.8vw, 1.5rem)",
-                  fontVariationSettings: "'opsz' 144",
-                }}
-              >
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3">
-                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
-                  <Image
-                    src={t.avatar}
-                    alt={t.name}
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                  />
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <figure>
+          <span
+            aria-hidden
+            className="block font-serif text-6xl leading-none text-stone-200 sm:text-7xl"
+          >
+            &ldquo;
+          </span>
+          <blockquote
+            className="-mt-2 font-serif font-medium leading-[1.2] tracking-tight text-ink"
+            style={{
+              fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+              fontVariationSettings: "'opsz' 144",
+            }}
+          >
+            {featured.quote}
+          </blockquote>
+          <figcaption className="mt-7 flex items-center gap-3">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-stone-100">
+              <Image
+                src={featured.avatar}
+                alt={featured.name}
+                fill
+                sizes="44px"
+                className="object-cover"
+              />
+            </div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold text-ink">{featured.name}</div>
+              <div className="text-xs text-stone-500">{featured.trip}</div>
+            </div>
+          </figcaption>
+        </figure>
+
+        {others.length > 0 && (
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-stone-100 pt-6 text-xs text-stone-500">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+              Also from
+            </span>
+            {others.map((o) => (
+              <span key={o.name} className="inline-flex items-center gap-2">
+                <div className="relative h-5 w-5 shrink-0 overflow-hidden rounded-full bg-stone-100">
+                  <Image src={o.avatar} alt={o.name} fill sizes="20px" className="object-cover" />
                 </div>
-                <div className="leading-tight">
-                  <div className="text-sm font-semibold text-ink">{t.name}</div>
-                  <div className="text-xs text-stone-500">{t.trip}</div>
-                </div>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+                <span className="text-stone-700">{o.name}</span>
+                <span className="text-stone-300">·</span>
+                <span className="italic">{o.trip}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -1135,6 +1124,24 @@ function ArrowRightIcon() {
     >
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <polyline points="9 6 15 12 9 18" />
     </svg>
   );
 }
