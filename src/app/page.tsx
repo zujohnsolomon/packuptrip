@@ -885,17 +885,17 @@ function TrustAndSafety() {
     {
       icon: <ShieldIcon />,
       title: "Verified hosts",
-      body: "Every Community Trip host completes ID verification before posting.",
+      body: "Every Community Trip host completes ID verification.",
     },
     {
       icon: <LockIcon />,
       title: "Secure payments",
-      body: "Funds are held by our payment partner until your trip begins.",
+      body: "Funds are held by our partner until the trip begins.",
     },
     {
       icon: <StarsIcon />,
       title: "Two-way reviews",
-      body: "Travellers review hosts. Hosts review travellers. Trust builds both ways.",
+      body: "Travellers review hosts. Hosts review travellers.",
     },
     {
       icon: <SupportIcon />,
@@ -905,26 +905,28 @@ function TrustAndSafety() {
   ];
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-        <SectionHeader
-          eyebrow="Trust & safety"
-          title="Travel with people you can trust"
-          subtitle="Joining a stranger&rsquo;s trip should never feel risky. We built Packuptrip with safety baked in from day one."
-          center
-        />
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+            · Built to be trusted ·
+          </p>
+          <p className="mx-auto mt-3 max-w-xl font-serif text-lg italic leading-relaxed text-stone-500 sm:text-xl">
+            Joining a stranger&rsquo;s trip should never feel like a risk.
+          </p>
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 lg:grid-cols-4">
           {points.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
-            >
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-yellow-100 text-yellow-500">
+            <div key={p.title}>
+              <span className="inline-flex h-8 w-8 items-center justify-center text-stone-700">
                 {p.icon}
-              </div>
-              <div className="mt-4 text-base font-semibold text-ink">
+              </span>
+              <h3 className="mt-3 text-[15px] font-semibold text-ink">
                 {p.title}
-              </div>
-              <p className="mt-1.5 text-sm text-stone-600">{p.body}</p>
+              </h3>
+              <p className="mt-1 text-[13px] leading-relaxed text-stone-500">
+                {p.body}
+              </p>
             </div>
           ))}
         </div>
