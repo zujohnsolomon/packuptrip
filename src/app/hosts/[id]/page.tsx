@@ -35,8 +35,6 @@ export async function generateMetadata({
   };
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default async function HostProfilePage({
   params,
 }: {
@@ -52,7 +50,6 @@ export default async function HostProfilePage({
 
   if (!profile) notFound();
 
-  // All trips by this host — split into upcoming vs past
   const { data: allTrips } = await supabase
     .from("trips")
     .select("*")
@@ -65,7 +62,6 @@ export default async function HostProfilePage({
   const upcomingTrips = (allTrips ?? []).filter((t) => t.start_date >= today);
   const pastTrips = (allTrips ?? []).filter((t) => t.start_date < today);
 
-  // Reviews — only for live trips to keep things clean
   const tripIds = (allTrips ?? []).map((t) => t.id);
   const { data: rawReviews } = tripIds.length
     ? await supabase
@@ -88,27 +84,31 @@ export default async function HostProfilePage({
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : null;
 
-  // "Most complimented for" — aggregate review tags, take top 3
+  // Aggregate review tags → "most complimented for"
   const tagCounts = new Map<string, number>();
   for (const r of reviews) {
-    for (const t of r.tags ?? []) {
-      tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
-    }
+    for (const t of r.tags ?? []) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
   }
   const topCompliments = [...tagCounts.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
+    .slice(0, 4)
     .map(([tag]) => tag);
 
-  // Photo mosaic — gather images from the host's trips
-  const mosaicImages: { src: string; alt: string }[] = [];
+  // All trip images for the gallery — flatten + dedupe
+  const galleryImages: { src: string; alt: string }[] = [];
+  const seen = new Set<string>();
   for (const trip of allTrips ?? []) {
     for (const img of trip.images) {
-      if (mosaicImages.length >= 6) break;
-      mosaicImages.push({ src: img, alt: trip.title });
+      if (!seen.has(img) && galleryImages.length < 9) {
+        galleryImages.push({ src: img, alt: trip.title });
+        seen.add(img);
+      }
     }
-    if (mosaicImages.length >= 6) break;
   }
+
+  // Cover photo — first trip photo, falls back to avatar if no trips,
+  // and ultimately to a brand gradient if neither
+  const coverPhoto = galleryImages[0]?.src ?? profile.avatar_url ?? null;
 
   const totalHosted = upcomingTrips.length + pastTrips.length;
   const memberYear = new Date(profile.created_at).getFullYear();
@@ -118,252 +118,309 @@ export default async function HostProfilePage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-stone-50 pt-16">
+      <main className="flex-1 bg-white pt-16">
 
-        {/* ── HERO ────────────────────────────────────────────────────────── */}
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-            <div className="grid gap-6 lg:grid-cols-[340px,1fr] lg:gap-8">
+        {/* ── COVER HERO ──────────────────────────────────────────────────── */}
+        <section className="relative isolate">
+          <div className="relative h-[42vh] min-h-[300px] w-full overflow-hidden bg-stone-900 sm:h-[52vh]">
+            {coverPhoto ? (
+              <Image
+                src={coverPhoto}
+                alt={`${profile.name}'s travels`}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover opacity-80"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-ink" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80" />
 
-              {/* Left — identity card with speech-bubble bio */}
-              <aside className="space-y-4">
-                {/* Speech-bubble bio (or fallback intro) */}
-                <div className="relative rounded-2xl bg-stone-50 p-5 ring-1 ring-inset ring-stone-200">
-                  {profile.bio ? (
-                    <p className="font-serif text-base leading-relaxed text-ink">
-                      {profile.bio}
-                    </p>
-                  ) : (
-                    <p className="font-serif text-base italic leading-relaxed text-stone-400">
-                      A new host on Packuptrip — their first trip is the
-                      best way to get to know them.
-                    </p>
-                  )}
-                  {/* Tail pointing down to avatar */}
-                  <span
-                    aria-hidden
-                    className="absolute -bottom-2 left-10 h-4 w-4 rotate-45 bg-stone-50 ring-1 ring-inset ring-stone-200"
-                    style={{ clipPath: "polygon(0 0, 100% 100%, 0 100%)" }}
-                  />
-                </div>
-
-                {/* Avatar + name + rating row */}
-                <div className="flex items-start gap-3 pl-2">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-stone-100 ring-2 ring-white shadow-md">
-                    {profile.avatar_url ? (
-                      <Image
-                        src={profile.avatar_url}
-                        alt={profile.name}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span className="grid h-full w-full place-items-center text-2xl font-bold text-stone-400">
-                        {profile.name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1 pt-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <h1 className="text-lg font-bold text-ink sm:text-xl">
-                        {profile.name}
-                      </h1>
-                      {profile.host_tier === "superhost" && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-yellow-100 px-1.5 py-0.5 text-[10px] font-semibold text-yellow-500">
-                          ⭐ Superhost
-                        </span>
-                      )}
-                    </div>
-                    {avgRating !== null ? (
-                      <p className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium">
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-ink">{avgRating.toFixed(1)}</span>
-                        <span className="text-stone-400">
-                          · {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
-                        </span>
-                      </p>
-                    ) : (
-                      <p className="mt-0.5 text-xs text-stone-400">
-                        No reviews yet
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div>
-                  {isOwnProfile ? (
-                    <Link
-                      href="/account/profile"
-                      className="block w-full rounded-full border border-stone-200 bg-white py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50"
-                    >
-                      Edit your profile
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/messages?hostId=${id}`}
-                      className="block w-full rounded-full bg-green-700 py-3 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800"
-                    >
-                      Ask {firstName} a question
-                    </Link>
-                  )}
-                </div>
-
-                {/* Trust signals */}
-                <div className="divide-y divide-stone-100 rounded-2xl border border-stone-200 bg-white">
-                  <TrustRow
-                    icon={<ShieldIcon />}
-                    label="Identity"
-                    value={profile.id_verified ? "Verified" : "Not verified"}
-                    ok={profile.id_verified}
-                  />
-                  <TrustRow
-                    icon={<PhoneIcon />}
-                    label="Phone"
-                    value="Verified"
-                    ok={true}
-                  />
-                  <TrustRow
-                    icon={<CalendarIcon />}
-                    label="Member since"
-                    value={String(memberYear)}
-                    ok={null}
-                  />
-                  {profile.languages.length > 0 && (
-                    <div className="px-4 py-3">
-                      <p className="text-xs font-medium text-stone-500">
-                        Spoken languages
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {profile.languages.map((lang) => (
-                          <span
-                            key={lang}
-                            className="rounded-full bg-stone-50 px-2.5 py-0.5 text-xs font-medium text-stone-700 ring-1 ring-inset ring-stone-200"
-                          >
-                            {lang}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </aside>
-
-              {/* Right — photo mosaic hero */}
-              <div>
-                {mosaicImages.length > 0 ? (
-                  <PhotoMosaic images={mosaicImages} />
-                ) : (
-                  <EmptyPhotoState
-                    title={isOwnProfile ? "No trip photos yet" : `${firstName} hasn't posted any trips yet`}
-                    body={
-                      isOwnProfile
-                        ? "Once you post a trip with photos, they'll appear here as your visual portfolio."
-                        : "Check back soon — or message them to learn more."
-                    }
-                  />
+            {/* Bottom content */}
+            <div className="absolute inset-x-0 bottom-0">
+              <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 sm:pb-14 lg:px-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/80">
+                  · A Packuptrip host ·
+                </p>
+                <h1
+                  className="mt-3 font-serif font-medium leading-[1.05] tracking-tight text-white"
+                  style={{
+                    fontSize: "clamp(2.25rem, 6vw, 4.25rem)",
+                    fontVariationSettings: "'opsz' 144",
+                  }}
+                >
+                  {profile.name}
+                </h1>
+                {profile.home_city && (
+                  <p className="mt-2 font-serif text-base italic text-white/85 sm:text-lg">
+                    Based in {profile.home_city}
+                  </p>
                 )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── ABOUT + COMPLIMENTED FOR ──────────────────────────────────── */}
-        {(profile.bio || topCompliments.length > 0 || profile.travel_style_tags.length > 0) && (
-          <section className="border-t border-stone-200 bg-white">
-            <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[2fr,1fr] lg:gap-14 lg:px-8 lg:py-16">
+        {/* ── IDENTITY CARD (overlaps hero) ───────────────────────────────── */}
+        <section className="relative -mt-12 sm:-mt-16">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-3xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:p-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
+                {/* Avatar */}
+                <div className="relative h-24 w-24 shrink-0 self-start overflow-hidden rounded-full bg-stone-100 ring-4 ring-white shadow-md sm:h-28 sm:w-28">
+                  {profile.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.name}
+                      fill
+                      sizes="112px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center text-3xl font-bold text-stone-400">
+                      {profile.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
 
-              {/* About column */}
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                  About {firstName}
-                </p>
-                {profile.bio ? (
-                  <p className="mt-3 font-serif text-lg leading-relaxed text-stone-700 sm:text-xl">
-                    {profile.bio}
-                  </p>
-                ) : (
-                  <p className="mt-3 font-serif text-base italic text-stone-400">
-                    {firstName} hasn&rsquo;t added a bio yet. You can still
-                    learn about them through their trips below.
-                  </p>
-                )}
-
-                {/* Location pin */}
-                {profile.home_city && (
-                  <div className="mt-5 flex items-center gap-2 text-sm text-stone-500">
-                    <PinIcon />
-                    <span>Based in <span className="font-medium text-stone-700">{profile.home_city}</span></span>
+                {/* Info + CTA */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {profile.host_tier === "superhost" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-semibold text-yellow-500">
+                        ⭐ Superhost
+                      </span>
+                    )}
+                    {profile.id_verified && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-800 ring-1 ring-inset ring-green-100">
+                        ✓ Identity verified
+                      </span>
+                    )}
                   </div>
-                )}
+
+                  {/* Stat row */}
+                  <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-stone-600">
+                    {avgRating !== null && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="text-yellow-400">★</span>
+                        <span className="font-semibold text-ink">
+                          {avgRating.toFixed(1)}
+                        </span>
+                        <span className="text-stone-400">
+                          ({reviews.length})
+                        </span>
+                      </span>
+                    )}
+                    {totalHosted > 0 && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CompassIcon />
+                        <span className="font-semibold text-ink">{totalHosted}</span>{" "}
+                        {totalHosted === 1 ? "trip hosted" : "trips hosted"}
+                      </span>
+                    )}
+                    {profile.countries_visited.length > 0 && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <GlobeIcon />
+                        <span className="font-semibold text-ink">
+                          {profile.countries_visited.length}
+                        </span>{" "}
+                        {profile.countries_visited.length === 1
+                          ? "country"
+                          : "countries"}{" "}
+                        explored
+                      </span>
+                    )}
+                    {profile.languages.length > 0 && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <ChatBubbleIcon />
+                        Speaks{" "}
+                        <span className="font-semibold text-ink">
+                          {profile.languages.slice(0, 3).join(", ")}
+                          {profile.languages.length > 3 ? "…" : ""}
+                        </span>
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarIcon />
+                      Joined {memberYear}
+                    </span>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <div className="sm:shrink-0">
+                  {isOwnProfile ? (
+                    <Link
+                      href="/account/profile"
+                      className="block w-full rounded-full border border-stone-200 bg-white px-7 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50 sm:w-auto"
+                    >
+                      Edit profile
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/messages?hostId=${id}`}
+                      className="block w-full rounded-full bg-green-700 px-7 py-3 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800 sm:w-auto"
+                    >
+                      Ask {firstName} a question
+                    </Link>
+                  )}
+                </div>
               </div>
+            </div>
+          </div>
+        </section>
 
-              {/* Right column — Most complimented + Travel style */}
-              <div className="space-y-8">
-                {topCompliments.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                      Most complimented for
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {topCompliments.map((t) => (
-                        <span
-                          key={t}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-800 ring-1 ring-inset ring-green-100"
-                        >
-                          <HeartFillIcon />
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+        {/* ── ABOUT + WHAT TRAVELLERS LOVE ────────────────────────────────── */}
+        <section className="bg-white">
+          <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.5fr,1fr] lg:gap-14 lg:px-8 lg:py-20">
 
-                {profile.travel_style_tags.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                      Travel style
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {profile.travel_style_tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+            {/* About */}
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                · About {firstName} ·
+              </p>
+              {profile.bio ? (
+                <p className="mt-4 font-serif text-lg leading-relaxed text-stone-700 sm:text-xl sm:leading-[1.65]">
+                  {profile.bio}
+                </p>
+              ) : (
+                <p className="mt-4 font-serif text-base italic leading-relaxed text-stone-400">
+                  {isOwnProfile
+                    ? "Tell travellers what kind of trips you love to lead. A short bio in your settings turns this section into your story."
+                    : `${firstName} hasn't added a bio yet — but their trips below speak for themselves.`}
+                </p>
+              )}
+
+              {profile.travel_style_tags.length > 0 && (
+                <div className="mt-7">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                    Travel style
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {profile.travel_style_tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
+            </div>
+
+            {/* What travellers love (most complimented + a teaser quote) */}
+            <aside className="space-y-6">
+              {topCompliments.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                    · What travellers love ·
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {topCompliments.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-800 ring-1 ring-inset ring-green-100"
+                      >
+                        <HeartFillIcon /> {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {reviews[0] && (
+                <figure className="rounded-2xl bg-stone-50 p-6 ring-1 ring-inset ring-stone-100">
+                  <span
+                    aria-hidden
+                    className="block font-serif text-5xl leading-none text-stone-300"
+                  >
+                    &ldquo;
+                  </span>
+                  <blockquote className="mt-1 font-serif text-base italic leading-relaxed text-stone-700">
+                    {(reviews[0].text ?? "").slice(0, 220)}
+                    {(reviews[0].text ?? "").length > 220 ? "…" : ""}
+                  </blockquote>
+                  <figcaption className="mt-4 text-xs text-stone-500">
+                    — {reviews[0].author.name}
+                  </figcaption>
+                </figure>
+              )}
+            </aside>
+          </div>
+        </section>
+
+        {/* ── PHOTO GALLERY ───────────────────────────────────────────────── */}
+        {galleryImages.length > 0 && (
+          <section className="border-t border-stone-100 bg-stone-50">
+            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                · From the field ·
+              </p>
+              <h2
+                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
+                style={{ fontVariationSettings: "'opsz' 144" }}
+              >
+                Moments from {firstName}&rsquo;s trips
+              </h2>
+              <div
+                className={`mt-8 grid gap-2 sm:gap-3 ${
+                  galleryImages.length === 1
+                    ? "grid-cols-1"
+                    : galleryImages.length === 2
+                      ? "grid-cols-2"
+                      : "grid-cols-2 sm:grid-cols-3"
+                }`}
+              >
+                {galleryImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className={`relative overflow-hidden rounded-2xl bg-stone-100 ${
+                      galleryImages.length === 1
+                        ? "aspect-[16/9]"
+                        : galleryImages.length === 2
+                          ? "aspect-[4/5]"
+                          : i === 0 && galleryImages.length >= 5
+                            ? "aspect-square sm:col-span-2 sm:row-span-2 sm:aspect-auto"
+                            : "aspect-square"
+                    }`}
+                  >
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </section>
         )}
 
-        {/* ── REVIEWS ───────────────────────────────────────────────────── */}
+        {/* ── REVIEWS ─────────────────────────────────────────────────────── */}
         {reviews.length > 0 && (
-          <section className="bg-stone-50">
-            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-              <div className="mb-8 flex items-end justify-between">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                    What travellers say
-                  </p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <h2 className="font-serif text-3xl font-medium text-ink sm:text-4xl"
-                      style={{ fontVariationSettings: "'opsz' 144" }}>
-                      ★ {avgRating?.toFixed(1) ?? "—"}
-                    </h2>
-                    <span className="text-sm text-stone-500">
-                      from {reviews.length} {reviews.length === 1 ? "traveller" : "travellers"}
-                    </span>
-                  </div>
-                </div>
+          <section className="border-t border-stone-100 bg-white">
+            <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                · What travellers say ·
+              </p>
+              <div className="mt-2 flex flex-wrap items-baseline gap-3">
+                <h2
+                  className="font-serif text-4xl font-medium text-ink sm:text-5xl"
+                  style={{ fontVariationSettings: "'opsz' 144" }}
+                >
+                  ★ {avgRating?.toFixed(1) ?? "—"}
+                </h2>
+                <span className="text-sm text-stone-500">
+                  · {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+                </span>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {reviews.slice(0, 4).map((r) => (
                   <ReviewCard
                     key={r.id}
@@ -383,66 +440,11 @@ export default async function HostProfilePage({
           </section>
         )}
 
-        {/* ── UPCOMING TRIPS ────────────────────────────────────────────── */}
-        {upcomingTrips.length > 0 && (
-          <section className="border-t border-stone-200 bg-white">
-            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-green-800">
-                · Upcoming with {firstName} ·
-              </p>
-              <h2
-                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
-                style={{ fontVariationSettings: "'opsz' 144" }}
-              >
-                Trips you can still join
-              </h2>
-              <div className="mt-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-                {upcomingTrips.map((trip) => (
-                  <TripCard
-                    key={trip.id}
-                    trip={trip}
-                    host={{ name: profile.name, avatar: profile.avatar_url, idVerified: profile.id_verified }}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── PAST TRIPS ────────────────────────────────────────────────── */}
-        {pastTrips.length > 0 && (
-          <section className="bg-stone-50">
-            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                · Past trips with {firstName} ·
-              </p>
-              <h2
-                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
-                style={{ fontVariationSettings: "'opsz' 144" }}
-              >
-                Trips you&rsquo;ve missed
-              </h2>
-              <p className="mt-2 text-sm text-stone-500">
-                Get a sense of what {firstName}&rsquo;s journeys look like.
-              </p>
-              <div className="mt-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-                {pastTrips.slice(0, 8).map((trip) => (
-                  <TripCard
-                    key={trip.id}
-                    trip={trip}
-                    host={{ name: profile.name, avatar: profile.avatar_url, idVerified: profile.id_verified }}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── COUNTRIES VISITED MAP ─────────────────────────────────────── */}
+        {/* ── COUNTRIES MAP ───────────────────────────────────────────────── */}
         {profile.countries_visited.length > 0 && (
-          <section className="border-t border-stone-200 bg-white">
+          <section className="border-t border-stone-100 bg-stone-50">
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
                 · The world according to {firstName} ·
               </p>
               <h2
@@ -459,12 +461,10 @@ export default async function HostProfilePage({
                 visited so far.
               </p>
 
-              {/* Map */}
-              <div className="mt-8">
+              <div className="mt-8 rounded-2xl bg-white p-4 ring-1 ring-stone-100 sm:p-6">
                 <WorldMap visited={profile.countries_visited} />
               </div>
 
-              {/* Country name list below the map (small, alphabetical) */}
               <div className="mt-6 flex flex-wrap gap-1.5">
                 {profile.countries_visited
                   .map((code) => COUNTRY_NAME_BY_CODE.get(code) ?? code)
@@ -482,17 +482,80 @@ export default async function HostProfilePage({
           </section>
         )}
 
-        {/* ── EMPTY STATE — no trips at all ──────────────────────────────── */}
+        {/* ── UPCOMING TRIPS ──────────────────────────────────────────────── */}
+        {upcomingTrips.length > 0 && (
+          <section className="border-t border-stone-100 bg-white">
+            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-green-800">
+                · Open right now ·
+              </p>
+              <h2
+                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
+                style={{ fontVariationSettings: "'opsz' 144" }}
+              >
+                Trips you can still join
+              </h2>
+              <div className="mt-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                {upcomingTrips.map((trip) => (
+                  <TripCard
+                    key={trip.id}
+                    trip={trip}
+                    host={{
+                      name: profile.name,
+                      avatar: profile.avatar_url,
+                      idVerified: profile.id_verified,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── PAST TRIPS ──────────────────────────────────────────────────── */}
+        {pastTrips.length > 0 && (
+          <section className="border-t border-stone-100 bg-stone-50">
+            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                · From the archive ·
+              </p>
+              <h2
+                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
+                style={{ fontVariationSettings: "'opsz' 144" }}
+              >
+                Trips you&rsquo;ve missed
+              </h2>
+              <p className="mt-2 text-sm text-stone-500">
+                A taste of {firstName}&rsquo;s past journeys.
+              </p>
+              <div className="mt-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                {pastTrips.slice(0, 8).map((trip) => (
+                  <TripCard
+                    key={trip.id}
+                    trip={trip}
+                    host={{
+                      name: profile.name,
+                      avatar: profile.avatar_url,
+                      idVerified: profile.id_verified,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── EMPTY STATE — no trips ──────────────────────────────────────── */}
         {totalHosted === 0 && (
-          <section className="bg-white">
+          <section className="border-t border-stone-100 bg-white">
             <div className="mx-auto max-w-md px-4 py-16 text-center sm:py-24">
               <p className="font-serif text-3xl italic text-stone-400">
                 {isOwnProfile ? "Your stage is set." : "Quiet here, for now."}
               </p>
               <p className="mt-4 text-sm leading-relaxed text-stone-500">
                 {isOwnProfile
-                  ? "Post your first trip to start hosting. Once you do, this page becomes your portfolio."
-                  : `${firstName} hasn't posted any trips yet. Drop them a message — sometimes new hosts have plans they haven't shared.`}
+                  ? "Post your first trip to start hosting. Once you do, your trips, photos, and reviews will fill this page."
+                  : `${firstName} hasn't posted any trips yet. Send a message — sometimes new hosts have plans they haven't shared.`}
               </p>
               {isOwnProfile && (
                 <Link
@@ -513,85 +576,6 @@ export default async function HostProfilePage({
 
 /* ─── Sub-components ─────────────────────────────────────────────────────── */
 
-function PhotoMosaic({ images }: { images: { src: string; alt: string }[] }) {
-  /* JoinMyTrip-style 6-image grid: 1 large hero + smaller tiles around it.
-   * Falls back gracefully to fewer images. */
-  const [first, ...rest] = images;
-  return (
-    <div className="grid h-full min-h-[320px] grid-cols-2 grid-rows-2 gap-2 sm:min-h-[420px] sm:grid-cols-4 sm:grid-rows-2">
-      {/* Large hero — takes 2x2 on desktop, 1x2 on mobile */}
-      {first && (
-        <div className="relative col-span-2 row-span-2 overflow-hidden rounded-2xl bg-stone-100 sm:col-span-2 sm:row-span-2">
-          <Image
-            src={first.src}
-            alt={first.alt}
-            fill
-            sizes="(max-width: 640px) 100vw, 480px"
-            className="object-cover"
-            priority
-          />
-        </div>
-      )}
-      {/* Smaller tiles, only visible on sm+ */}
-      {rest.slice(0, 4).map((img, i) => (
-        <div
-          key={i}
-          className="relative hidden overflow-hidden rounded-2xl bg-stone-100 sm:block"
-        >
-          <Image
-            src={img.src}
-            alt={img.alt}
-            fill
-            sizes="240px"
-            className="object-cover"
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function EmptyPhotoState({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-8 text-center sm:min-h-[420px]">
-      <CameraIcon />
-      <p className="mt-4 text-base font-semibold text-stone-600">{title}</p>
-      <p className="mt-1 max-w-xs text-sm leading-relaxed text-stone-400">{body}</p>
-    </div>
-  );
-}
-
-function TrustRow({
-  icon,
-  label,
-  value,
-  ok,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  ok: boolean | null;
-}) {
-  const valueClass =
-    ok === true
-      ? "text-green-700"
-      : ok === false
-        ? "text-stone-400"
-        : "text-stone-700";
-  return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex items-center gap-3 text-sm text-stone-600">
-        <span className="text-stone-400">{icon}</span>
-        <span>{label}</span>
-      </div>
-      <span className={`text-sm font-medium ${valueClass}`}>
-        {ok === true && "✓ "}
-        {value}
-      </span>
-    </div>
-  );
-}
-
 function ReviewCard({
   review,
   authorName,
@@ -607,18 +591,12 @@ function ReviewCard({
     year: "numeric",
   });
   return (
-    <figure className="rounded-2xl bg-white p-5 ring-1 ring-stone-100">
+    <figure className="rounded-2xl bg-stone-50 p-5 ring-1 ring-inset ring-stone-100">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
             {authorAvatar ? (
-              <Image
-                src={authorAvatar}
-                alt={authorName}
-                fill
-                sizes="40px"
-                className="object-cover"
-              />
+              <Image src={authorAvatar} alt={authorName} fill sizes="40px" className="object-cover" />
             ) : (
               <span className="grid h-full w-full place-items-center text-xs font-semibold text-stone-500">
                 {initials}
@@ -642,7 +620,7 @@ function ReviewCard({
           {review.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-stone-50 px-2 py-0.5 text-[11px] font-medium text-stone-600 ring-1 ring-inset ring-stone-200"
+              className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-stone-600 ring-1 ring-inset ring-stone-200"
             >
               {tag}
             </span>
@@ -653,56 +631,48 @@ function ReviewCard({
   );
 }
 
-/* ─── Inline icons ──────────────────────────────────────────────────────── */
+/* ─── Icons ─────────────────────────────────────────────────────────────── */
 
-function ShieldIcon() {
+function CompassIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <polyline points="9 12 11 14 15 10" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-stone-400">
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
     </svg>
   );
 }
 
-function PhoneIcon() {
+function GlobeIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-stone-400">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
+function ChatBubbleIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-stone-400">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   );
 }
 
 function CalendarIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-stone-400">
       <rect x="3" y="4" width="18" height="18" rx="2" />
       <path d="M16 2v4M8 2v4M3 10h18" />
     </svg>
   );
 }
 
-function PinIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
-
 function HeartFillIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
-}
-
-function CameraIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-300" aria-hidden>
-      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-      <circle cx="12" cy="13" r="4" />
     </svg>
   );
 }
