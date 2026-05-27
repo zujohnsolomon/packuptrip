@@ -107,11 +107,10 @@ export function PackageCard({ pkg }: { pkg: Package }) {
             </div>
             <div className="shrink-0 text-right">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
-                Price
+                Price per person
               </div>
               <div className="mt-0.5 text-sm font-bold text-ink">
                 {formatINR(Number(pkg.price))}
-                <span className="ml-0.5 text-xs font-normal text-stone-500">/p</span>
               </div>
             </div>
           </div>
