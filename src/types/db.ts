@@ -58,6 +58,7 @@ export type Profile = {
   home_city: string | null;
   travel_style_tags: string[];
   languages: string[];
+  countries_visited: string[]; // ISO 3166-1 alpha-3 codes (e.g. 'USA', 'IND')
   id_verified: boolean;
   role: UserRole;
   created_at: string;

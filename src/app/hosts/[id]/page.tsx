@@ -4,7 +4,8 @@ import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TripCard } from "@/components/ui/TripCard";
-import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
+import { WorldMap } from "@/components/shared/WorldMap";
+import { COUNTRY_NAME_BY_CODE } from "@/lib/countries";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Trip, Review } from "@/types/db";
 
@@ -432,6 +433,50 @@ export default async function HostProfilePage({
                     host={{ name: profile.name, avatar: profile.avatar_url, idVerified: profile.id_verified }}
                   />
                 ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── COUNTRIES VISITED MAP ─────────────────────────────────────── */}
+        {profile.countries_visited.length > 0 && (
+          <section className="border-t border-stone-200 bg-white">
+            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                · The world according to {firstName} ·
+              </p>
+              <h2
+                className="mt-2 font-serif text-3xl font-medium leading-tight text-ink sm:text-4xl"
+                style={{ fontVariationSettings: "'opsz' 144" }}
+              >
+                Countries explored
+              </h2>
+              <p className="mt-2 text-sm text-stone-500">
+                <span className="font-semibold text-ink">
+                  {profile.countries_visited.length}
+                </span>{" "}
+                {profile.countries_visited.length === 1 ? "country" : "countries"}{" "}
+                visited so far.
+              </p>
+
+              {/* Map */}
+              <div className="mt-8">
+                <WorldMap visited={profile.countries_visited} />
+              </div>
+
+              {/* Country name list below the map (small, alphabetical) */}
+              <div className="mt-6 flex flex-wrap gap-1.5">
+                {profile.countries_visited
+                  .map((code) => COUNTRY_NAME_BY_CODE.get(code) ?? code)
+                  .sort()
+                  .map((name) => (
+                    <span
+                      key={name}
+                      className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-100"
+                    >
+                      {name}
+                    </span>
+                  ))}
               </div>
             </div>
           </section>

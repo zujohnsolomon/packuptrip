@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/actions/profile";
+import { CountryPicker } from "@/components/shared/CountryPicker";
 import type { Profile } from "@/types/db";
 
 // ─── Travel style options ─────────────────────────────────────────────────────
@@ -361,6 +362,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   const [homeCity, setHomeCity] = useState(profile.home_city ?? "");
   const [styleTags, setStyleTags] = useState<string[]>(profile.travel_style_tags ?? []);
   const [languages, setLanguages] = useState<string[]>(profile.languages ?? []);
+  const [countriesVisited, setCountriesVisited] = useState<string[]>(profile.countries_visited ?? []);
   const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(undefined);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -380,6 +382,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
         homeCity,
         travelStyleTags: styleTags,
         languages,
+        countriesVisited,
         avatarUrl,
       });
       if (err) {
@@ -398,6 +401,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     !!homeCity,
     styleTags.length > 0,
     languages.length > 0,
+    countriesVisited.length > 0,
     !!(avatarUrl ?? profile.avatar_url),
   ];
   const pct = Math.round((fields.filter(Boolean).length / fields.length) * 100);
@@ -536,6 +540,18 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Countries visited */}
+      <div className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
+        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-stone-400">
+          Countries I&rsquo;ve visited
+        </h2>
+        <p className="mb-4 text-xs text-stone-500">
+          Tick every country you&rsquo;ve travelled to. Your visited
+          countries highlight on the world map on your public host profile.
+        </p>
+        <CountryPicker selected={countriesVisited} onChange={setCountriesVisited} />
       </div>
 
       {/* Error */}

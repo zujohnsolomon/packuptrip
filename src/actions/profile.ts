@@ -9,6 +9,7 @@ export type UpdateProfilePayload = {
   homeCity: string;
   travelStyleTags: string[];
   languages: string[];
+  countriesVisited: string[];
   avatarUrl?: string | null;
 };
 
@@ -27,6 +28,7 @@ export async function updateProfile(
     home_city: payload.homeCity.trim() || null,
     travel_style_tags: payload.travelStyleTags,
     languages: payload.languages,
+    countries_visited: payload.countriesVisited,
   };
 
   if (payload.avatarUrl !== undefined) {
