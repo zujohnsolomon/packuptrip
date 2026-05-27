@@ -48,10 +48,10 @@ export default async function InvitePage({
         <div className="mx-auto max-w-md px-4 py-20 sm:px-6">
 
           {/* Card */}
-          <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-teal-50 p-8 ring-1 ring-inset ring-amber-100 text-center">
+          <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-green-50 p-8 ring-1 ring-inset ring-amber-100 text-center">
 
             {/* Referrer avatar */}
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-teal-100 ring-4 ring-white shadow-md">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-green-100 ring-4 ring-white shadow-md">
               {profile.avatar_url ? (
                 <Image
                   src={profile.avatar_url}
@@ -61,13 +61,13 @@ export default async function InvitePage({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-2xl font-bold text-teal-700">
+                <span className="text-2xl font-bold text-green-800">
                   {initials}
                 </span>
               )}
             </div>
 
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-green-800">
               Personal invite from
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink">

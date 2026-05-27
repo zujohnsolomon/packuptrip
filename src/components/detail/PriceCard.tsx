@@ -32,8 +32,8 @@ export function PriceCard({
   const btn =
     accent === "amber"
       ? "bg-amber-600 hover:bg-amber-700"
-      : "bg-teal-600 hover:bg-teal-700";
-  const text = accent === "amber" ? "text-amber-700" : "text-teal-700";
+      : "bg-green-700 hover:bg-green-800";
+  const text = accent === "amber" ? "text-amber-700" : "text-green-800";
   const sparse = spotsLeft <= 3;
 
   return (

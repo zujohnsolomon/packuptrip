@@ -40,7 +40,7 @@ export function StickyBookBar({
   const btn =
     accent === "amber"
       ? "bg-amber-600 hover:bg-amber-700"
-      : "bg-teal-600 hover:bg-teal-700";
+      : "bg-green-700 hover:bg-green-800";
 
   const sold = spotsLeft === 0;
 

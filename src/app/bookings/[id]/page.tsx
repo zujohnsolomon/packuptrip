@@ -149,7 +149,7 @@ export default async function BookingDetailPage({
                   <input type="hidden" name="tripId" value={item.item.id} />
                   <button
                     type="submit"
-                    className="inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-5 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
+                    className="inline-flex w-full h-11 items-center justify-center gap-2 rounded-full border border-green-200 bg-green-50 px-5 text-sm font-medium text-green-800 hover:bg-green-100 transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
@@ -203,9 +203,9 @@ function ConfirmationBanner({
   reference: string;
   accent: "amber" | "teal";
 }) {
-  const bg = accent === "amber" ? "bg-amber-50" : "bg-teal-50";
-  const ring = accent === "amber" ? "ring-amber-100" : "ring-teal-100";
-  const fg = accent === "amber" ? "text-amber-800" : "text-teal-800";
+  const bg = accent === "amber" ? "bg-amber-50" : "bg-green-50";
+  const ring = accent === "amber" ? "ring-amber-100" : "ring-green-100";
+  const fg = accent === "amber" ? "text-amber-800" : "text-green-900";
   return (
     <div className={`rounded-2xl p-6 sm:p-8 ring-1 ring-inset ${bg} ${ring}`}>
       <div className={`text-xs font-semibold uppercase tracking-[0.18em] ${fg}`}>

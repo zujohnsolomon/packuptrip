@@ -62,7 +62,7 @@ export default async function HostTripDetailPage({
         <div className="border-b border-stone-200 bg-white">
           <div className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-between gap-4 px-6 py-6 lg:px-8">
             <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-green-800">
                 Hosting
               </div>
               <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
@@ -230,7 +230,7 @@ export default async function HostTripDetailPage({
                 <Link
                   href={`/trips/${trip.id}`}
                   target="_blank"
-                  className="block rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] text-center text-sm font-semibold text-teal-700 hover:text-teal-800"
+                  className="block rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] text-center text-sm font-semibold text-green-800 hover:text-green-900"
                 >
                   View public page →
                 </Link>
@@ -362,7 +362,7 @@ function BookingsTease({
       </div>
       <Link
         href={`/host/trips/${tripId}/joiners`}
-        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-700"
+        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-xl bg-green-700 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-green-800"
       >
         Manage joiners
       </Link>

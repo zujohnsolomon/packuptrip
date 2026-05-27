@@ -51,7 +51,7 @@ export default async function HostEditTripPage({
         <div className="border-b border-stone-200 bg-white">
           <div className="mx-auto flex max-w-3xl items-baseline justify-between gap-4 px-6 py-6 lg:px-8">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-green-800">
                 Hosting
               </div>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">

@@ -113,8 +113,8 @@ function RevenueKpiCard({ metrics }: { metrics: AdminMetrics }) {
             <RevenueStatusRow
               label="Net platform fee"
               value={metrics.netPlatformRevenue}
-              color="text-teal-700"
-              dot="bg-teal-500"
+              color="text-green-800"
+              dot="bg-green-600"
             />
           </div>
         )}
@@ -209,7 +209,7 @@ function RevenueSplit({ metrics }: { metrics: AdminMetrics }) {
               aria-label={`${originalsPct.toFixed(0)}% Originals`}
             />
             <div
-              className="bg-teal-600 transition-all"
+              className="bg-green-700 transition-all"
               style={{ width: `${communityPct}%` }}
               aria-label={`${communityPct.toFixed(0)}% Community`}
             />
@@ -223,7 +223,7 @@ function RevenueSplit({ metrics }: { metrics: AdminMetrics }) {
               pct={originalsPct}
             />
             <SplitRow
-              dot="bg-teal-600"
+              dot="bg-green-700"
               label="Community Trips"
               amount={community}
               pct={communityPct}
@@ -391,7 +391,7 @@ function ActivityRow({ item }: { item: AdminActivityItem }) {
         className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${
           isBooking
             ? "bg-amber-100 text-amber-700"
-            : "bg-teal-100 text-teal-700"
+            : "bg-green-100 text-green-800"
         }`}
         aria-hidden
       >

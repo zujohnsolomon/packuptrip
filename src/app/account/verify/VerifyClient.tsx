@@ -135,7 +135,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
   return (
     <div className="flex flex-col items-center gap-1">
       <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-        done ? "bg-teal-500 text-white" :
+        done ? "bg-green-600 text-white" :
         active ? "bg-amber-500 text-white" :
         "bg-stone-100 text-stone-400"
       }`}>
@@ -227,9 +227,9 @@ export function VerifyClient({ userId }: { userId: string }) {
       {/* Step indicator */}
       <div className="flex items-center justify-center gap-3">
         <StepDot n={1} active={step === 1} done={step > 1} />
-        <div className={`h-px w-12 transition-colors ${step > 1 ? "bg-teal-400" : "bg-stone-200"}`} />
+        <div className={`h-px w-12 transition-colors ${step > 1 ? "bg-green-500" : "bg-stone-200"}`} />
         <StepDot n={2} active={step === 2} done={step > 2} />
-        <div className={`h-px w-12 transition-colors ${step > 2 ? "bg-teal-400" : "bg-stone-200"}`} />
+        <div className={`h-px w-12 transition-colors ${step > 2 ? "bg-green-500" : "bg-stone-200"}`} />
         <StepDot n={3} active={step === 3} done={false} />
       </div>
       <div className="flex justify-center gap-[52px] text-[10px] font-medium uppercase tracking-wider text-stone-400">
@@ -323,7 +323,7 @@ export function VerifyClient({ userId }: { userId: string }) {
           type="button"
           onClick={handleSubmit}
           disabled={uploading}
-          className="w-full rounded-full bg-teal-600 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 disabled:opacity-60"
+          className="w-full rounded-full bg-green-700 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-800 disabled:opacity-60"
         >
           {uploading ? "Uploading securely…" : "Submit for review 🛡️"}
         </button>

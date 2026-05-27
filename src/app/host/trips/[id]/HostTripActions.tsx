@@ -32,7 +32,7 @@ export function HostTripActions({
         {editable && (
           <Link
             href={`/host/trips/${tripId}/edit`}
-            className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+            className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-green-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
           >
             {status === "pending" || hasFeedback
               ? "Edit & resubmit"

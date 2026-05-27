@@ -60,7 +60,7 @@ export default async function TripMemoryPage({
             </p>
             <Link
               href={`/trips/${id}`}
-              className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700"
+              className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-green-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-800"
             >
               View trip →
             </Link>
@@ -102,12 +102,12 @@ export default async function TripMemoryPage({
               priority
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-900 to-stone-900" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-950 to-stone-900" />
           )}
 
           {/* Overlay content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent px-4 pb-10 text-center">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-300">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-green-300">
               Trip Memory
             </div>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow sm:text-4xl lg:text-5xl">
@@ -130,7 +130,7 @@ export default async function TripMemoryPage({
 
           {/* Status banner */}
           {!hasEnded && (
-            <div className="mb-8 rounded-2xl bg-teal-50 px-5 py-4 text-sm text-teal-800 ring-1 ring-inset ring-teal-100">
+            <div className="mb-8 rounded-2xl bg-green-50 px-5 py-4 text-sm text-green-900 ring-1 ring-inset ring-green-100">
               🚀 This trip is currently in progress — the memory page will fill up as reviews come in after it ends on <strong>{formattedEnd}</strong>.
             </div>
           )}
@@ -157,7 +157,7 @@ export default async function TripMemoryPage({
               <ol className="mt-4 space-y-3">
                 {trip.itinerary.map((day) => (
                   <li key={day.day} className="flex gap-4 rounded-2xl border border-stone-100 bg-white p-4">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-50 text-xs font-bold text-teal-700">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-50 text-xs font-bold text-green-800">
                       {day.day}
                     </div>
                     <div className="min-w-0">
@@ -232,23 +232,23 @@ function CrewCard({ member }: { member: TripMemoryData["crew"][number] }) {
   return (
     <Link
       href={href}
-      className="group flex flex-col items-center gap-2 rounded-2xl border border-stone-100 bg-white px-4 py-3 text-center transition hover:border-teal-200 hover:shadow-sm"
+      className="group flex flex-col items-center gap-2 rounded-2xl border border-stone-100 bg-white px-4 py-3 text-center transition hover:border-green-200 hover:shadow-sm"
     >
-      <div className="relative h-12 w-12 overflow-hidden rounded-full bg-teal-50">
+      <div className="relative h-12 w-12 overflow-hidden rounded-full bg-green-50">
         {member.avatar_url ? (
           <Image src={member.avatar_url} alt={member.name} fill sizes="48px" className="object-cover" />
         ) : (
-          <span className="grid h-full w-full place-items-center text-sm font-bold text-teal-700">
+          <span className="grid h-full w-full place-items-center text-sm font-bold text-green-800">
             {initials}
           </span>
         )}
       </div>
       <div>
-        <p className="text-xs font-semibold text-ink group-hover:text-teal-700 transition-colors">
+        <p className="text-xs font-semibold text-ink group-hover:text-green-800 transition-colors">
           {member.name.split(" ")[0]}
         </p>
         {member.isHost && (
-          <p className="text-[10px] font-semibold text-teal-600">Host</p>
+          <p className="text-[10px] font-semibold text-green-700">Host</p>
         )}
       </div>
     </Link>
@@ -280,7 +280,7 @@ function MemoryReviewCard({
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-semibold text-ink">
               {review.author ? (
-                <Link href={`/passport/${review.author.id}`} className="hover:text-teal-700 hover:underline">
+                <Link href={`/passport/${review.author.id}`} className="hover:text-green-800 hover:underline">
                   {review.author.name}
                 </Link>
               ) : "Traveller"}

@@ -113,7 +113,7 @@ export default async function AdminUsersPage({
                             </span>
                           )}
                           {(profile as { plus_member?: boolean }).plus_member && (
-                            <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800 ring-1 ring-inset ring-teal-200">
+                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-900 ring-1 ring-inset ring-green-200">
                               ✦ Plus
                             </span>
                           )}
@@ -238,7 +238,7 @@ function SummaryCard({
   const dot = {
     stone: "bg-stone-400",
     amber: "bg-amber-500",
-    teal: "bg-teal-500",
+    teal: "bg-green-600",
     emerald: "bg-emerald-500",
     red: "bg-red-500",
   }[tone];
@@ -258,7 +258,7 @@ function SummaryCard({
 function RoleChip({ role }: { role: UserRole }) {
   const styles: Record<UserRole, string> = {
     traveller: "bg-stone-100 text-stone-700 ring-stone-200",
-    host: "bg-teal-100 text-teal-800 ring-teal-200",
+    host: "bg-green-100 text-green-900 ring-green-200",
     admin: "bg-amber-100 text-amber-800 ring-amber-200",
   };
   return (

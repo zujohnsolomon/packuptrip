@@ -282,7 +282,7 @@ function SocialProofBar() {
               key={i}
               className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-stone-600"
             >
-              <span className="text-teal-600">{item.icon}</span>
+              <span className="text-green-700">{item.icon}</span>
               {item.label}
             </span>
           ))}
@@ -366,7 +366,7 @@ function EngineCard({
         <p className="mt-2 max-w-md text-stone-600">{body}</p>
         <span
           className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${
-            isOriginals ? "text-amber-700" : "text-teal-700"
+            isOriginals ? "text-amber-700" : "text-green-800"
           }`}
         >
           {cta.label}
@@ -480,7 +480,7 @@ function ExploreDestinations() {
 function TravelCategories() {
   const cats = [
     { label: "Beach", emoji: "🏖️", href: "/trips?q=beach", bg: "from-sky-400 to-blue-500" },
-    { label: "Mountains", emoji: "⛰️", href: "/trips?q=mountains", bg: "from-teal-500 to-emerald-600" },
+    { label: "Mountains", emoji: "⛰️", href: "/trips?q=mountains", bg: "from-green-600 to-emerald-600" },
     { label: "Heritage", emoji: "🏛️", href: "/trips?q=heritage", bg: "from-amber-500 to-orange-600" },
     { label: "Backpacking", emoji: "🎒", href: "/trips?q=backpacking", bg: "from-violet-500 to-purple-600" },
     { label: "Wellness", emoji: "🧘", href: "/trips?q=wellness", bg: "from-rose-400 to-pink-500" },
@@ -864,7 +864,7 @@ function SectionHeader({
 }) {
   const eyebrowColor =
     accent === "teal"
-      ? "text-teal-700"
+      ? "text-green-800"
       : accent === "amber"
         ? "text-amber-700"
         : "text-stone-500";

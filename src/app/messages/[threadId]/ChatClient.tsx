@@ -361,7 +361,7 @@ export function ChatClient({
           {trip && (
             <Link
               href={`/trips/${trip.id}`}
-              className="block truncate text-[11px] text-teal-600 hover:underline"
+              className="block truncate text-[11px] text-green-700 hover:underline"
             >
               {trip.title}
             </Link>

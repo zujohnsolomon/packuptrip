@@ -22,7 +22,7 @@ export function PasswordForm() {
 
   const strength = rules.filter((r) => r.test(newPw)).length;
   const strengthLabel = ["Weak", "Fair", "Good", "Strong"][strength];
-  const strengthColor = ["bg-red-400", "bg-orange-400", "bg-amber-400", "bg-teal-500"][strength];
+  const strengthColor = ["bg-red-400", "bg-orange-400", "bg-amber-400", "bg-green-600"][strength];
   const canSubmit = strength === rules.length && newPw === confirmPw && newPw.length > 0;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -50,10 +50,10 @@ export function PasswordForm() {
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-teal-100 bg-teal-50 p-6 text-center">
+      <div className="rounded-2xl border border-green-100 bg-green-50 p-6 text-center">
         <p className="text-2xl">✓</p>
-        <p className="mt-2 text-sm font-semibold text-teal-800">Password updated</p>
-        <p className="mt-1 text-xs text-teal-600">Taking you back to your account…</p>
+        <p className="mt-2 text-sm font-semibold text-green-900">Password updated</p>
+        <p className="mt-1 text-xs text-green-700">Taking you back to your account…</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function PasswordForm() {
                     <span
                       key={r.label}
                       className={`text-[11px] ${
-                        r.test(newPw) ? "text-teal-600" : "text-stone-400"
+                        r.test(newPw) ? "text-green-700" : "text-stone-400"
                       }`}
                     >
                       {r.test(newPw) ? "✓" : "·"} {r.label}
@@ -113,7 +113,7 @@ export function PasswordForm() {
                   ))}
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  strength === 3 ? "text-teal-600" : strength === 2 ? "text-amber-600" : "text-red-500"
+                  strength === 3 ? "text-green-700" : strength === 2 ? "text-amber-600" : "text-red-500"
                 }`}>
                   {strengthLabel}
                 </span>
@@ -138,7 +138,7 @@ export function PasswordForm() {
                 confirmPw && newPw !== confirmPw
                   ? "border-red-300 focus:border-red-300 focus:ring-red-100"
                   : confirmPw && newPw === confirmPw
-                  ? "border-teal-300 focus:border-teal-300 focus:ring-teal-100"
+                  ? "border-green-300 focus:border-green-300 focus:ring-green-100"
                   : "border-stone-200 focus:border-amber-300 focus:ring-amber-100"
               }`}
             />
@@ -155,7 +155,7 @@ export function PasswordForm() {
             <p className="mt-1 text-xs text-red-500">Passwords don&rsquo;t match</p>
           )}
           {confirmPw && newPw === confirmPw && (
-            <p className="mt-1 text-xs text-teal-600">✓ Passwords match</p>
+            <p className="mt-1 text-xs text-green-700">✓ Passwords match</p>
           )}
         </div>
       </div>

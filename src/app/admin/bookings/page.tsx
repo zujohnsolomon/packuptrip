@@ -294,7 +294,7 @@ function ItemTypeChip({ type }: { type: "package" | "trip" }) {
   const cls =
     type === "package"
       ? "bg-amber-100 text-amber-800 ring-amber-200"
-      : "bg-teal-100 text-teal-800 ring-teal-200";
+      : "bg-green-100 text-green-900 ring-green-200";
   const label = type === "package" ? "Original" : "Community";
   return (
     <span

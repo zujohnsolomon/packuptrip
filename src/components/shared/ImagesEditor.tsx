@@ -34,10 +34,10 @@ export function ImagesEditor({
 
   const dropTint =
     accent === "teal"
-      ? "hover:border-teal-400 hover:bg-teal-50"
+      ? "hover:border-green-500 hover:bg-green-50"
       : "hover:border-amber-400 hover:bg-amber-50";
   const activeTint =
-    accent === "teal" ? "border-teal-500 bg-teal-50" : "border-amber-500 bg-amber-50";
+    accent === "teal" ? "border-green-600 bg-green-50" : "border-amber-500 bg-amber-50";
 
   async function uploadOne(file: File): Promise<string | null> {
     if (!ALLOWED_TYPES.includes(file.type)) {

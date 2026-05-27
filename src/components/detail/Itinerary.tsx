@@ -17,7 +17,7 @@ export function Itinerary({
   const dot =
     accent === "amber"
       ? "bg-amber-600 ring-amber-100"
-      : "bg-teal-600 ring-teal-100";
+      : "bg-green-700 ring-green-100";
   return (
     <ol className="relative space-y-6 border-l border-stone-200 pl-6">
       {days.map((d) => (

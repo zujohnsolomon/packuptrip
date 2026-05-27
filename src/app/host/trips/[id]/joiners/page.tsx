@@ -89,7 +89,7 @@ export default async function JoinersPage({
         <div className="border-b border-stone-200 bg-white">
           <div className="mx-auto flex max-w-4xl flex-wrap items-baseline justify-between gap-4 px-6 py-6 lg:px-8">
             <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-green-800">
                 Hosting · {trip.title}
               </div>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
@@ -176,14 +176,14 @@ function JoinerCard({
     <li className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:gap-4">
       {/* Avatar + identity */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-800">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-900">
           {initials}
         </div>
         <div className="min-w-0">
           {joiner.profile ? (
             <Link
               href={`/passport/${joiner.profile.id}`}
-              className="truncate font-medium text-ink hover:text-teal-700 hover:underline"
+              className="truncate font-medium text-ink hover:text-green-800 hover:underline"
             >
               {joiner.profile.name}
             </Link>

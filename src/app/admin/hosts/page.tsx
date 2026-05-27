@@ -134,7 +134,7 @@ export default async function AdminHostsPage({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-stone-500">
-                      <span className="font-medium text-teal-700">{liveTrips}</span>
+                      <span className="font-medium text-green-800">{liveTrips}</span>
                       <span className="text-stone-400"> / {totalTrips}</span>
                     </td>
                     <td className="px-4 py-3 text-xs text-stone-500">

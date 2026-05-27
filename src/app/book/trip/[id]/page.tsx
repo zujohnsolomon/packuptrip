@@ -120,7 +120,7 @@ function SoldOut({ href, title }: { href: string; title: string }) {
               </Link>
               <Link
                 href="/trips"
-                className="inline-flex h-11 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+                className="inline-flex h-11 items-center rounded-full bg-green-700 px-5 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
               >
                 Browse trips
               </Link>

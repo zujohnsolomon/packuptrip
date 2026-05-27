@@ -77,7 +77,7 @@ export default async function AdminBookingDetailPage({
                   className={`absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
                     itemType === "package"
                       ? "bg-amber-100 text-amber-800 ring-amber-200"
-                      : "bg-teal-100 text-teal-800 ring-teal-200"
+                      : "bg-green-100 text-green-900 ring-green-200"
                   }`}
                 >
                   {itemType === "package" ? "Packuptrip Original" : "Community trip"}

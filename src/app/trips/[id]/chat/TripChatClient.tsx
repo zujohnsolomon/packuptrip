@@ -395,7 +395,7 @@ export function TripChatClient({
         </span>
         <div className="ml-auto flex flex-wrap items-center gap-1">
           {members.filter(m => m.is_host).map(m => (
-            <span key={m.id} className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
+            <span key={m.id} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-800 ring-1 ring-inset ring-green-200">
               {m.name.split(" ")[0]} · Host
             </span>
           ))}
@@ -468,7 +468,7 @@ export function TripChatClient({
                         </a>
                       )}
                       {sender.is_host && (
-                        <span className="rounded-full bg-teal-50 px-1.5 py-0.5 text-[9px] font-semibold text-teal-700">
+                        <span className="rounded-full bg-green-50 px-1.5 py-0.5 text-[9px] font-semibold text-green-800">
                           Host
                         </span>
                       )}

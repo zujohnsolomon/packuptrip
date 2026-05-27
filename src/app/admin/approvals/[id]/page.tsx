@@ -83,7 +83,7 @@ export default async function AdminApprovalDetailPage({
                     className="object-cover"
                   />
                 )}
-                <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-teal-100 px-2.5 py-1 text-xs font-medium text-teal-800 ring-1 ring-inset ring-teal-200">
+                <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-900 ring-1 ring-inset ring-green-200">
                   Community trip
                 </span>
               </div>
@@ -234,7 +234,7 @@ function HostCard({
         Host
       </div>
       <div className="mt-1.5 flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-teal-100 text-sm font-semibold text-teal-800">
+        <div className="grid h-10 w-10 place-items-center rounded-full bg-green-100 text-sm font-semibold text-green-900">
           {host.name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">

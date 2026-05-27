@@ -40,25 +40,25 @@ export default async function ReferralsPage() {
           </p>
 
           {/* Credit balance hero */}
-          <div className="mt-7 rounded-3xl bg-gradient-to-br from-teal-600 to-teal-800 p-7 text-white">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-200">
+          <div className="mt-7 rounded-3xl bg-gradient-to-br from-green-700 to-green-900 p-7 text-white">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-green-200">
               Your credit balance
             </p>
             <p className="mt-1 text-4xl font-bold tracking-tight">
               ₹{stats.creditBalance.toLocaleString("en-IN")}
             </p>
-            <p className="mt-1 text-sm text-teal-200">
+            <p className="mt-1 text-sm text-green-200">
               Applied automatically on your next booking at checkout.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-4">
               <div className="rounded-2xl bg-white/10 px-4 py-3">
                 <p className="text-2xl font-bold">{totalReferrals}</p>
-                <p className="mt-0.5 text-xs text-teal-200">Friends invited</p>
+                <p className="mt-0.5 text-xs text-green-200">Friends invited</p>
               </div>
               <div className="rounded-2xl bg-white/10 px-4 py-3">
                 <p className="text-2xl font-bold">{stats.creditedCount}</p>
-                <p className="mt-0.5 text-xs text-teal-200">Bookings completed</p>
+                <p className="mt-0.5 text-xs text-green-200">Bookings completed</p>
               </div>
             </div>
           </div>

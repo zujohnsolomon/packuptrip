@@ -89,33 +89,33 @@ export default async function PlusPage({
       <main className="flex-1 bg-white pt-20">
 
         {/* ── Hero ─────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-teal-700 to-teal-900 px-4 py-20 text-center sm:px-6">
+        <section className="relative overflow-hidden bg-gradient-to-br from-green-800 to-green-950 px-4 py-20 text-center sm:px-6">
           <div className="absolute inset-0 opacity-10"
             style={{ backgroundImage: "radial-gradient(circle at 60% 40%, white 1px, transparent 1px)", backgroundSize: "48px 48px" }}
           />
           <div className="relative mx-auto max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-teal-200 ring-1 ring-white/20">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-green-200 ring-1 ring-white/20">
               ✦ Packuptrip Plus — coming soon
             </span>
             <h1 className="mt-5 text-4xl font-bold tracking-tight text-white sm:text-5xl">
               Travel more.<br className="hidden sm:block" /> Pay less.
             </h1>
-            <p className="mt-4 text-lg text-teal-100 max-w-xl mx-auto">
+            <p className="mt-4 text-lg text-green-100 max-w-xl mx-auto">
               A membership for people who take their trips seriously. Cut your service fee in half, unlock exclusive trips, and stand out to the best hosts.
             </p>
 
             <div className="mt-3 inline-flex items-baseline gap-1.5">
               <span className="text-5xl font-bold text-white">₹999</span>
-              <span className="text-teal-200 text-lg">/year</span>
+              <span className="text-green-200 text-lg">/year</span>
             </div>
-            <p className="text-teal-300 text-sm">Less than ₹83 a month. Pays for itself in one trip.</p>
+            <p className="text-green-300 text-sm">Less than ₹83 a month. Pays for itself in one trip.</p>
           </div>
         </section>
 
         {/* ── Already Plus ─────────────────────────────────────────── */}
         {isPlus && (
           <section className="mx-auto max-w-xl px-4 py-12 text-center sm:px-6">
-            <div className="rounded-3xl bg-teal-50 p-8 ring-1 ring-inset ring-teal-200">
+            <div className="rounded-3xl bg-green-50 p-8 ring-1 ring-inset ring-green-200">
               <div className="text-4xl">✦</div>
               <h2 className="mt-3 text-xl font-semibold text-ink">You're already a Plus member!</h2>
               <p className="mt-2 text-stone-500 text-sm">
@@ -123,7 +123,7 @@ export default async function PlusPage({
               </p>
               <Link
                 href="/trips"
-                className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-700"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-green-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-800"
               >
                 Browse trips →
               </Link>
@@ -134,7 +134,7 @@ export default async function PlusPage({
         {/* ── Waitlist success ─────────────────────────────────────── */}
         {!isPlus && joined && (
           <section className="mx-auto max-w-xl px-4 py-10 text-center sm:px-6">
-            <div className="rounded-3xl bg-teal-50 p-8 ring-1 ring-inset ring-teal-200">
+            <div className="rounded-3xl bg-green-50 p-8 ring-1 ring-inset ring-green-200">
               <div className="text-4xl">🎉</div>
               <h2 className="mt-3 text-xl font-semibold text-ink">You're on the list!</h2>
               <p className="mt-2 text-stone-500 text-sm">
@@ -174,10 +174,10 @@ export default async function PlusPage({
                 <p className="mt-2 text-3xl font-bold text-stone-700">8%</p>
                 <p className="mt-1 text-sm text-stone-400">service fee per booking</p>
               </div>
-              <div className="rounded-2xl bg-teal-700 p-5 text-white">
-                <p className="text-xs font-semibold uppercase tracking-wider text-teal-200">With Plus</p>
+              <div className="rounded-2xl bg-green-800 p-5 text-white">
+                <p className="text-xs font-semibold uppercase tracking-wider text-green-200">With Plus</p>
                 <p className="mt-2 text-3xl font-bold">4%</p>
-                <p className="mt-1 text-sm text-teal-200">half the service fee</p>
+                <p className="mt-1 text-sm text-green-200">half the service fee</p>
               </div>
             </div>
           </div>
@@ -199,11 +199,11 @@ export default async function PlusPage({
                 required
                 defaultValue={user?.email ?? ""}
                 placeholder="your@email.com"
-                className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400"
+                className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
               <button
                 type="submit"
-                className="rounded-full bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700"
+                className="rounded-full bg-green-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-800"
               >
                 Join waitlist
               </button>

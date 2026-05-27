@@ -42,7 +42,7 @@ export default async function HostLandingPage() {
       <main className="flex-1 bg-white pt-20">
         {/* Hero */}
         <section className="relative isolate overflow-hidden">
-          <div className="pointer-events-none absolute -top-32 -right-20 h-[420px] w-[420px] rounded-full bg-teal-200/40 blur-3xl" />
+          <div className="pointer-events-none absolute -top-32 -right-20 h-[420px] w-[420px] rounded-full bg-green-200/40 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-32 -left-20 h-[420px] w-[420px] rounded-full bg-amber-200/30 blur-3xl" />
 
           <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
@@ -51,7 +51,7 @@ export default async function HostLandingPage() {
               <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl lg:text-6xl">
                 Planning a trip?
                 <br />
-                <span className="text-teal-700">Bring people along.</span>
+                <span className="text-green-800">Bring people along.</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-stone-600">
                 Post your trip on Packuptrip, pick who joins, split costs
@@ -60,7 +60,7 @@ export default async function HostLandingPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href={startCta}
-                  className="inline-flex h-12 items-center rounded-full bg-teal-600 px-6 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+                  className="inline-flex h-12 items-center rounded-full bg-green-700 px-6 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
                 >
                   Post a trip →
                 </Link>
@@ -81,7 +81,7 @@ export default async function HostLandingPage() {
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
+              <div className="text-xs font-semibold uppercase tracking-wider text-green-800">
                 How hosting works
               </div>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
@@ -113,7 +113,7 @@ export default async function HostLandingPage() {
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
+                <div className="text-xs font-semibold uppercase tracking-wider text-green-800">
                   What it costs
                 </div>
                 <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
@@ -151,7 +151,7 @@ export default async function HostLandingPage() {
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
+              <div className="text-xs font-semibold uppercase tracking-wider text-green-800">
                 What we expect from hosts
               </div>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
@@ -180,20 +180,20 @@ export default async function HostLandingPage() {
         </section>
 
         {/* Final CTA */}
-        <section className="bg-teal-700">
+        <section className="bg-green-800">
           <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-20">
             <div className="max-w-2xl">
               <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 Ready to find your group?
               </h2>
-              <p className="mt-3 max-w-xl text-teal-50/90">
+              <p className="mt-3 max-w-xl text-green-50/90">
                 Posting takes about 10 minutes. You can save a draft and
                 finish later if you&rsquo;re not ready.
               </p>
             </div>
             <Link
               href={startCta}
-              className="inline-flex h-12 shrink-0 items-center rounded-full bg-white px-7 text-sm font-semibold text-teal-800 shadow-lg transition hover:bg-stone-100"
+              className="inline-flex h-12 shrink-0 items-center rounded-full bg-white px-7 text-sm font-semibold text-green-900 shadow-lg transition hover:bg-stone-100"
             >
               Post your first trip →
             </Link>
@@ -216,7 +216,7 @@ function Step({
 }) {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-teal-600 text-sm font-semibold text-white">
+      <div className="grid h-10 w-10 place-items-center rounded-full bg-green-700 text-sm font-semibold text-white">
         {n}
       </div>
       <div className="mt-4 text-lg font-semibold text-ink">{title}</div>
@@ -256,7 +256,7 @@ function ExampleCard() {
           bold
         />
       </dl>
-      <dl className="mt-4 space-y-2 rounded-xl bg-teal-50 p-4 text-sm ring-1 ring-inset ring-teal-100">
+      <dl className="mt-4 space-y-2 rounded-xl bg-green-50 p-4 text-sm ring-1 ring-inset ring-green-100">
         <Row
           label="Your gross"
           value={`₹${share.toLocaleString("en-IN")}`}
@@ -265,7 +265,7 @@ function ExampleCard() {
           label={`Packuptrip commission (${Math.round(HOST_COMMISSION_RATE * 100)}%)`}
           value={`− ₹${commission.toLocaleString("en-IN")}`}
         />
-        <div className="my-1 h-px bg-teal-200" />
+        <div className="my-1 h-px bg-green-200" />
         <Row
           label="You get"
           value={`₹${youGet.toLocaleString("en-IN")}`}

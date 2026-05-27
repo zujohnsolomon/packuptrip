@@ -73,7 +73,7 @@ function ThreadRow({ thread, userId }: { thread: ThreadSummary; userId: string }
           </span>
         </div>
         {thread.trip_title && (
-          <div className="mt-0.5 truncate text-[11px] font-medium text-teal-600">
+          <div className="mt-0.5 truncate text-[11px] font-medium text-green-700">
             {thread.trip_title}
           </div>
         )}

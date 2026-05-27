@@ -18,7 +18,7 @@ function spotsLabel(left: number, total: number) {
   if (left === 0) return { label: "Full", cls: "bg-stone-500/80 text-white" };
   if (left <= 2) return { label: "Almost full", cls: "bg-red-500/90 text-white" };
   if (left / total <= 0.4) return { label: `${left} spots left`, cls: "bg-amber-500/90 text-white" };
-  return { label: `${left} spots left`, cls: "bg-teal-600/80 text-white" };
+  return { label: `${left} spots left`, cls: "bg-green-700/80 text-white" };
 }
 
 export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
@@ -49,7 +49,7 @@ export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-teal-50">
+            <div className="flex h-full w-full items-center justify-center bg-green-50">
               <MountainIcon />
             </div>
           )}
@@ -83,11 +83,11 @@ export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
           {/* Host avatar — bottom left */}
           {host && (
             <div className="absolute bottom-3 left-3">
-              <div className="relative h-9 w-9 overflow-hidden rounded-full bg-teal-100 ring-2 ring-white shadow-md">
+              <div className="relative h-9 w-9 overflow-hidden rounded-full bg-green-100 ring-2 ring-white shadow-md">
                 {host.avatar ? (
                   <Image src={host.avatar} alt={host.name} fill sizes="36px" className="object-cover" />
                 ) : (
-                  <span className="grid h-full w-full place-items-center text-xs font-bold text-teal-800">
+                  <span className="grid h-full w-full place-items-center text-xs font-bold text-green-900">
                     {host.name.charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -106,7 +106,7 @@ export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
                   with{" "}
                   <span className="font-medium text-stone-700">{host.name}</span>
                   {host.idVerified && (
-                    <span className="ml-1 text-teal-600" title="ID verified">✓</span>
+                    <span className="ml-1 text-green-700" title="ID verified">✓</span>
                   )}
                 </>
               ) : (
@@ -125,7 +125,7 @@ export function TripCard({ trip, host }: { trip: Trip; host?: TripCardHost }) {
           </div>
 
           {/* Title */}
-          <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-teal-700">
+          <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-green-800">
             {trip.title}
           </h3>
 

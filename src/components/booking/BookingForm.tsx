@@ -41,7 +41,7 @@ export function BookingForm({
   const btn =
     accent === "amber"
       ? "bg-amber-600 hover:bg-amber-700"
-      : "bg-teal-600 hover:bg-teal-700";
+      : "bg-green-700 hover:bg-green-800";
 
   async function onConfirm() {
     setError(null);
@@ -72,7 +72,7 @@ export function BookingForm({
 
       <div className="mt-3 flex flex-wrap gap-2">
         {isPlus && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-200">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-800 ring-1 ring-inset ring-green-200">
             ✦ Plus rate — {Math.round(serviceFeeRate * 100)}% fee
           </span>
         )}

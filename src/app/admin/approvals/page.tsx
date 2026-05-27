@@ -58,7 +58,7 @@ export default async function AdminApprovalsPage({
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col justify-center">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800 ring-1 ring-inset ring-teal-200">
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-900 ring-1 ring-inset ring-green-200">
                           Community trip
                         </span>
                         {hasNotes && (

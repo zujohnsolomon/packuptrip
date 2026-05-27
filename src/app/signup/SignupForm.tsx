@@ -84,9 +84,9 @@ export function SignupForm() {
     <div className="space-y-5 relative">
       {/* Referral credit banner */}
       {refCode && (
-        <div className="flex items-center gap-2 rounded-xl bg-teal-50 border border-teal-200 px-3.5 py-2.5">
+        <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-3.5 py-2.5">
           <span className="text-base">🎁</span>
-          <p className="text-[11px] font-semibold text-teal-800">
+          <p className="text-[11px] font-semibold text-green-900">
             You were invited — ₹200 credit added on your first booking.
           </p>
         </div>

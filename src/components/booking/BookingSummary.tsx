@@ -24,7 +24,7 @@ export function BookingSummary({
   const ribbon =
     variant === "originals"
       ? "bg-amber-100 text-amber-800 ring-amber-200"
-      : "bg-teal-100 text-teal-800 ring-teal-200";
+      : "bg-green-100 text-green-900 ring-green-200";
 
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-card)]">

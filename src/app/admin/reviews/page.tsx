@@ -72,7 +72,7 @@ export default async function AdminReviewsPage({
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Total",   value: counts.all },
-            { label: "Visible", value: counts.visible, color: "text-teal-700" },
+            { label: "Visible", value: counts.visible, color: "text-green-800" },
             { label: "Hidden",  value: counts.hidden,  color: "text-red-700" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)]">
@@ -167,7 +167,7 @@ export default async function AdminReviewsPage({
                       <span
                         className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                           review.is_visible
-                            ? "bg-teal-100 text-teal-800"
+                            ? "bg-green-100 text-green-900"
                             : "bg-red-100 text-red-700"
                         }`}
                       >
@@ -186,7 +186,7 @@ export default async function AdminReviewsPage({
                         ) : (
                           <form action={showReview}>
                             <input type="hidden" name="reviewId" value={review.id} />
-                            <button className="text-xs font-semibold text-teal-700 hover:text-teal-900">
+                            <button className="text-xs font-semibold text-green-800 hover:text-green-950">
                               Restore
                             </button>
                           </form>

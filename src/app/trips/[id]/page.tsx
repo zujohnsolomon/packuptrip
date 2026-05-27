@@ -140,7 +140,7 @@ export default async function TripDetailPage({
             {isMember && (
               <Link
                 href={`/trips/${trip.id}/chat`}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 transition hover:bg-green-100"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
@@ -231,7 +231,7 @@ function HostCard({
         href={`/hosts/${host.id}`}
         className="group flex items-center gap-4"
       >
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-teal-100 ring-2 ring-white">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-green-100 ring-2 ring-white">
           {host.avatar_url ? (
             <Image
               src={host.avatar_url}
@@ -241,23 +241,23 @@ function HostCard({
               className="object-cover"
             />
           ) : (
-            <span className="grid h-full w-full place-items-center text-base font-semibold text-teal-800">
+            <span className="grid h-full w-full place-items-center text-base font-semibold text-green-900">
               {host.name.charAt(0)}
             </span>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-wider text-teal-700">
+          <div className="text-xs font-semibold uppercase tracking-wider text-green-800">
             Your host
           </div>
-          <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-teal-700 transition-colors">
+          <div className="mt-0.5 flex items-center gap-1.5 truncate text-base font-semibold text-ink group-hover:text-green-800 transition-colors">
             {host.name}
             {host.id_verified && <VerifiedBadge size="md" />}
             {host.host_tier === "superhost" && <SuperhostBadge />}
           </div>
           <div className="text-xs text-stone-500">
             {host.id_verified ? "ID verified · " : ""}
-            <span className="text-teal-600">View profile →</span>
+            <span className="text-green-700">View profile →</span>
           </div>
         </div>
       </Link>

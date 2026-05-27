@@ -10,7 +10,7 @@ export function VerifiedBadge({ size = "sm" }: { size?: "sm" | "md" }) {
       <svg
         viewBox="0 0 16 16"
         fill="none"
-        className={`${dim} text-teal-500`}
+        className={`${dim} text-green-600`}
       >
         <path
           d="M8 1.5L2 4v4c0 3.31 2.56 6.41 6 7 3.44-.59 6-3.69 6-7V4L8 1.5Z"

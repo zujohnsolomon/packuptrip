@@ -263,7 +263,7 @@ function PrimarySubmit({
       type="submit"
       onClick={onClick}
       disabled={pending}
-      className="inline-flex h-11 items-center justify-center rounded-xl bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex h-11 items-center justify-center rounded-xl bg-green-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? pendingLabel : label}
     </button>
@@ -367,7 +367,7 @@ function ItineraryEditor({
           type="button"
           onClick={handleAiDraft}
           disabled={aiLoading}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3.5 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3.5 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
         >
           {aiLoading ? (
             <>
@@ -397,7 +397,7 @@ function ItineraryEditor({
       {itinerary.map((day, idx) => (
         <div key={idx} className="rounded-xl border border-stone-200 bg-white p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-teal-100 text-xs font-semibold text-teal-700">
+            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-green-100 text-xs font-semibold text-green-800">
               {idx + 1}
             </div>
             <div className="flex-1 space-y-3">
@@ -437,7 +437,7 @@ function ItineraryEditor({
       <button
         type="button"
         onClick={add}
-        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-green-500 hover:bg-green-50 hover:text-green-800"
       >
         + Add day
       </button>
@@ -474,7 +474,7 @@ function IconBtn({
 /* -------------------------------------------------------------------------- */
 
 const inputCls =
-  "block w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100";
+  "block w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-100";
 
 function Section({
   title,

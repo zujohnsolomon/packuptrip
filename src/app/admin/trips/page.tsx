@@ -19,7 +19,7 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 const STATUS_BADGE: Record<TripStatus, string> = {
   draft:     "bg-stone-100 text-stone-600",
   pending:   "bg-amber-100 text-amber-800",
-  live:      "bg-teal-100 text-teal-800",
+  live:      "bg-green-100 text-green-900",
   completed: "bg-blue-100 text-blue-800",
   cancelled: "bg-red-100 text-red-700",
 };
@@ -83,7 +83,7 @@ export default async function AdminTripsPage({
           {[
             { label: "Total",     value: counts.all },
             { label: "Pending",   value: counts.pending,   color: "text-amber-700" },
-            { label: "Live",      value: counts.live,      color: "text-teal-700" },
+            { label: "Live",      value: counts.live,      color: "text-green-800" },
             { label: "Draft",     value: counts.draft },
             { label: "Completed", value: counts.completed, color: "text-blue-700" },
             { label: "Cancelled", value: counts.cancelled, color: "text-red-700" },
@@ -195,7 +195,7 @@ export default async function AdminTripsPage({
                         {trip.status === "cancelled" && (
                           <form action={reinstate}>
                             <input type="hidden" name="tripId" value={trip.id} />
-                            <button className="text-xs font-semibold text-teal-700 hover:text-teal-900">
+                            <button className="text-xs font-semibold text-green-800 hover:text-green-950">
                               Reinstate
                             </button>
                           </form>
@@ -203,7 +203,7 @@ export default async function AdminTripsPage({
                         {trip.status === "draft" && (
                           <form action={publish}>
                             <input type="hidden" name="tripId" value={trip.id} />
-                            <button className="text-xs font-semibold text-teal-700 hover:text-teal-900">
+                            <button className="text-xs font-semibold text-green-800 hover:text-green-950">
                               Force publish
                             </button>
                           </form>

@@ -42,13 +42,13 @@ function timeAgo(iso: string | null): string {
 function NotifIcon({ type }: { type: NotificationType }) {
   const base = "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs";
   const map: Record<NotificationType, { bg: string; emoji: string }> = {
-    booking_received:       { bg: "bg-teal-100",   emoji: "🎒" },
+    booking_received:       { bg: "bg-green-100",   emoji: "🎒" },
     trip_approved:          { bg: "bg-emerald-100", emoji: "✓" },
     trip_cancelled:         { bg: "bg-red-100",     emoji: "✕" },
-    verification_approved:  { bg: "bg-teal-100",    emoji: "🛡" },
+    verification_approved:  { bg: "bg-green-100",    emoji: "🛡" },
     verification_rejected:  { bg: "bg-amber-100",   emoji: "!" },
     new_message:            { bg: "bg-amber-100",   emoji: "💬" },
-    group_message:          { bg: "bg-teal-100",    emoji: "👥" },
+    group_message:          { bg: "bg-green-100",    emoji: "👥" },
   };
   const { bg, emoji } = map[type] ?? { bg: "bg-stone-100", emoji: "•" };
   return <div className={`${base} ${bg}`}>{emoji}</div>;

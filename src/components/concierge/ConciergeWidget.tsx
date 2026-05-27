@@ -74,20 +74,20 @@ export function ConciergeWidget() {
         <div className="fixed bottom-24 right-5 z-50 flex w-[340px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.18)] ring-1 ring-stone-200 sm:right-6">
 
           {/* Header */}
-          <div className="flex items-center justify-between bg-teal-700 px-4 py-3">
+          <div className="flex items-center justify-between bg-green-800 px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-500 text-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-sm">
                 🧭
               </div>
               <div>
                 <p className="text-xs font-bold text-white">Packy</p>
-                <p className="text-[10px] text-teal-200">AI travel concierge</p>
+                <p className="text-[10px] text-green-200">AI travel concierge</p>
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
               aria-label="Close chat"
-              className="rounded-full p-1 text-teal-200 hover:bg-teal-600 hover:text-white transition-colors"
+              className="rounded-full p-1 text-green-200 hover:bg-green-700 hover:text-white transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
@@ -102,7 +102,7 @@ export function ConciergeWidget() {
             ))}
             {loading && (
               <div className="flex items-start gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs">🧭</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs">🧭</div>
                 <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-stone-100 px-3 py-2 text-sm">
                   <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400" style={{ animationDelay: "0ms" }} />
                   <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400" style={{ animationDelay: "150ms" }} />
@@ -123,13 +123,13 @@ export function ConciergeWidget() {
                 onKeyDown={onKeyDown}
                 placeholder="Ask about destinations, budget, dates…"
                 disabled={loading}
-                className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-3.5 py-2 text-xs text-ink placeholder-stone-400 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400 disabled:opacity-60"
+                className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-3.5 py-2 text-xs text-ink placeholder-stone-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-60"
               />
               <button
                 onClick={send}
                 disabled={!input.trim() || loading}
                 aria-label="Send"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-700 text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
                   <path d="M2 8h12M8 2l6 6-6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
@@ -147,7 +147,7 @@ export function ConciergeWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close concierge" : "Open AI travel concierge"}
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-teal-600 text-white shadow-lg ring-4 ring-teal-600/20 transition hover:bg-teal-700 active:scale-95 sm:right-6"
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg ring-4 ring-green-700/20 transition hover:bg-green-800 active:scale-95 sm:right-6"
       >
         {open ? (
           <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
@@ -168,7 +168,7 @@ function MessageBubble({ message }: { message: Message }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-teal-600 px-3 py-2 text-xs text-white">
+        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-green-700 px-3 py-2 text-xs text-white">
           {message.content}
         </div>
       </div>
@@ -180,7 +180,7 @@ function MessageBubble({ message }: { message: Message }) {
 
   return (
     <div className="flex items-start gap-2">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs">
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs">
         🧭
       </div>
       <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-stone-100 px-3 py-2 text-xs text-ink leading-relaxed">
@@ -191,7 +191,7 @@ function MessageBubble({ message }: { message: Message }) {
             <Link
               key={i}
               href={part.href}
-              className="font-semibold text-teal-700 underline-offset-2 hover:underline"
+              className="font-semibold text-green-800 underline-offset-2 hover:underline"
             >
               {part.label}
             </Link>

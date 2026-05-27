@@ -80,7 +80,7 @@ export default async function TripsPage({
             <div className="mb-3 flex items-center gap-2">
               <span className="text-base">🧬</span>
               <h2 className="text-sm font-semibold text-ink">Matched for your vibe</h2>
-              <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-semibold text-teal-700">
+              <span className="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-800">
                 {matchedTrips.length}
               </span>
             </div>
@@ -105,7 +105,7 @@ export default async function TripsPage({
                     : `All trips (${trips.length})`}
                 </span>
                 {!user && !hasFilter && (
-                  <Link href="/login" className="text-xs font-medium text-teal-700 hover:underline">
+                  <Link href="/login" className="text-xs font-medium text-green-800 hover:underline">
                     Sign in to see trips matched to your vibe →
                   </Link>
                 )}
@@ -126,7 +126,7 @@ export default async function TripsPage({
 
 function NoTripsYet({ hasFilter }: { hasFilter: boolean }) {
   return (
-    <div className="rounded-2xl border border-dashed border-teal-300 bg-white p-12 text-center">
+    <div className="rounded-2xl border border-dashed border-green-300 bg-white p-12 text-center">
       <div className="text-lg font-semibold text-ink">
         {hasFilter ? "No trips match your search" : "No community trips yet — be the first to host"}
       </div>
@@ -138,7 +138,7 @@ function NoTripsYet({ hasFilter }: { hasFilter: boolean }) {
       {!hasFilter && (
         <Link
           href="/host"
-          className="mt-6 inline-flex h-11 items-center rounded-full bg-teal-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+          className="mt-6 inline-flex h-11 items-center rounded-full bg-green-700 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
         >
           Host a trip →
         </Link>

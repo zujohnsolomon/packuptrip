@@ -131,7 +131,7 @@ export default async function ReviewPage({
       <main className="flex-1 bg-white pt-20">
         <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
           <div className="mb-8">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-green-800">
               {isPackage ? "Packuptrip Original" : "Community trip"}
             </div>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">

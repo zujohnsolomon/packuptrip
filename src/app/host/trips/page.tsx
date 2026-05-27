@@ -49,7 +49,7 @@ export default async function HostTripsPage({
         <div className="border-b border-stone-200 bg-white">
           <div className="mx-auto flex max-w-5xl items-baseline justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-green-800">
                 Hosting
               </div>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
@@ -61,7 +61,7 @@ export default async function HostTripsPage({
             </div>
             <Link
               href="/host/new"
-              className="inline-flex h-10 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+              className="inline-flex h-10 items-center rounded-full bg-green-700 px-5 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
             >
               + Post a trip
             </Link>
@@ -150,7 +150,7 @@ function TripRow({ trip, highlight }: { trip: Trip; highlight: boolean }) {
     <Link
       href={href}
       className={`group flex w-full min-w-0 items-stretch gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] sm:gap-4 sm:p-4 ${
-        highlight ? "ring-2 ring-inset ring-teal-300" : ""
+        highlight ? "ring-2 ring-inset ring-green-300" : ""
       }`}
     >
       {body}
@@ -227,7 +227,7 @@ function EmptyState() {
       </p>
       <Link
         href="/host/new"
-        className="mt-6 inline-flex h-11 items-center rounded-full bg-teal-600 px-6 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+        className="mt-6 inline-flex h-11 items-center rounded-full bg-green-700 px-6 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
       >
         Post your first trip →
       </Link>

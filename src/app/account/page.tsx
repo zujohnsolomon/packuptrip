@@ -84,15 +84,15 @@ export default async function AccountPage() {
 
           {/* ── Credit balance ── show if user has usable or pending credits ── */}
           {profile && (profile.promo_credits > 0 || profile.referral_credits > 0) && (
-            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-700 px-5 py-4">
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-green-800 px-5 py-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-teal-200">
+                <p className="text-xs font-semibold uppercase tracking-wider text-green-200">
                   Available credits
                 </p>
                 <p className="mt-0.5 text-2xl font-bold text-white">
                   ₹{(profile.promo_credits + profile.referral_credits).toLocaleString("en-IN")}
                 </p>
-                <p className="mt-0.5 text-xs text-teal-200">
+                <p className="mt-0.5 text-xs text-green-200">
                   Applied automatically at checkout on your next booking.
                 </p>
               </div>
@@ -107,16 +107,16 @@ export default async function AccountPage() {
 
           {/* ── Pending referral reward — user was referred but hasn't booked yet ── */}
           {profile && profile.promo_credits === 0 && profile.referred_by && (
-            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-50 px-5 py-4 ring-1 ring-inset ring-teal-100">
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-green-50 px-5 py-4 ring-1 ring-inset ring-green-100">
               <div>
-                <p className="text-sm font-semibold text-teal-900">🎁 ₹200 reward waiting</p>
-                <p className="text-xs text-teal-700">
+                <p className="text-sm font-semibold text-green-950">🎁 ₹200 reward waiting</p>
+                <p className="text-xs text-green-800">
                   Make your first booking and ₹200 will be added to your account instantly.
                 </p>
               </div>
               <Link
                 href="/trips"
-                className="shrink-0 rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
+                className="shrink-0 rounded-full bg-green-700 px-4 py-2 text-xs font-semibold text-white hover:bg-green-800"
               >
                 Browse trips
               </Link>
@@ -125,16 +125,16 @@ export default async function AccountPage() {
 
           {/* DNA matching nudge — shown when user has no travel style tags */}
           {profile && (!profile.travel_style_tags || profile.travel_style_tags.length === 0) && (
-            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-teal-50 px-5 py-4 ring-1 ring-inset ring-teal-100">
+            <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-green-50 px-5 py-4 ring-1 ring-inset ring-green-100">
               <div>
-                <p className="text-sm font-semibold text-teal-900">🧬 Set your travel vibe</p>
-                <p className="text-xs text-teal-700">
+                <p className="text-sm font-semibold text-green-950">🧬 Set your travel vibe</p>
+                <p className="text-xs text-green-800">
                   Add travel style tags to your profile and we'll surface trips that match your energy.
                 </p>
               </div>
               <Link
                 href="/account/profile"
-                className="shrink-0 rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
+                className="shrink-0 rounded-full bg-green-700 px-4 py-2 text-xs font-semibold text-white hover:bg-green-800"
               >
                 Add tags
               </Link>
@@ -145,7 +145,7 @@ export default async function AccountPage() {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/messages"
-              className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-800 hover:bg-green-100 transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                 <path d="M14 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3l3 2 3-2h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
@@ -171,7 +171,7 @@ export default async function AccountPage() {
               </Link>
             )}
             {profile?.id_verified && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700">
+              <span className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-800">
                 🛡️ ID Verified
               </span>
             )}
@@ -217,7 +217,7 @@ export default async function AccountPage() {
               <h2 className="text-xl font-semibold text-ink">Your hosted trips</h2>
               <Link
                 href="/host/trips"
-                className="text-sm text-teal-700 hover:text-teal-800 transition-colors"
+                className="text-sm text-green-800 hover:text-green-900 transition-colors"
               >
                 Manage all →
               </Link>
@@ -231,7 +231,7 @@ export default async function AccountPage() {
                 </p>
                 <Link
                   href="/host/new"
-                  className="mt-4 inline-flex h-10 items-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+                  className="mt-4 inline-flex h-10 items-center rounded-full bg-green-700 px-5 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
                 >
                   Post a trip
                 </Link>
@@ -244,7 +244,7 @@ export default async function AccountPage() {
                 {hostedTrips.length === 5 && (
                   <Link
                     href="/host/trips"
-                    className="block rounded-2xl border border-stone-200 bg-white px-5 py-3 text-center text-sm font-medium text-teal-700 hover:bg-stone-50 transition-colors"
+                    className="block rounded-2xl border border-stone-200 bg-white px-5 py-3 text-center text-sm font-medium text-green-800 hover:bg-stone-50 transition-colors"
                   >
                     View all hosted trips →
                   </Link>
@@ -361,7 +361,7 @@ function EmptyBookings() {
         </Link>
         <Link
           href="/trips"
-          className="inline-flex h-10 items-center justify-center rounded-full bg-teal-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-green-700 px-5 text-sm font-semibold text-white shadow-sm hover:bg-green-800"
         >
           Community trips
         </Link>
@@ -408,7 +408,7 @@ function HostedTripRow({ trip }: { trip: Trip }) {
             {trip.status}
           </span>
         </div>
-        <div className="mt-0.5 truncate font-semibold text-ink group-hover:text-teal-700">
+        <div className="mt-0.5 truncate font-semibold text-ink group-hover:text-green-800">
           {trip.title}
         </div>
         <div className="truncate text-xs text-stone-500">

@@ -96,7 +96,7 @@ export default async function PassportPage({
                         <h1 className="text-lg font-bold text-ink">{profile.name}</h1>
                         {profile.id_verified && <VerifiedBadge size="md" />}
                         {profile.plus_member && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-800">
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-900">
                             ✦ Plus
                           </span>
                         )}
@@ -140,7 +140,7 @@ export default async function PassportPage({
                   </div>
                   {profile.id_verified && (
                     <div className="flex items-center gap-2 text-sm text-stone-600">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-teal-500">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-green-600">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
                       </svg>
                       <span>Identity <span className="font-medium text-ink">Verified</span></span>
@@ -168,7 +168,7 @@ export default async function PassportPage({
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-400">Travel style</p>
                     <div className="flex flex-wrap gap-1.5">
                       {profile.travel_style_tags.map((tag) => (
-                        <span key={tag} className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 ring-1 ring-inset ring-teal-100">
+                        <span key={tag} className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-100">
                           {tag}
                         </span>
                       ))}
@@ -220,19 +220,19 @@ export default async function PassportPage({
                       <li key={t.bookingId}>
                         <Link
                           href={`/${t.itemType === "trip" ? "trips" : "packages"}/${t.itemId}`}
-                          className="group flex items-center gap-3 rounded-2xl border border-stone-100 bg-white p-3 transition hover:border-teal-200 hover:shadow-sm"
+                          className="group flex items-center gap-3 rounded-2xl border border-stone-100 bg-white p-3 transition hover:border-green-200 hover:shadow-sm"
                         >
                           {t.image ? (
                             <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-stone-100">
                               <Image src={t.image} alt={t.title} fill sizes="56px" className="object-cover" />
                             </div>
                           ) : (
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-2xl">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-green-50 text-2xl">
                               🗺️
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-ink group-hover:text-teal-700 transition-colors">
+                            <p className="truncate text-sm font-semibold text-ink group-hover:text-green-800 transition-colors">
                               {t.title}
                             </p>
                             <p className="truncate text-xs text-stone-400">{t.location}</p>
@@ -297,7 +297,7 @@ function HostReviewCard({
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-semibold text-ink">
               {r.author ? (
-                <Link href={`/hosts/${r.author.id}`} className="hover:text-teal-700 hover:underline">
+                <Link href={`/hosts/${r.author.id}`} className="hover:text-green-800 hover:underline">
                   {r.author.name}
                 </Link>
               ) : "Host"}
