@@ -621,7 +621,16 @@ function FeaturedHosts({
 
         <div className="mt-6">
           {count === 1 ? (
-            <HostFeatureCard host={hosts[0]} tripCount={tripCounts.get(hosts[0].id) ?? 0} />
+            <>
+              {/* Mobile: single compact portrait tile, ~half viewport wide */}
+              <div className="max-w-[55%] sm:hidden">
+                <HostPortraitTile host={hosts[0]} tripCount={tripCounts.get(hosts[0].id) ?? 0} />
+              </div>
+              {/* Desktop: editorial feature spread */}
+              <div className="hidden sm:block">
+                <HostFeatureCard host={hosts[0]} tripCount={tripCounts.get(hosts[0].id) ?? 0} />
+              </div>
+            </>
           ) : (
             <HostGrid hosts={hosts.slice(0, 4)} tripCounts={tripCounts} />
           )}
@@ -717,54 +726,65 @@ function HostGrid({
 
   return (
     <div className={`grid gap-4 ${colCls}`}>
-      {hosts.map((h) => {
-        const tripCount = tripCounts.get(h.id) ?? 0;
-        return (
-          <Link
-            key={h.id}
-            href={`/hosts/${h.id}`}
-            className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
-          >
-            {h.avatar_url ? (
-              <Image
-                src={h.avatar_url}
-                alt={h.name}
-                fill
-                sizes="(max-width: 640px) 50vw, 260px"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <span className="text-5xl font-bold text-stone-300">
-                  {h.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-
-            {/* Gradient for text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-
-            {/* Verified badge */}
-            {h.id_verified && (
-              <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-stone-700 shadow-sm backdrop-blur-sm">
-                ✓ Verified
-              </span>
-            )}
-
-            {/* Name + meta */}
-            <div className="absolute inset-x-0 bottom-0 p-4">
-              <p className="text-sm font-semibold leading-tight text-white sm:text-base">
-                {h.name}
-              </p>
-              <p className="mt-0.5 text-[11px] text-white/80">
-                {h.home_city ? `${h.home_city} · ` : ""}
-                {tripCount} {tripCount === 1 ? "trip" : "trips"}
-              </p>
-            </div>
-          </Link>
-        );
-      })}
+      {hosts.map((h) => (
+        <HostPortraitTile
+          key={h.id}
+          host={h}
+          tripCount={tripCounts.get(h.id) ?? 0}
+        />
+      ))}
     </div>
+  );
+}
+
+/* Reusable portrait tile — used both inside HostGrid and standalone
+ * on mobile for the single-host case. */
+function HostPortraitTile({
+  host,
+  tripCount,
+}: {
+  host: FeaturedHost;
+  tripCount: number;
+}) {
+  return (
+    <Link
+      href={`/hosts/${host.id}`}
+      className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
+    >
+      {host.avatar_url ? (
+        <Image
+          src={host.avatar_url}
+          alt={host.name}
+          fill
+          sizes="(max-width: 640px) 50vw, 260px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">
+          <span className="text-5xl font-bold text-stone-300">
+            {host.name.charAt(0).toUpperCase()}
+          </span>
+        </div>
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+
+      {host.id_verified && (
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-stone-700 shadow-sm backdrop-blur-sm">
+          ✓ Verified
+        </span>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 p-4">
+        <p className="text-sm font-semibold leading-tight text-white sm:text-base">
+          {host.name}
+        </p>
+        <p className="mt-0.5 text-[11px] text-white/80">
+          {host.home_city ? `${host.home_city} · ` : ""}
+          {tripCount} {tripCount === 1 ? "trip" : "trips"}
+        </p>
+      </div>
+    </Link>
   );
 }
 
