@@ -795,41 +795,48 @@ function HostPortraitTile({
 function HowItWorks() {
   const steps = [
     {
-      n: "1",
+      n: "01",
       title: "Find a trip that fits",
-      body: "Filter by destination, dates, and budget. See who else is going.",
+      body: "Filter by destination, dates, budget. See who else is going.",
     },
     {
-      n: "2",
+      n: "02",
       title: "Book or join in minutes",
-      body: "Pay securely through Packuptrip. Your money is held until the trip starts.",
+      body: "Pay through Packuptrip. Funds are held until the trip starts.",
     },
     {
-      n: "3",
+      n: "03",
       title: "Travel together",
-      body: "Meet your group, follow the itinerary, and come back with stories.",
+      body: "Meet your group, follow the plan, come back with stories.",
     },
   ];
   return (
-    <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-        <SectionHeader
-          eyebrow="The journey"
-          title="How it works"
-          subtitle="Whichever side of Packuptrip you start with, the path is simple."
-          center
-        />
-        <div className="mx-auto mt-8 grid max-w-5xl gap-6 sm:grid-cols-3">
-          {steps.map((s) => (
-            <div
-              key={s.n}
-              className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
-            >
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-yellow-400 text-sm font-semibold text-stone-900">
+    <section className="bg-white">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+          · Three steps ·
+        </p>
+        <div className="mt-8 grid gap-y-8 sm:grid-cols-3 sm:gap-x-10">
+          {steps.map((s, i) => (
+            <div key={s.n} className="relative">
+              {/* Hairline divider above each item on mobile, left of items 2 & 3 on desktop */}
+              <div
+                className={`mb-4 h-px w-12 bg-stone-300 sm:mb-5 ${
+                  i > 0 ? "sm:absolute sm:-left-5 sm:top-2 sm:h-12 sm:w-px" : ""
+                }`}
+              />
+              <span
+                className="font-serif italic text-stone-400"
+                style={{ fontSize: "1.5rem", fontVariationSettings: "'opsz' 144" }}
+              >
                 {s.n}
-              </div>
-              <div className="mt-4 text-lg font-semibold text-ink">{s.title}</div>
-              <p className="mt-1 text-sm text-stone-600">{s.body}</p>
+              </span>
+              <h3 className="mt-2 text-base font-semibold text-ink sm:text-lg">
+                {s.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-stone-600">
+                {s.body}
+              </p>
             </div>
           ))}
         </div>
