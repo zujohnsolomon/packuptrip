@@ -299,8 +299,8 @@ function SocialProofBar() {
 function TwoEngines() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="mb-5 flex items-end justify-between">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+        <div className="mb-4 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">
               How Packuptrip works
@@ -434,7 +434,7 @@ function ExploreDestinations() {
 
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         {/* Header */}
         <div className="mb-8 flex items-end justify-between">
           <div>
@@ -500,14 +500,14 @@ function TravelCategories() {
 
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <SectionHeader
           eyebrow="Trip types"
           title="Travel your way"
           subtitle="Find trips that match your style — wherever the mood takes you."
           center
         />
-        <div className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-6 sm:gap-4">
+        <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-6 sm:gap-4">
           {cats.map((c) => (
             <Link
               key={c.label}
@@ -534,14 +534,14 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
   if (packages.length === 0) return null;
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <SectionHeader
           eyebrow="Packuptrip Originals"
           accent="amber"
           title="Curated journeys this season"
           link={{ href: "/packages", label: "View all packages" }}
         />
-        <div className="mt-10 grid gap-5 grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-5 grid-cols-2 lg:grid-cols-4">
           {packages.map((p) => (
             <PackageCard key={p.id} pkg={p} />
           ))}
@@ -564,7 +564,7 @@ function FeaturedHosts({
 }) {
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <SectionHeader
           eyebrow="Our top hosts"
           accent="teal"
@@ -572,7 +572,7 @@ function FeaturedHosts({
           link={{ href: "/trips", label: "Browse all trips" }}
         />
 
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {hosts.slice(0, 4).map((h) => {
             const count = tripCounts.get(h.id) ?? 0;
             return (
@@ -660,14 +660,14 @@ function HowItWorks() {
   ];
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <SectionHeader
           eyebrow="The journey"
           title="How it works"
           subtitle="Whichever side of Packuptrip you start with, the path is simple."
           center
         />
-        <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-3">
+        <div className="mx-auto mt-8 grid max-w-5xl gap-6 sm:grid-cols-3">
           {steps.map((s) => (
             <div
               key={s.n}
@@ -700,14 +700,14 @@ function FeaturedTrips({
   if (trips.length === 0) return null;
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <SectionHeader
           eyebrow="Community Trips"
           accent="teal"
           title="Open trips looking for travellers"
           link={{ href: "/trips", label: "Browse community trips" }}
         />
-        <div className="mt-10 grid gap-5 grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-5 grid-cols-2 lg:grid-cols-4">
           {trips.map((t) => (
             <TripCard key={t.id} trip={t} host={hostMap.get(t.host_id)} />
           ))}
@@ -746,14 +746,14 @@ function TrustAndSafety() {
   ];
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <SectionHeader
           eyebrow="Trust & safety"
           title="Travel with people you can trust"
           subtitle="Joining a stranger&rsquo;s trip should never feel risky. We built Packuptrip with safety baked in from day one."
           center
         />
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {points.map((p) => (
             <div
               key={p.title}
@@ -781,13 +781,13 @@ function TrustAndSafety() {
 function Testimonials() {
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <SectionHeader
           eyebrow="Travellers"
           title="Stories from the road"
           center
         />
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
           {testimonials.map((t) => (
             <figure
               key={t.name}
@@ -827,7 +827,7 @@ function Testimonials() {
 function HostCTA() {
   return (
     <section className="bg-ink">
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-20">
+      <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-8">
         <div className="max-w-2xl">
           <Badge
             variant="neutral"
