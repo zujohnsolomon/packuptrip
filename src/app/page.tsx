@@ -43,11 +43,18 @@ export default async function Home() {
 
   // Featured hosts — unique hosts from live trips + their trip counts
   const allHostIds = [...new Set(trips.map((t) => t.host_id))].slice(0, 8);
-  let featuredHosts: { id: string; name: string; avatar_url: string | null; id_verified: boolean }[] = [];
+  let featuredHosts: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    id_verified: boolean;
+    bio: string | null;
+    home_city: string | null;
+  }[] = [];
   if (allHostIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, name, avatar_url, id_verified")
+      .select("id, name, avatar_url, id_verified, bio, home_city")
       .in("id", allHostIds);
     featuredHosts = (data ?? []).slice(0, 8);
   }
@@ -584,84 +591,180 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
 /* Featured Hosts                                                             */
 /* -------------------------------------------------------------------------- */
 
+type FeaturedHost = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  id_verified: boolean;
+  bio: string | null;
+  home_city: string | null;
+};
+
 function FeaturedHosts({
   hosts,
   tripCounts,
 }: {
-  hosts: { id: string; name: string; avatar_url: string | null; id_verified: boolean }[];
+  hosts: FeaturedHost[];
   tripCounts: Map<string, number>;
 }) {
+  const count = hosts.length;
+
   return (
     <section className="bg-stone-50">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <SectionHeader
-          eyebrow="Our top hosts"
+          eyebrow={count === 1 ? "Meet your host" : "Our top hosts"}
           accent="teal"
-          title="Led by hosts who've been there"
+          title={count === 1 ? "The face behind your next trip" : "Led by hosts who've been there"}
           link={{ href: "/trips", label: "Browse all trips" }}
         />
 
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {hosts.slice(0, 4).map((h) => {
-            const count = tripCounts.get(h.id) ?? 0;
-            return (
-              <Link
-                key={h.id}
-                href={`/hosts/${h.id}`}
-                className="group block overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
-              >
-                {/* Portrait photo */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-stone-100">
-                  {h.avatar_url ? (
-                    <Image
-                      src={h.avatar_url}
-                      alt={h.name}
-                      fill
-                      sizes="(max-width: 640px) 50vw, 260px"
-                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-stone-100">
-                      <span className="text-5xl font-bold text-stone-300">
-                        {h.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  {/* Scrim */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-
-                  {/* Verified badge top-right */}
-                  {h.id_verified && (
-                    <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-stone-700 shadow backdrop-blur-sm">
-                      ✓ Verified
-                    </div>
-                  )}
-
-                  {/* Name + trips bottom */}
-                  <div className="absolute inset-x-0 bottom-0 p-3">
-                    <p className="text-sm font-bold text-white leading-tight">
-                      {h.name}
-                    </p>
-                    {count > 0 && (
-                      <p className="mt-0.5 text-[11px] text-white/80">
-                        ♥ {count} {count === 1 ? "trip" : "trips"} hosted
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Profile CTA */}
-                <div className="p-3">
-                  <span className="block w-full rounded-xl border border-stone-200 py-2 text-center text-xs font-semibold text-stone-600 transition-colors group-hover:border-stone-400 group-hover:text-ink">
-                    View profile →
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="mt-6">
+          {count === 1 ? (
+            <HostFeatureCard host={hosts[0]} tripCount={tripCounts.get(hosts[0].id) ?? 0} />
+          ) : (
+            <HostGrid hosts={hosts.slice(0, 4)} tripCounts={tripCounts} />
+          )}
         </div>
       </div>
     </section>
+  );
+}
+
+/* Editorial feature card — used when there's a single host. */
+function HostFeatureCard({ host, tripCount }: { host: FeaturedHost; tripCount: number }) {
+  const location = host.home_city ?? "Packuptrip host";
+  return (
+    <Link
+      href={`/hosts/${host.id}`}
+      className="group grid overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] sm:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]"
+    >
+      {/* Photo */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-stone-100 sm:aspect-auto sm:min-h-[420px]">
+        {host.avatar_url ? (
+          <Image
+            src={host.avatar_url}
+            alt={host.name}
+            fill
+            sizes="(max-width: 640px) 100vw, 480px"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-7xl font-bold text-stone-300">
+              {host.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-6 p-7 sm:p-10 lg:p-12">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-green-800">
+            <span>Featured host</span>
+            {host.id_verified && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-800 ring-1 ring-inset ring-green-100">
+                ✓ Verified
+              </span>
+            )}
+          </div>
+          <h3 className="mt-3 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+            {host.name}
+          </h3>
+          <p className="mt-1.5 text-sm text-stone-500">{location}</p>
+        </div>
+
+        {host.bio ? (
+          <p className="text-base leading-relaxed text-stone-700">
+            &ldquo;{host.bio}&rdquo;
+          </p>
+        ) : (
+          <p className="text-base italic leading-relaxed text-stone-400">
+            A new face on Packuptrip — say hello on their first trip.
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between border-t border-stone-100 pt-5">
+          <span className="text-sm text-stone-500">
+            ♥ {tripCount} {tripCount === 1 ? "trip" : "trips"} hosted
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors group-hover:text-green-800">
+            View profile
+            <ArrowRightIcon />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* Portrait tile grid — used when there are 2+ hosts. */
+function HostGrid({
+  hosts,
+  tripCounts,
+}: {
+  hosts: FeaturedHost[];
+  tripCounts: Map<string, number>;
+}) {
+  // Column count tracks host count so we don't leave empty columns
+  const colCls =
+    hosts.length === 2
+      ? "grid-cols-2"
+      : hosts.length === 3
+        ? "grid-cols-2 sm:grid-cols-3"
+        : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+
+  return (
+    <div className={`grid gap-4 ${colCls}`}>
+      {hosts.map((h) => {
+        const tripCount = tripCounts.get(h.id) ?? 0;
+        return (
+          <Link
+            key={h.id}
+            href={`/hosts/${h.id}`}
+            className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
+          >
+            {h.avatar_url ? (
+              <Image
+                src={h.avatar_url}
+                alt={h.name}
+                fill
+                sizes="(max-width: 640px) 50vw, 260px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <span className="text-5xl font-bold text-stone-300">
+                  {h.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+
+            {/* Gradient for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+
+            {/* Verified badge */}
+            {h.id_verified && (
+              <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-stone-700 shadow-sm backdrop-blur-sm">
+                ✓ Verified
+              </span>
+            )}
+
+            {/* Name + meta */}
+            <div className="absolute inset-x-0 bottom-0 p-4">
+              <p className="text-sm font-semibold leading-tight text-white sm:text-base">
+                {h.name}
+              </p>
+              <p className="mt-0.5 text-[11px] text-white/80">
+                {h.home_city ? `${h.home_city} · ` : ""}
+                {tripCount} {tripCount === 1 ? "trip" : "trips"}
+              </p>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
   );
 }
 
