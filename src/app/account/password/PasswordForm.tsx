@@ -113,7 +113,7 @@ export function PasswordForm() {
                   ))}
                 </div>
                 <span className={`text-[11px] font-semibold ${
-                  strength === 3 ? "text-green-700" : strength === 2 ? "text-yellow-600" : "text-red-500"
+                  strength === 3 ? "text-green-700" : strength === 2 ? "text-yellow-400" : "text-red-500"
                 }`}>
                   {strengthLabel}
                 </span>
@@ -176,7 +176,7 @@ export function PasswordForm() {
         <button
           type="submit"
           disabled={!canSubmit || loading}
-          className="rounded-full bg-yellow-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 disabled:opacity-50 transition-colors"
+          className="rounded-full bg-yellow-500 px-7 py-2.5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-400 disabled:opacity-50 transition-colors"
         >
           {loading ? "Updating…" : "Update password"}
         </button>

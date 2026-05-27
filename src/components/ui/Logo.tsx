@@ -13,7 +13,7 @@ export function Logo({
       <span
         className={cn(
           "grid place-items-center rounded-xl shadow-sm transition-transform group-hover:scale-105",
-          light ? "bg-white/15 ring-1 ring-white/30 text-white backdrop-blur" : "bg-yellow-600 text-white",
+          light ? "bg-white/15 ring-1 ring-white/30 text-stone-900 backdrop-blur" : "bg-yellow-400 text-stone-900",
         )}
         style={{ width: size, height: size }}
         aria-hidden

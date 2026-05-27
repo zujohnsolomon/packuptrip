@@ -33,7 +33,7 @@ export default async function AdminOriginalsPage({
         actions={
           <Link
             href="/admin/originals/new"
-            className="inline-flex h-9 items-center rounded-full bg-yellow-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+            className="inline-flex h-9 items-center rounded-full bg-yellow-400 px-4 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
           >
             + New package
           </Link>
@@ -194,7 +194,7 @@ function PackageGroup({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-ink group-hover:text-yellow-700">
+                        <div className="truncate font-medium text-ink group-hover:text-yellow-500">
                           {pkg.title}
                         </div>
                         <div className="truncate text-xs text-stone-500">
@@ -222,7 +222,7 @@ function PackageGroup({
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/admin/originals/${pkg.id}`}
-                      className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
+                      className="text-xs font-semibold text-yellow-500 hover:text-yellow-400"
                     >
                       Manage →
                     </Link>

@@ -104,7 +104,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-full bg-yellow-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-yellow-600 disabled:opacity-60"
+      className="w-full rounded-full bg-yellow-500 px-6 py-3 text-sm font-semibold text-stone-900 shadow-sm transition hover:bg-yellow-400 disabled:opacity-60"
     >
       {pending ? "Submitting…" : "Submit review"}
     </button>
@@ -156,7 +156,7 @@ export function ReviewForm({
   return (
     <form ref={formRef} action={handleAction} className="space-y-8">
       {/* Deadline notice */}
-      <div className="rounded-xl bg-yellow-50 px-4 py-3 text-sm text-yellow-800 ring-1 ring-inset ring-yellow-200">
+      <div className="rounded-xl bg-yellow-50 px-4 py-3 text-sm text-yellow-400 ring-1 ring-inset ring-yellow-200">
         {isPackage
           ? "Your review will be published immediately."
           : `Your review stays hidden until the ${isHost ? "joiner" : "host"} also reviews, or in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} — whichever comes first.`}
@@ -208,7 +208,7 @@ export function ReviewForm({
                 onClick={() => toggleTag(tag)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                   active
-                    ? "border-yellow-400 bg-yellow-50 text-yellow-800"
+                    ? "border-yellow-400 bg-yellow-50 text-yellow-400"
                     : "border-stone-200 bg-white text-stone-600 hover:border-stone-300"
                 }`}
               >

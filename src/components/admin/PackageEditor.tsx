@@ -281,7 +281,7 @@ function ItineraryEditor({
           className="rounded-xl border border-stone-200 bg-white p-4"
         >
           <div className="flex items-start gap-3">
-            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-yellow-100 text-xs font-semibold text-yellow-700">
+            <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-yellow-100 text-xs font-semibold text-yellow-500">
               {idx + 1}
             </div>
             <div className="flex-1 space-y-3">
@@ -321,7 +321,7 @@ function ItineraryEditor({
       <button
         type="button"
         onClick={add}
-        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-yellow-400 hover:bg-yellow-50 hover:text-yellow-700"
+        className="inline-flex h-9 items-center rounded-full border border-dashed border-stone-300 px-4 text-xs font-medium text-stone-600 hover:border-yellow-400 hover:bg-yellow-50 hover:text-yellow-500"
       >
         + Add day
       </button>
@@ -369,7 +369,7 @@ function SaveButton({
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 items-center justify-center rounded-xl bg-yellow-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-yellow-700 disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex h-11 items-center justify-center rounded-xl bg-yellow-400 px-6 text-sm font-semibold text-stone-900 shadow-sm transition hover:bg-yellow-500 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? pendingLabel : submitLabel}
     </button>

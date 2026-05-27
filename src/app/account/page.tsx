@@ -68,14 +68,14 @@ export default async function AccountPage() {
           {profile && (!profile.bio || !profile.avatar_url || !profile.home_city) && (
             <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-yellow-50 px-5 py-4 ring-1 ring-inset ring-yellow-200">
               <div>
-                <p className="text-sm font-semibold text-yellow-900">Complete your profile</p>
-                <p className="text-xs text-yellow-700">
+                <p className="text-sm font-semibold text-yellow-500">Complete your profile</p>
+                <p className="text-xs text-yellow-500">
                   Add a photo, bio, and home city — travellers trust hosts they can see.
                 </p>
               </div>
               <Link
                 href="/account/profile"
-                className="shrink-0 rounded-full bg-yellow-500 px-4 py-2 text-xs font-semibold text-white hover:bg-yellow-600"
+                className="shrink-0 rounded-full bg-yellow-500 px-4 py-2 text-xs font-semibold text-stone-900 hover:bg-yellow-400"
               >
                 Edit profile
               </Link>
@@ -183,7 +183,7 @@ export default async function AccountPage() {
             </Link>
             <Link
               href="/account/referrals"
-              className="inline-flex items-center gap-2 rounded-full border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 hover:bg-yellow-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-100 transition-colors"
             >
               🎁 Refer &amp; earn ₹200
             </Link>
@@ -300,7 +300,7 @@ function BookingRow({
           </Badge>
           <StatusChip status={booking.status} />
         </div>
-        <div className="mt-1 truncate font-semibold text-ink group-hover:text-yellow-700">
+        <div className="mt-1 truncate font-semibold text-ink group-hover:text-yellow-500">
           {item?.item.title ?? "Trip details unavailable"}
         </div>
         <div className="mt-0.5 truncate text-xs text-stone-500">
@@ -328,7 +328,7 @@ function BookingRow({
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    requested: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-stone-200 text-stone-700 ring-stone-300",
@@ -355,7 +355,7 @@ function EmptyBookings() {
       <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
         <Link
           href="/packages"
-          className="inline-flex h-10 items-center justify-center rounded-full bg-yellow-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-yellow-400 px-5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
         >
           Browse packages
         </Link>
@@ -372,7 +372,7 @@ function EmptyBookings() {
 
 const TRIP_STATUS_STYLES: Record<TripStatus, string> = {
   draft: "bg-stone-100 text-stone-600 ring-stone-200",
-  pending: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+  pending: "bg-yellow-100 text-yellow-400 ring-yellow-200",
   live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   completed: "bg-sky-100 text-sky-800 ring-sky-200",
   cancelled: "bg-stone-200 text-stone-600 ring-stone-300",

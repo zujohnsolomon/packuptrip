@@ -113,7 +113,7 @@ function TripRow({ trip, highlight }: { trip: Trip; highlight: boolean }) {
           <Badge variant="community">Community trip</Badge>
           <StatusChip status={trip.status} />
           {trip.admin_notes && (
-            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold text-yellow-800 ring-1 ring-inset ring-yellow-200">
+            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold text-yellow-400 ring-1 ring-inset ring-yellow-200">
               Admin notes
             </span>
           )}
@@ -161,7 +161,7 @@ function TripRow({ trip, highlight }: { trip: Trip; highlight: boolean }) {
 function StatusChip({ status }: { status: TripStatus }) {
   const styles: Record<TripStatus, string> = {
     draft: "bg-stone-100 text-stone-700 ring-stone-200",
-    pending: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    pending: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     completed: "bg-stone-200 text-stone-700 ring-stone-300",
     cancelled: "bg-red-100 text-red-800 ring-red-200",
@@ -181,7 +181,7 @@ function FlashBanner({ sp }: { sp: SP }) {
       <Banner variant="success">
         <strong className="font-semibold">Submitted for review.</strong>{" "}
         Packuptrip admin reviews within 24 hours. You&rsquo;ll see it move from{" "}
-        <em className="not-italic font-semibold text-yellow-800">pending</em> to{" "}
+        <em className="not-italic font-semibold text-yellow-400">pending</em> to{" "}
         <em className="not-italic font-semibold text-emerald-800">live</em>{" "}
         when approved.
       </Banner>

@@ -155,7 +155,7 @@ function SearchBar() {
 
         <button
           type="submit"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-yellow-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-yellow-700 sm:h-auto sm:w-auto sm:shrink-0 sm:px-7"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 text-sm font-semibold text-stone-900 shadow-sm transition hover:bg-yellow-500 sm:h-auto sm:w-auto sm:shrink-0 sm:px-7"
         >
           <SearchIcon />
           Search
@@ -366,7 +366,7 @@ function EngineCard({
         <p className="mt-2 max-w-md text-stone-600">{body}</p>
         <span
           className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${
-            isOriginals ? "text-yellow-700" : "text-green-800"
+            isOriginals ? "text-yellow-500" : "text-green-800"
           }`}
         >
           {cta.label}
@@ -662,7 +662,7 @@ function HowItWorks() {
               key={s.n}
               className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-yellow-600 text-sm font-semibold text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-yellow-400 text-sm font-semibold text-stone-900">
                 {s.n}
               </div>
               <div className="mt-4 text-lg font-semibold text-ink">{s.title}</div>
@@ -748,7 +748,7 @@ function TrustAndSafety() {
               key={p.title}
               className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
             >
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-yellow-100 text-yellow-700">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-yellow-100 text-yellow-500">
                 {p.icon}
               </div>
               <div className="mt-4 text-base font-semibold text-ink">
@@ -866,7 +866,7 @@ function SectionHeader({
     accent === "teal"
       ? "text-green-800"
       : accent === "amber"
-        ? "text-yellow-700"
+        ? "text-yellow-500"
         : "text-stone-500";
   return (
     <div

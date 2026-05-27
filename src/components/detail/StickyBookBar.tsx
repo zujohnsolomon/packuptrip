@@ -39,8 +39,9 @@ export function StickyBookBar({
 
   const btn =
     accent === "amber"
-      ? "bg-yellow-600 hover:bg-yellow-700"
+      ? "bg-yellow-400 hover:bg-yellow-500"
       : "bg-green-700 hover:bg-green-800";
+  const btnText = accent === "amber" ? "text-stone-900" : "text-white";
 
   const sold = spotsLeft === 0;
 
@@ -65,7 +66,7 @@ export function StickyBookBar({
           href={sold ? "#" : ctaHref}
           aria-disabled={sold}
           className={cn(
-            "inline-flex h-11 shrink-0 items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-sm transition",
+            `inline-flex h-11 shrink-0 items-center justify-center rounded-xl px-6 text-sm font-semibold ${sold ? "text-white" : btnText} shadow-sm transition`,
             sold ? "cursor-not-allowed bg-stone-300" : btn,
           )}
         >

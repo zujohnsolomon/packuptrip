@@ -87,7 +87,7 @@ export function EditTripForm({
             type="checkbox"
             checked={publishOnSave}
             onChange={(e) => setPublishOnSave(e.target.checked)}
-            className="h-4 w-4 rounded border-stone-300 text-yellow-600 focus:ring-yellow-500"
+            className="h-4 w-4 rounded border-stone-300 text-yellow-400 focus:ring-yellow-500"
           />
           Publish after saving (sets status to live)
         </label>
@@ -105,7 +105,7 @@ function SaveButton({ publishOnSave }: { publishOnSave: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 items-center justify-center rounded-xl bg-yellow-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-yellow-700 disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex h-11 items-center justify-center rounded-xl bg-yellow-400 px-6 text-sm font-semibold text-stone-900 shadow-sm transition hover:bg-yellow-500 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? pendingLabel : label}
     </button>

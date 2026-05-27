@@ -76,10 +76,10 @@ export default async function HostEditTripPage({
               )}
               {trip.admin_notes && (
                 <div className="mt-3 rounded-xl bg-yellow-50 p-3 text-xs ring-1 ring-inset ring-yellow-100">
-                  <div className="font-semibold text-yellow-800">
+                  <div className="font-semibold text-yellow-400">
                     Changes requested
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-yellow-900">
+                  <p className="mt-1 whitespace-pre-wrap text-yellow-500">
                     {trip.admin_notes}
                   </p>
                 </div>

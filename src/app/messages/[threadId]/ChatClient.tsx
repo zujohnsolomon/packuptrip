@@ -86,7 +86,7 @@ function Bubble({
                 className="h-8 w-8 rounded-full object-cover transition-opacity hover:opacity-80"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-[11px] font-semibold text-yellow-800 transition-opacity hover:opacity-80">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-[11px] font-semibold text-yellow-400 transition-opacity hover:opacity-80">
                 {otherInitials}
               </div>
             )}
@@ -98,7 +98,7 @@ function Bubble({
         <div
           className={`px-4 py-2.5 text-sm leading-relaxed transition-opacity ${
             isOwn
-              ? `bg-yellow-500 text-white ${
+              ? `bg-yellow-500 text-stone-900 ${
                   isFirst ? "rounded-t-2xl" : "rounded-t-lg"
                 } ${isLast ? "rounded-bl-2xl rounded-br-sm" : "rounded-b-lg"}`
               : `bg-white shadow-[0_1px_4px_rgba(0,0,0,0.08)] text-stone-800 ${
@@ -348,14 +348,14 @@ export function ChatClient({
               className="h-10 w-10 rounded-full object-cover transition-opacity hover:opacity-80"
             />
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-800 transition-opacity hover:opacity-80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-400 transition-opacity hover:opacity-80">
               {otherInitials}
             </div>
           )}
         </Link>
 
         <div className="min-w-0 flex-1">
-          <Link href={`/hosts/${otherUser?.id}`} className="block truncate text-sm font-semibold text-ink hover:text-yellow-600 transition-colors">
+          <Link href={`/hosts/${otherUser?.id}`} className="block truncate text-sm font-semibold text-ink hover:text-yellow-400 transition-colors">
             {otherUser?.name ?? "Unknown"}
           </Link>
           {trip && (
@@ -511,7 +511,7 @@ export function ChatClient({
           <button
             onClick={handleUnblock}
             disabled={blockBusy}
-            className="mt-2 text-xs font-semibold text-yellow-600 hover:text-yellow-700 disabled:opacity-50"
+            className="mt-2 text-xs font-semibold text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
           >
             {blockBusy ? "Unblocking…" : "Unblock"}
           </button>
@@ -532,7 +532,7 @@ export function ChatClient({
             <button
               onClick={handleSend}
               disabled={!input.trim() || sending}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-white shadow-sm transition hover:bg-yellow-600 disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-stone-900 shadow-sm transition hover:bg-yellow-400 disabled:opacity-40"
               aria-label="Send"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">

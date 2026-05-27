@@ -19,7 +19,7 @@ const TIER_OPTIONS = [
 
 const TIER_BADGE: Record<Profile["host_tier"], string> = {
   standard:  "bg-stone-100 text-stone-600",
-  superhost: "bg-yellow-100 text-yellow-800",
+  superhost: "bg-yellow-100 text-yellow-400",
   flagged:   "bg-red-100 text-red-700",
 };
 
@@ -55,7 +55,7 @@ export default async function AdminHostsPage({
         title="Hosts"
         description="All users who have posted at least one trip. Manage tier badges."
         actions={
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-400">
             {rows.length} hosts
           </span>
         }
@@ -67,7 +67,7 @@ export default async function AdminHostsPage({
           {[
             { label: "Total",     value: counts.all },
             { label: "Standard",  value: counts.standard },
-            { label: "Superhost", value: counts.superhost, color: "text-yellow-700" },
+            { label: "Superhost", value: counts.superhost, color: "text-yellow-500" },
             { label: "Flagged",   value: counts.flagged,   color: "text-red-700" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)]">
@@ -95,7 +95,7 @@ export default async function AdminHostsPage({
                 href={`/admin/hosts?tier=${opt.value}${sp.q ? `&q=${sp.q}` : ""}`}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   (sp.tier ?? "any") === opt.value
-                    ? "bg-yellow-500 text-white"
+                    ? "bg-yellow-500 text-stone-900"
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
@@ -160,7 +160,7 @@ export default async function AdminHostsPage({
                           <form action={setTier}>
                             <input type="hidden" name="userId" value={profile.id} />
                             <input type="hidden" name="tier" value="superhost" />
-                            <button className="text-xs font-semibold text-yellow-700 hover:text-yellow-900">
+                            <button className="text-xs font-semibold text-yellow-500 hover:text-yellow-500">
                               → Superhost
                             </button>
                           </form>

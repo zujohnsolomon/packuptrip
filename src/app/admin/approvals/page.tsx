@@ -23,7 +23,7 @@ export default async function AdminApprovalsPage({
         title="Trip approvals"
         description="Community trips waiting for review. Oldest first - be fair to the host who's been waiting longest."
         actions={
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-400">
             {pending.length} pending
           </span>
         }
@@ -72,7 +72,7 @@ export default async function AdminApprovalsPage({
                           </span>
                         )}
                       </div>
-                      <div className="mt-1 truncate font-semibold text-ink group-hover:text-yellow-700">
+                      <div className="mt-1 truncate font-semibold text-ink group-hover:text-yellow-500">
                         {trip.title}
                       </div>
                       <div className="mt-0.5 truncate text-xs text-stone-500">
@@ -158,7 +158,7 @@ function Banner({
 }) {
   const styles: Record<typeof variant, string> = {
     success: "bg-emerald-50 text-emerald-800 ring-emerald-100",
-    warning: "bg-yellow-50 text-yellow-800 ring-yellow-100",
+    warning: "bg-yellow-50 text-yellow-400 ring-yellow-100",
     info: "bg-stone-50 text-stone-700 ring-stone-200",
   };
   return (

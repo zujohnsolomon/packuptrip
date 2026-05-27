@@ -80,11 +80,11 @@ export default async function AdminUsersPage({
                           href={`/admin/users/${profile.id}`}
                           className="flex items-center gap-3"
                         >
-                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-yellow-100 text-xs font-semibold text-yellow-800">
+                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-yellow-100 text-xs font-semibold text-yellow-400">
                             {profile.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate font-medium text-ink group-hover:text-yellow-700">
+                            <div className="truncate font-medium text-ink group-hover:text-yellow-500">
                               {profile.name}
                             </div>
                             <div className="truncate text-xs text-stone-500">
@@ -133,7 +133,7 @@ export default async function AdminUsersPage({
                       <td className="px-4 py-3 text-right">
                         <Link
                           href={`/admin/users/${profile.id}`}
-                          className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
+                          className="text-xs font-semibold text-yellow-500 hover:text-yellow-400"
                         >
                           Manage →
                         </Link>
@@ -186,7 +186,7 @@ function FilterRow({ current }: { current: SP }) {
       </select>
       <button
         type="submit"
-        className="inline-flex h-9 items-center rounded-lg bg-yellow-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+        className="inline-flex h-9 items-center rounded-lg bg-yellow-400 px-4 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
       >
         Filter
       </button>
@@ -259,7 +259,7 @@ function RoleChip({ role }: { role: UserRole }) {
   const styles: Record<UserRole, string> = {
     traveller: "bg-stone-100 text-stone-700 ring-stone-200",
     host: "bg-green-100 text-green-900 ring-green-200",
-    admin: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    admin: "bg-yellow-100 text-yellow-400 ring-yellow-200",
   };
   return (
     <span

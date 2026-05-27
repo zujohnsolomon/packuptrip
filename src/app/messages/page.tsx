@@ -53,7 +53,7 @@ function ThreadRow({ thread, userId }: { thread: ThreadSummary; userId: string }
             className="h-12 w-12 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-800">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-400">
             {initials}
           </div>
         )}

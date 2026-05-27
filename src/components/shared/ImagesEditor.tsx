@@ -146,7 +146,7 @@ export function ImagesEditor({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="ml-1 font-semibold text-yellow-700 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            className="ml-1 font-semibold text-yellow-500 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
           >
             choose files
           </button>
@@ -155,7 +155,7 @@ export function ImagesEditor({
           JPEG / PNG / WebP · up to 5 MB each · first photo is the cover
         </p>
         {progress && (
-          <p className="mt-2 text-xs font-medium text-yellow-700">{progress}</p>
+          <p className="mt-2 text-xs font-medium text-yellow-500">{progress}</p>
         )}
         {error && (
           <p className="mt-2 text-xs font-medium text-red-700">{error}</p>

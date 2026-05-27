@@ -182,7 +182,7 @@ export function DestinationPicker({ defaultValue = "" }: { defaultValue?: string
                         <button
                           type="button"
                           onMouseDown={(e) => { e.preventDefault(); pick(place); }}
-                          className="block w-full text-left text-[14px] text-stone-600 transition-colors hover:text-yellow-700"
+                          className="block w-full text-left text-[14px] text-stone-600 transition-colors hover:text-yellow-500"
                         >
                           {place}
                         </button>

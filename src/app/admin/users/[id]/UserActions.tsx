@@ -70,7 +70,7 @@ function RoleCard({
           <option value="admin">Admin</option>
         </select>
         {isSelf && (
-          <p className="text-xs text-yellow-700">
+          <p className="text-xs text-yellow-500">
             This is your own account - you can&rsquo;t demote yourself.
           </p>
         )}

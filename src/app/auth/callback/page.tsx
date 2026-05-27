@@ -183,7 +183,7 @@ function Pending({ detail }: { detail: string }) {
   return (
     <main className="grid min-h-screen place-items-center bg-white px-4">
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="h-9 w-9 animate-spin text-yellow-600">
+        <div className="h-9 w-9 animate-spin text-yellow-400">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -196,7 +196,7 @@ function Pending({ detail }: { detail: string }) {
             <circle cx="12" cy="12" r="9" className="opacity-20" />
             <polygon
               points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
-              className="fill-yellow-600/20 stroke-yellow-600"
+              className="fill-yellow-400/20 stroke-yellow-400"
             />
           </svg>
         </div>

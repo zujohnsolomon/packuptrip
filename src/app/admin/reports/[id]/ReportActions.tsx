@@ -104,7 +104,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   const cls = {
-    primary: "bg-yellow-600 hover:bg-yellow-700 text-white",
+    primary: "bg-yellow-400 hover:bg-yellow-500 text-stone-900",
     emerald: "bg-emerald-600 hover:bg-emerald-700 text-white",
     neutral:
       "bg-white border border-stone-200 text-stone-700 hover:bg-stone-50",

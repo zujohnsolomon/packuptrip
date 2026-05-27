@@ -187,7 +187,7 @@ function FeaturedSubmit({ featured }: { featured: boolean }) {
       disabled={pending}
       className={`inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 ${
         featured
-          ? "border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
+          ? "border-yellow-300 bg-yellow-50 text-yellow-400 hover:bg-yellow-100"
           : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
       }`}
     >
@@ -201,7 +201,7 @@ function CurrentStatus({ status }: { status: PackageStatus }) {
     status === "live"
       ? "bg-emerald-100 text-emerald-800 ring-emerald-200"
       : status === "draft"
-        ? "bg-yellow-100 text-yellow-800 ring-yellow-200"
+        ? "bg-yellow-100 text-yellow-400 ring-yellow-200"
         : "bg-stone-200 text-stone-700 ring-stone-300";
   return (
     <span

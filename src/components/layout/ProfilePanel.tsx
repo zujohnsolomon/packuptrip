@@ -113,15 +113,15 @@ function NotificationsTab({
       {/* Email verification banner */}
       {!emailConfirmed && (
         <div className="mx-3 mt-3 rounded-xl bg-yellow-50 p-3 ring-1 ring-inset ring-yellow-200">
-          <p className="text-xs font-semibold text-yellow-900">Confirm your email</p>
-          <p className="mt-0.5 text-xs text-yellow-700 leading-relaxed">
+          <p className="text-xs font-semibold text-yellow-500">Confirm your email</p>
+          <p className="mt-0.5 text-xs text-yellow-500 leading-relaxed">
             We sent you an activation link. Check your inbox (and spam folder).
           </p>
           <button
             type="button"
             onClick={handleResendEmail}
             disabled={resending || resent}
-            className="mt-2 rounded-full bg-yellow-500 px-3 py-1 text-xs font-semibold text-white hover:bg-yellow-600 disabled:opacity-60"
+            className="mt-2 rounded-full bg-yellow-500 px-3 py-1 text-xs font-semibold text-stone-900 hover:bg-yellow-400 disabled:opacity-60"
           >
             {resent ? "Sent ✓" : resending ? "Sending…" : "Resend activation email"}
           </button>
@@ -209,7 +209,7 @@ function ChatTab({ userId, onClose }: { userId: string; onClose: () => void }) {
         <Link
           href="/trips"
           onClick={onClose}
-          className="rounded-full border border-yellow-500 px-4 py-1.5 text-xs font-semibold text-yellow-600 hover:bg-yellow-50"
+          className="rounded-full border border-yellow-500 px-4 py-1.5 text-xs font-semibold text-yellow-400 hover:bg-yellow-50"
         >
           Find a trip
         </Link>
@@ -272,7 +272,7 @@ function ChatTab({ userId, onClose }: { userId: string; onClose: () => void }) {
           <Link
             href="/messages"
             onClick={onClose}
-            className="text-xs font-medium text-yellow-600 hover:text-yellow-700"
+            className="text-xs font-medium text-yellow-400 hover:text-yellow-500"
           >
             All messages →
           </Link>
@@ -403,7 +403,7 @@ export function ProfilePanel({
           <span
             className={cn(
               "flex h-full w-full select-none items-center justify-center rounded-full text-sm font-bold",
-              transparent ? "bg-white/20 text-white" : "bg-yellow-100 text-yellow-800",
+              transparent ? "bg-white/20 text-white" : "bg-yellow-100 text-yellow-400",
             )}
           >
             {initial}
@@ -449,7 +449,7 @@ export function ProfilePanel({
                 {profile?.avatar_url ? (
                   <Image src={profile.avatar_url} alt={profile.name ?? ""} fill sizes="48px" className="object-cover object-top" />
                 ) : (
-                  <span className="grid h-full w-full place-items-center text-lg font-bold text-yellow-700">
+                  <span className="grid h-full w-full place-items-center text-lg font-bold text-yellow-500">
                     {initial}
                   </span>
                 )}
@@ -459,7 +459,7 @@ export function ProfilePanel({
                 <Link
                   href="/account/profile"
                   onClick={() => setOpen(false)}
-                  className="mt-0.5 inline-flex items-center gap-1 text-xs text-stone-500 hover:text-yellow-600"
+                  className="mt-0.5 inline-flex items-center gap-1 text-xs text-stone-500 hover:text-yellow-400"
                 >
                   <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M11 2l3 3-8 8H3V10l8-8z"/>
@@ -599,7 +599,7 @@ function PanelLink({
       href={href}
       onClick={onClick}
       className={`flex items-center justify-between px-4 py-2.5 transition-colors hover:bg-stone-50 ${
-        accent ? "text-yellow-700" : highlight ? "text-yellow-600" : "text-stone-700"
+        accent ? "text-yellow-500" : highlight ? "text-yellow-400" : "text-stone-700"
       }`}
     >
       <span className="flex items-center gap-3 text-sm">

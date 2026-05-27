@@ -211,7 +211,7 @@ function StatusRibbon({ status }: { status: string }) {
     status === "live"
       ? "bg-emerald-100 text-emerald-800 ring-emerald-200"
       : status === "draft"
-        ? "bg-yellow-100 text-yellow-800 ring-yellow-200"
+        ? "bg-yellow-100 text-yellow-400 ring-yellow-200"
         : "bg-stone-200 text-stone-700 ring-stone-300";
   return (
     <span
@@ -224,7 +224,7 @@ function StatusRibbon({ status }: { status: string }) {
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    requested: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-stone-200 text-stone-700 ring-stone-300",

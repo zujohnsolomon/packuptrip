@@ -31,9 +31,10 @@ export function PriceCard({
   const total = calcBookingTotal(basePrice);
   const btn =
     accent === "amber"
-      ? "bg-yellow-600 hover:bg-yellow-700"
+      ? "bg-yellow-400 hover:bg-yellow-500"
       : "bg-green-700 hover:bg-green-800";
-  const text = accent === "amber" ? "text-yellow-700" : "text-green-800";
+  const btnText = accent === "amber" ? "text-stone-900" : "text-white";
+  const text = accent === "amber" ? "text-yellow-500" : "text-green-800";
   const sparse = spotsLeft <= 3;
 
   return (
@@ -62,7 +63,7 @@ export function PriceCard({
 
       <Link
         href={ctaHref}
-        className={`mt-5 inline-flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-sm transition ${btn}`}
+        className={`mt-5 inline-flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold ${btnText} shadow-sm transition ${btn}`}
       >
         {ctaLabel}
       </Link>

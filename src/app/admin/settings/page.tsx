@@ -123,7 +123,7 @@ export default async function AdminSettingsPage() {
                       />
                       <button
                         type="submit"
-                        className="rounded-xl bg-yellow-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-yellow-600 transition-colors"
+                        className="rounded-xl bg-yellow-500 px-3 py-1.5 text-xs font-semibold text-stone-900 hover:bg-yellow-400 transition-colors"
                       >
                         Save
                       </button>

@@ -130,7 +130,7 @@ export function DatePickerField({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
+                className="text-xs font-semibold text-yellow-500 hover:text-yellow-400"
               >
                 Done
               </button>
@@ -177,9 +177,9 @@ function Calendar({
         week: "flex w-full mt-1",
         day: "h-10 w-10 p-0 text-sm text-stone-700 relative",
         day_button:
-          "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors hover:bg-yellow-100 hover:text-yellow-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300",
+          "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors hover:bg-yellow-100 hover:text-yellow-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300",
         selected:
-          "[&_button]:bg-yellow-600 [&_button]:text-white [&_button:hover]:bg-yellow-700 [&_button:hover]:text-white",
+          "[&_button]:bg-yellow-400 [&_button]:text-stone-900 [&_button:hover]:bg-yellow-500 [&_button:hover]:text-stone-900",
         today:
           "[&_button]:ring-1 [&_button]:ring-inset [&_button]:ring-yellow-300 [&_button]:font-semibold",
         outside: "text-stone-300",

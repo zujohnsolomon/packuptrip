@@ -132,7 +132,7 @@ function FilterRow({ current }: { current: SP }) {
       </select>
       <button
         type="submit"
-        className="inline-flex h-9 items-center rounded-lg bg-yellow-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+        className="inline-flex h-9 items-center rounded-lg bg-yellow-400 px-4 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
       >
         Filter
       </button>
@@ -204,7 +204,7 @@ function CategoryChip({ category }: { category: ReportCategory }) {
   const styles: Record<ReportCategory, string> = {
     safety: "bg-red-100 text-red-800 ring-red-200",
     harassment: "bg-red-100 text-red-800 ring-red-200",
-    fraud: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    fraud: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     other: "bg-stone-100 text-stone-700 ring-stone-200",
   };
   return (
@@ -219,7 +219,7 @@ function CategoryChip({ category }: { category: ReportCategory }) {
 function StatusChip({ status }: { status: ReportStatus }) {
   const styles: Record<ReportStatus, string> = {
     open: "bg-red-100 text-red-800 ring-red-200",
-    investigating: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    investigating: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     resolved: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   };
   return (
@@ -236,7 +236,7 @@ function CategoryIcon({ category }: { category: ReportCategory }) {
     category === "safety" || category === "harassment"
       ? "bg-red-100 text-red-700"
       : category === "fraud"
-        ? "bg-yellow-100 text-yellow-700"
+        ? "bg-yellow-100 text-yellow-500"
         : "bg-stone-100 text-stone-700";
   return (
     <span

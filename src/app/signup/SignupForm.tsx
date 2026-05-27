@@ -95,10 +95,10 @@ export function SignupForm() {
       {googleLoading && (
         <div className="absolute inset-x-0 -top-6 -bottom-6 bg-white/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center animate-tag-reveal rounded-[2rem]">
           <div className="flex flex-col items-center gap-3 text-center px-4">
-            <div className="h-9 w-9 text-yellow-600 animate-spin flex items-center justify-center">
+            <div className="h-9 w-9 text-yellow-400 animate-spin flex items-center justify-center">
               <svg className="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="12" cy="12" r="9" className="opacity-20" />
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" className="stroke-yellow-600 fill-yellow-600/20" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" className="stroke-yellow-400 fill-yellow-400/20" />
               </svg>
             </div>
             <div>
@@ -284,7 +284,7 @@ export function SignupForm() {
           </div>
         )}
         {info && (
-          <div className="rounded-2xl bg-yellow-50/85 px-4 py-2.5 text-xs text-yellow-800 border border-yellow-200/50 shadow-sm animate-tag-reveal">
+          <div className="rounded-2xl bg-yellow-50/85 px-4 py-2.5 text-xs text-yellow-400 border border-yellow-200/50 shadow-sm animate-tag-reveal">
             {info}
           </div>
         )}

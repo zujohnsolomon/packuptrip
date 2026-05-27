@@ -75,7 +75,7 @@ export default async function InvitePage({
             </h1>
 
             {/* Reward pill */}
-            <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-yellow-500 px-5 py-2 text-sm font-bold text-white shadow">
+            <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-yellow-500 px-5 py-2 text-sm font-bold text-stone-900 shadow">
               🎁 Get ₹200 off your first trip
             </div>
 

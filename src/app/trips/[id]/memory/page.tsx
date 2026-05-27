@@ -178,7 +178,7 @@ export default async function TripMemoryPage({
               <h2 className="text-lg font-semibold text-ink">
                 What travellers said
                 {avgRating !== null && (
-                  <span className="ml-2 text-base font-normal text-yellow-600">
+                  <span className="ml-2 text-base font-normal text-yellow-400">
                     ★ {avgRating.toFixed(1)}
                   </span>
                 )}
@@ -285,7 +285,7 @@ function MemoryReviewCard({
                 </Link>
               ) : "Traveller"}
             </span>
-            <span className="shrink-0 text-xs font-semibold text-yellow-600">
+            <span className="shrink-0 text-xs font-semibold text-yellow-400">
               {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
             </span>
           </div>

@@ -18,7 +18,7 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 
 const STATUS_BADGE: Record<TripStatus, string> = {
   draft:     "bg-stone-100 text-stone-600",
-  pending:   "bg-yellow-100 text-yellow-800",
+  pending:   "bg-yellow-100 text-yellow-400",
   live:      "bg-green-100 text-green-900",
   completed: "bg-blue-100 text-blue-800",
   cancelled: "bg-red-100 text-red-700",
@@ -71,7 +71,7 @@ export default async function AdminTripsPage({
         title="Community Trips"
         description="All host-created trips. Manage status, take down live trips, reinstate cancelled ones."
         actions={
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-400">
             {rows.length} trips
           </span>
         }
@@ -82,7 +82,7 @@ export default async function AdminTripsPage({
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {[
             { label: "Total",     value: counts.all },
-            { label: "Pending",   value: counts.pending,   color: "text-yellow-700" },
+            { label: "Pending",   value: counts.pending,   color: "text-yellow-500" },
             { label: "Live",      value: counts.live,      color: "text-green-800" },
             { label: "Draft",     value: counts.draft },
             { label: "Completed", value: counts.completed, color: "text-blue-700" },
@@ -113,7 +113,7 @@ export default async function AdminTripsPage({
                 href={`/admin/trips?status=${opt.value}${sp.q ? `&q=${sp.q}` : ""}`}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   (sp.status ?? "any") === opt.value
-                    ? "bg-yellow-500 text-white"
+                    ? "bg-yellow-500 text-stone-900"
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
@@ -148,7 +148,7 @@ export default async function AdminTripsPage({
                     </td>
                     <td className="px-4 py-3">
                       {host ? (
-                        <Link href={`/admin/users?q=${host.email}`} className="text-xs text-yellow-700 hover:underline">
+                        <Link href={`/admin/users?q=${host.email}`} className="text-xs text-yellow-500 hover:underline">
                           {host.name}
                         </Link>
                       ) : (
@@ -179,7 +179,7 @@ export default async function AdminTripsPage({
                         {trip.status === "pending" && (
                           <Link
                             href={`/admin/approvals/${trip.id}`}
-                            className="text-xs font-semibold text-yellow-700 hover:text-yellow-900"
+                            className="text-xs font-semibold text-yellow-500 hover:text-yellow-500"
                           >
                             Review
                           </Link>

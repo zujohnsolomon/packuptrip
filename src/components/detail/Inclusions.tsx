@@ -24,7 +24,7 @@ export function Inclusions({ items }: { items: string[] }) {
 function CheckIcon() {
   return (
     <svg
-      className="mt-0.5 shrink-0 text-yellow-600"
+      className="mt-0.5 shrink-0 text-yellow-400"
       width="16"
       height="16"
       viewBox="0 0 24 24"

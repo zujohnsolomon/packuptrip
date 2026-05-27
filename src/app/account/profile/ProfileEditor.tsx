@@ -102,7 +102,7 @@ function AvatarUploader({
           {preview ? (
             <img src={preview} alt="Avatar" className="h-full w-full object-cover object-top" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-yellow-700">
+            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-yellow-500">
               {initials}
             </div>
           )}
@@ -119,7 +119,7 @@ function AvatarUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500 text-white shadow ring-2 ring-white hover:bg-yellow-600 disabled:opacity-60"
+          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500 text-stone-900 shadow ring-2 ring-white hover:bg-yellow-400 disabled:opacity-60"
           aria-label="Change photo"
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
@@ -133,7 +133,7 @@ function AvatarUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="text-sm font-medium text-yellow-600 hover:text-yellow-700 disabled:opacity-50"
+          className="text-sm font-medium text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : "Change photo"}
         </button>
@@ -177,7 +177,7 @@ function PillToggle({
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
         selected
-          ? "bg-yellow-500 text-white shadow-sm"
+          ? "bg-yellow-500 text-stone-900 shadow-sm"
           : disabled
           ? "cursor-not-allowed bg-stone-100 text-stone-300"
           : "bg-stone-100 text-stone-600 hover:bg-stone-200"
@@ -245,8 +245,8 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
       {!isComplete && (
         <div className="rounded-2xl bg-yellow-50 p-4 ring-1 ring-inset ring-yellow-200">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-yellow-900">Profile {pct}% complete</span>
-            <span className="text-xs text-yellow-700">
+            <span className="font-medium text-yellow-500">Profile {pct}% complete</span>
+            <span className="text-xs text-yellow-500">
               Hosts with full profiles get 3× more joiners
             </span>
           </div>
@@ -395,7 +395,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-full bg-yellow-500 px-7 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 disabled:opacity-60 transition-colors"
+          className="rounded-full bg-yellow-500 px-7 py-2.5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-400 disabled:opacity-60 transition-colors"
         >
           {isPending ? "Saving…" : saved ? "✓ Saved" : "Save profile"}
         </button>

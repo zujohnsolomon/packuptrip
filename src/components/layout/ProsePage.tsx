@@ -41,7 +41,7 @@ export function ProsePage({
         {/* Optional notice */}
         {notice && (
           <div className="border-b border-yellow-200 bg-yellow-50">
-            <div className="mx-auto max-w-3xl px-4 py-3 text-sm text-yellow-800 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl px-4 py-3 text-sm text-yellow-400 sm:px-6 lg:px-8">
               {notice}
             </div>
           </div>

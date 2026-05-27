@@ -40,8 +40,9 @@ export function BookingForm({
 
   const btn =
     accent === "amber"
-      ? "bg-yellow-600 hover:bg-yellow-700"
+      ? "bg-yellow-400 hover:bg-yellow-500"
       : "bg-green-700 hover:bg-green-800";
+  const btnText = accent === "amber" ? "text-stone-900" : "text-white";
 
   async function onConfirm() {
     setError(null);
@@ -110,7 +111,7 @@ export function BookingForm({
         type="button"
         onClick={onConfirm}
         disabled={loading}
-        className={`mt-5 inline-flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 ${btn}`}
+        className={`mt-5 inline-flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold ${btnText} shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 ${btn}`}
       >
         {loading ? "Reserving your spot…" : "Confirm booking"}
       </button>

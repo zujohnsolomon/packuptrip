@@ -48,7 +48,7 @@ export default async function AdminBookingsPage({
         title="Bookings"
         description="Every booking across Originals and Community Trips. Filter, inspect, cancel, refund."
         actions={
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-400">
             {rows.length} matching
           </span>
         }
@@ -91,7 +91,7 @@ export default async function AdminBookingsPage({
                             href={`/admin/bookings/${booking.id}`}
                             className="block"
                           >
-                            <div className="truncate font-medium text-ink group-hover:text-yellow-700">
+                            <div className="truncate font-medium text-ink group-hover:text-yellow-500">
                               {itemTitle ?? "Unknown trip"}
                             </div>
                             <div className="font-mono text-[10px] text-stone-400">
@@ -133,7 +133,7 @@ export default async function AdminBookingsPage({
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`/admin/bookings/${booking.id}`}
-                            className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
+                            className="text-xs font-semibold text-yellow-500 hover:text-yellow-400"
                           >
                             Open →
                           </Link>
@@ -205,7 +205,7 @@ function FilterRow({ current }: { current: SP }) {
       </label>
       <button
         type="submit"
-        className="inline-flex h-9 items-center rounded-lg bg-yellow-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+        className="inline-flex h-9 items-center rounded-lg bg-yellow-400 px-4 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
       >
         Filter
       </button>
@@ -293,7 +293,7 @@ function SummaryCard({
 function ItemTypeChip({ type }: { type: "package" | "trip" }) {
   const cls =
     type === "package"
-      ? "bg-yellow-100 text-yellow-800 ring-yellow-200"
+      ? "bg-yellow-100 text-yellow-400 ring-yellow-200"
       : "bg-green-100 text-green-900 ring-green-200";
   const label = type === "package" ? "Original" : "Community";
   return (
@@ -307,7 +307,7 @@ function ItemTypeChip({ type }: { type: "package" | "trip" }) {
 
 function StatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-yellow-100 text-yellow-800 ring-yellow-200",
+    requested: "bg-yellow-100 text-yellow-400 ring-yellow-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-red-100 text-red-800 ring-red-200",

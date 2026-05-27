@@ -198,7 +198,7 @@ function Avatar({
         <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
       ) : (
         <div
-          className="flex h-full w-full items-center justify-center font-semibold text-yellow-700"
+          className="flex h-full w-full items-center justify-center font-semibold text-yellow-500"
           style={{ fontSize: px * 0.35 }}
         >
           {initials}
@@ -458,7 +458,7 @@ export function TripChatClient({
                   {isFirstInGroup && sender && (
                     <div className="mb-1 flex items-center gap-1.5 px-1">
                       {isMe ? (
-                        <span className="text-[11px] font-semibold text-yellow-600">You</span>
+                        <span className="text-[11px] font-semibold text-yellow-400">You</span>
                       ) : (
                         <a
                           href={sender.is_host ? `/hosts/${msg.sender_id}` : `/passport/${msg.sender_id}`}
@@ -489,7 +489,7 @@ export function TripChatClient({
                         isHost && !isOptimistic ? "touch-none" : ""
                       } ${
                         isMe
-                          ? `bg-yellow-500 text-white ${isOptimistic ? "opacity-70" : ""} ${
+                          ? `bg-yellow-500 text-stone-900 ${isOptimistic ? "opacity-70" : ""} ${
                               isFirstInGroup ? "rounded-br-md" : ""
                             }`
                           : `bg-white text-stone-800 shadow-sm ring-1 ring-stone-100 ${
@@ -560,7 +560,7 @@ export function TripChatClient({
               type="button"
               onClick={handleSend}
               disabled={!input.trim() || sending}
-              className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-white transition hover:bg-yellow-600 disabled:opacity-40"
+              className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-stone-900 transition hover:bg-yellow-400 disabled:opacity-40"
               aria-label="Send"
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">

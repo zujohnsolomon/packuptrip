@@ -22,8 +22,9 @@ export function FilterBar({
       : "focus:border-green-600 focus:ring-green-100";
   const btn =
     accent === "amber"
-      ? "bg-yellow-600 hover:bg-yellow-700"
+      ? "bg-yellow-400 hover:bg-yellow-500"
       : "bg-green-700 hover:bg-green-800";
+  const btnText = accent === "amber" ? "text-stone-900" : "text-white";
 
   return (
     <form
@@ -93,7 +94,7 @@ export function FilterBar({
           </Field>
           <button
             type="submit"
-            className={`flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-white shadow-sm transition sm:h-auto sm:w-auto sm:shrink-0 sm:px-7 ${btn} ${ring}`}
+            className={`flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold ${btnText} shadow-sm transition sm:h-auto sm:w-auto sm:shrink-0 sm:px-7 ${btn} ${ring}`}
           >
             Search
           </button>

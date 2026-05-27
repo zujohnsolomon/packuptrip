@@ -136,7 +136,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
     <div className="flex flex-col items-center gap-1">
       <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
         done ? "bg-green-600 text-white" :
-        active ? "bg-yellow-500 text-white" :
+        active ? "bg-yellow-500 text-stone-900" :
         "bg-stone-100 text-stone-400"
       }`}>
         {done ? "✓" : n}
@@ -253,11 +253,11 @@ export function VerifyClient({ userId }: { userId: string }) {
                 onClick={() => { setIdType(t.key); if (step === 1) setStep(2); }}
                 className={`flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-all ${
                   selected
-                    ? "border-yellow-400 bg-yellow-50 text-yellow-900 shadow-sm"
+                    ? "border-yellow-400 bg-yellow-50 text-yellow-500 shadow-sm"
                     : "border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50"
                 }`}
               >
-                <span className={selected ? "text-yellow-600" : "text-stone-400"}>{t.icon}</span>
+                <span className={selected ? "text-yellow-400" : "text-stone-400"}>{t.icon}</span>
                 <span>
                   <div className="text-sm font-semibold">{t.label}</div>
                   <div className="text-xs opacity-70">{t.desc}</div>
@@ -283,7 +283,7 @@ export function VerifyClient({ userId }: { userId: string }) {
           {idDocFile && idDocFile.name && (
             <button
               type="button"
-              className="mt-4 w-full rounded-full bg-yellow-500 py-2.5 text-sm font-semibold text-white hover:bg-yellow-600"
+              className="mt-4 w-full rounded-full bg-yellow-500 py-2.5 text-sm font-semibold text-stone-900 hover:bg-yellow-400"
               onClick={() => setStep(3)}
             >
               Continue →

@@ -45,7 +45,7 @@ export default async function PaymentsPage() {
                     strokeWidth="1.75"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-yellow-600"
+                    className="text-yellow-400"
                     aria-hidden
                   >
                     <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -53,10 +53,10 @@ export default async function PaymentsPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-yellow-900">
+                  <p className="text-sm font-semibold text-yellow-500">
                     Online payments coming soon
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed text-yellow-700">
+                  <p className="mt-1 text-sm leading-relaxed text-yellow-500">
                     We&rsquo;re integrating Razorpay so you can pay for trips
                     securely and hosts can receive payouts directly to their
                     bank account. It&rsquo;ll be ready soon.

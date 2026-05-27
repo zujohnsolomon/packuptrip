@@ -61,7 +61,7 @@ export function ReviewCard({ review }: { review: ReviewWithAuthor }) {
     <div className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
       {/* Header row */}
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-800">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-400">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -81,7 +81,7 @@ export function ReviewCard({ review }: { review: ReviewWithAuthor }) {
           {review.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-yellow-50 px-2.5 py-0.5 text-[11px] font-medium text-yellow-800 ring-1 ring-inset ring-yellow-200"
+              className="rounded-full bg-yellow-50 px-2.5 py-0.5 text-[11px] font-medium text-yellow-400 ring-1 ring-inset ring-yellow-200"
             >
               {tag}
             </span>

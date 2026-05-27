@@ -62,7 +62,7 @@ export default async function AdminApprovalDetailPage({
           </div>
         )}
         {!isPending && (
-          <div className="mb-5 rounded-xl bg-yellow-50 px-4 py-3 text-sm text-yellow-800 ring-1 ring-inset ring-yellow-100">
+          <div className="mb-5 rounded-xl bg-yellow-50 px-4 py-3 text-sm text-yellow-400 ring-1 ring-inset ring-yellow-100">
             This trip is no longer pending - current status:{" "}
             <strong className="font-semibold">{trip.status}</strong>. No further
             actions available here.
@@ -274,7 +274,7 @@ function NotesShown({
 }) {
   const cls =
     tone === "warning"
-      ? "bg-yellow-50 ring-yellow-100 text-yellow-900"
+      ? "bg-yellow-50 ring-yellow-100 text-yellow-500"
       : "bg-stone-50 ring-stone-200 text-stone-700";
   return (
     <div className={`mb-3 rounded-2xl p-4 ring-1 ring-inset ${cls}`}>

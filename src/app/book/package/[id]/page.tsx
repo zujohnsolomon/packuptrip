@@ -116,7 +116,7 @@ function SoldOut({ href, title }: { href: string; title: string }) {
               </Link>
               <Link
                 href="/packages"
-                className="inline-flex h-11 items-center rounded-full bg-yellow-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
+                className="inline-flex h-11 items-center rounded-full bg-yellow-400 px-5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-yellow-500"
               >
                 Browse packages
               </Link>

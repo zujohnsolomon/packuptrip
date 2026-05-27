@@ -61,7 +61,7 @@ export default async function AdminReviewsPage({
         title="Reviews"
         description="All user reviews. Hide inappropriate content or restore hidden reviews."
         actions={
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-400">
             {rows.length} reviews
           </span>
         }
@@ -100,7 +100,7 @@ export default async function AdminReviewsPage({
                 href={`/admin/reviews?visible=${opt.value}${sp.q ? `&q=${sp.q}` : ""}`}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   visible === opt.value
-                    ? "bg-yellow-500 text-white"
+                    ? "bg-yellow-500 text-stone-900"
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
@@ -134,7 +134,7 @@ export default async function AdminReviewsPage({
                       {author ? (
                         <Link
                           href={`/admin/users?q=${author.id}`}
-                          className="text-xs font-medium text-yellow-700 hover:underline"
+                          className="text-xs font-medium text-yellow-500 hover:underline"
                         >
                           {author.name}
                         </Link>
