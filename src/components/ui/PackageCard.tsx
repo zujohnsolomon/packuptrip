@@ -74,22 +74,21 @@ export function PackageCard({ pkg }: { pkg: Package }) {
 
         {/* ── Metadata below photo ──────────────────────────────────── */}
         <div className="p-3.5">
-          {/* Rating row */}
-          <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-xs text-yellow-500 font-medium">Packuptrip Original</span>
-            {pkg.review_count > 0 && (
-              <span className="flex shrink-0 items-center gap-0.5 text-xs">
-                <StarFillIcon />
-                <span className="font-semibold text-stone-700">
-                  {Number(pkg.rating_avg).toFixed(1)}
-                </span>
-                <span className="text-stone-400">({pkg.review_count})</span>
+          {/* Rating row — only show rating; brand label removed since the
+             'Original' chip on the photo already says it. Frees space for
+             the rating not to truncate on narrow viewports. */}
+          {pkg.review_count > 0 && (
+            <div className="flex items-center gap-0.5 text-xs">
+              <StarFillIcon />
+              <span className="font-semibold text-stone-700">
+                {Number(pkg.rating_avg).toFixed(1)}
               </span>
-            )}
-          </div>
+              <span className="text-stone-400">({pkg.review_count})</span>
+            </div>
+          )}
 
-          {/* Title */}
-          <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-yellow-500">
+          {/* Title — fixed 2-line clamp ensures equal-height cards in a row */}
+          <h3 className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-yellow-500">
             {pkg.title}
           </h3>
 

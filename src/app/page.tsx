@@ -555,9 +555,15 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
           title="Curated journeys this season"
           link={{ href: "/packages", label: "View all packages" }}
         />
-        <div className="mt-6 grid gap-5 grid-cols-2 lg:grid-cols-4">
+        {/* Mobile: horizontal snap-scroll carousel (full-bleed). Desktop: 4-col grid. */}
+        <div className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
           {packages.map((p) => (
-            <PackageCard key={p.id} pkg={p} />
+            <div
+              key={p.id}
+              className="w-[72%] shrink-0 snap-start sm:w-auto sm:shrink"
+            >
+              <PackageCard pkg={p} />
+            </div>
           ))}
         </div>
       </div>
@@ -835,9 +841,15 @@ function FeaturedTrips({
           title="Open trips looking for travellers"
           link={{ href: "/trips", label: "Browse community trips" }}
         />
-        <div className="mt-6 grid gap-5 grid-cols-2 lg:grid-cols-4">
+        {/* Mobile: horizontal snap-scroll carousel (full-bleed). Desktop: 4-col grid. */}
+        <div className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
           {trips.map((t) => (
-            <TripCard key={t.id} trip={t} host={hostMap.get(t.host_id)} />
+            <div
+              key={t.id}
+              className="w-[72%] shrink-0 snap-start sm:w-auto sm:shrink"
+            >
+              <TripCard trip={t} host={hostMap.get(t.host_id)} />
+            </div>
           ))}
         </div>
       </div>
