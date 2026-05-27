@@ -97,7 +97,7 @@ export default async function AdminReportDetailPage({
               </div>
               {reporter ? (
                 <div className="mt-3 flex items-center gap-4">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-800">
                     {reporter.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -110,7 +110,7 @@ export default async function AdminReportDetailPage({
                   </div>
                   <Link
                     href={`/admin/users/${reporter.id}`}
-                    className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+                    className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
                   >
                     View user →
                   </Link>
@@ -197,7 +197,7 @@ function SubjectBlock({
         </div>
         <Link
           href={`/admin/users/${subjectProfile.id}`}
-          className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+          className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
         >
           Manage user →
         </Link>
@@ -228,7 +228,7 @@ function SubjectBlock({
           {subjectTrip.status === "pending" ? (
             <Link
               href={`/admin/approvals/${subjectTrip.id}`}
-              className="font-semibold text-amber-700 hover:text-amber-800"
+              className="font-semibold text-yellow-700 hover:text-yellow-800"
             >
               Review trip →
             </Link>
@@ -236,7 +236,7 @@ function SubjectBlock({
             <Link
               href={`/trips/${subjectTrip.id}`}
               target="_blank"
-              className="font-semibold text-amber-700 hover:text-amber-800"
+              className="font-semibold text-yellow-700 hover:text-yellow-800"
             >
               View live →
             </Link>
@@ -269,7 +269,7 @@ function SubjectBlock({
         </div>
         <Link
           href={`/admin/originals/${subjectPackage.id}`}
-          className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+          className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
         >
           Manage package →
         </Link>
@@ -283,7 +283,7 @@ function CategoryChip({ category }: { category: ReportCategory }) {
   const styles: Record<ReportCategory, string> = {
     safety: "bg-red-100 text-red-800 ring-red-200",
     harassment: "bg-red-100 text-red-800 ring-red-200",
-    fraud: "bg-amber-100 text-amber-800 ring-amber-200",
+    fraud: "bg-yellow-100 text-yellow-800 ring-yellow-200",
     other: "bg-stone-100 text-stone-700 ring-stone-200",
   };
   return (
@@ -298,7 +298,7 @@ function CategoryChip({ category }: { category: ReportCategory }) {
 function StatusChip({ status }: { status: ReportStatus }) {
   const styles: Record<ReportStatus, string> = {
     open: "bg-red-100 text-red-800 ring-red-200",
-    investigating: "bg-amber-100 text-amber-800 ring-amber-200",
+    investigating: "bg-yellow-100 text-yellow-800 ring-yellow-200",
     resolved: "bg-emerald-100 text-emerald-800 ring-emerald-200",
   };
   return (
@@ -344,7 +344,7 @@ function Banner({
   const cls = {
     success: "bg-emerald-50 text-emerald-800 ring-emerald-100",
     info: "bg-stone-50 text-stone-700 ring-stone-200",
-    warning: "bg-amber-50 text-amber-800 ring-amber-100",
+    warning: "bg-yellow-50 text-yellow-800 ring-yellow-100",
   }[variant];
   return (
     <div className={`mb-5 rounded-xl px-4 py-3 text-sm ring-1 ring-inset ${cls}`}>

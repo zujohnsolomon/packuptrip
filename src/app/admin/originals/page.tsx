@@ -33,7 +33,7 @@ export default async function AdminOriginalsPage({
         actions={
           <Link
             href="/admin/originals/new"
-            className="inline-flex h-9 items-center rounded-full bg-amber-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-amber-700"
+            className="inline-flex h-9 items-center rounded-full bg-yellow-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700"
           >
             + New package
           </Link>
@@ -111,7 +111,7 @@ function SummaryCard({
     tone === "emerald"
       ? "bg-emerald-500"
       : tone === "amber"
-        ? "bg-amber-500"
+        ? "bg-yellow-500"
         : "bg-stone-400";
   return (
     <div className="rounded-2xl bg-white p-4 shadow-[var(--shadow-card)]">
@@ -141,7 +141,7 @@ function PackageGroup({
     accent === "emerald"
       ? "bg-emerald-500"
       : accent === "amber"
-        ? "bg-amber-500"
+        ? "bg-yellow-500"
         : "bg-stone-400";
 
   return (
@@ -194,7 +194,7 @@ function PackageGroup({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-ink group-hover:text-amber-700">
+                        <div className="truncate font-medium text-ink group-hover:text-yellow-700">
                           {pkg.title}
                         </div>
                         <div className="truncate text-xs text-stone-500">
@@ -222,7 +222,7 @@ function PackageGroup({
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/admin/originals/${pkg.id}`}
-                      className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+                      className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
                     >
                       Manage →
                     </Link>

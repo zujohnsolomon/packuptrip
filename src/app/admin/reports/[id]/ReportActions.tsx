@@ -66,7 +66,7 @@ export function ReportActions({
             rows={6}
             defaultValue={currentNotes}
             placeholder="What did you find? Who did you contact? What's the next step?"
-            className="block w-full resize-y rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="block w-full resize-y rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100"
           />
           <SaveButton />
         </form>
@@ -104,7 +104,7 @@ function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   const cls = {
-    primary: "bg-amber-600 hover:bg-amber-700 text-white",
+    primary: "bg-yellow-600 hover:bg-yellow-700 text-white",
     emerald: "bg-emerald-600 hover:bg-emerald-700 text-white",
     neutral:
       "bg-white border border-stone-200 text-stone-700 hover:bg-stone-50",

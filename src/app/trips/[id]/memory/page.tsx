@@ -118,7 +118,7 @@ export default async function TripMemoryPage({
               {trip.days > 1 ? ` — ${formattedEnd}` : ""} &nbsp;·&nbsp; {trip.days}d
             </p>
             {avgRating !== null && (
-              <p className="mt-1.5 text-sm font-semibold text-amber-300">
+              <p className="mt-1.5 text-sm font-semibold text-yellow-300">
                 ★ {avgRating.toFixed(1)} &nbsp;·&nbsp; {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
               </p>
             )}
@@ -178,7 +178,7 @@ export default async function TripMemoryPage({
               <h2 className="text-lg font-semibold text-ink">
                 What travellers said
                 {avgRating !== null && (
-                  <span className="ml-2 text-base font-normal text-amber-600">
+                  <span className="ml-2 text-base font-normal text-yellow-600">
                     ★ {avgRating.toFixed(1)}
                   </span>
                 )}
@@ -285,7 +285,7 @@ function MemoryReviewCard({
                 </Link>
               ) : "Traveller"}
             </span>
-            <span className="shrink-0 text-xs font-semibold text-amber-600">
+            <span className="shrink-0 text-xs font-semibold text-yellow-600">
               {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
             </span>
           </div>

@@ -218,7 +218,7 @@ function SoftEmpty({
 }) {
   const cls =
     variant === "amber"
-      ? "border-amber-200 text-amber-800 bg-amber-50/60"
+      ? "border-yellow-200 text-yellow-800 bg-yellow-50/60"
       : "border-green-200 text-green-900 bg-green-50/60";
   return (
     <div className={`rounded-2xl border px-6 py-4 text-sm ${cls}`}>

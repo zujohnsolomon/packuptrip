@@ -31,9 +31,9 @@ export function PriceCard({
   const total = calcBookingTotal(basePrice);
   const btn =
     accent === "amber"
-      ? "bg-amber-600 hover:bg-amber-700"
+      ? "bg-yellow-600 hover:bg-yellow-700"
       : "bg-green-700 hover:bg-green-800";
-  const text = accent === "amber" ? "text-amber-700" : "text-green-800";
+  const text = accent === "amber" ? "text-yellow-700" : "text-green-800";
   const sparse = spotsLeft <= 3;
 
   return (

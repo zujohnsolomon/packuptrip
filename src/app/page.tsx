@@ -155,7 +155,7 @@ function SearchBar() {
 
         <button
           type="submit"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 sm:h-auto sm:w-auto sm:shrink-0 sm:px-7"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-yellow-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-yellow-700 sm:h-auto sm:w-auto sm:shrink-0 sm:px-7"
         >
           <SearchIcon />
           Search
@@ -366,7 +366,7 @@ function EngineCard({
         <p className="mt-2 max-w-md text-stone-600">{body}</p>
         <span
           className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${
-            isOriginals ? "text-amber-700" : "text-green-800"
+            isOriginals ? "text-yellow-700" : "text-green-800"
           }`}
         >
           {cta.label}
@@ -481,7 +481,7 @@ function TravelCategories() {
   const cats = [
     { label: "Beach", emoji: "🏖️", href: "/trips?q=beach", bg: "from-sky-400 to-blue-500" },
     { label: "Mountains", emoji: "⛰️", href: "/trips?q=mountains", bg: "from-green-600 to-emerald-600" },
-    { label: "Heritage", emoji: "🏛️", href: "/trips?q=heritage", bg: "from-amber-500 to-orange-600" },
+    { label: "Heritage", emoji: "🏛️", href: "/trips?q=heritage", bg: "from-yellow-500 to-orange-600" },
     { label: "Backpacking", emoji: "🎒", href: "/trips?q=backpacking", bg: "from-violet-500 to-purple-600" },
     { label: "Wellness", emoji: "🧘", href: "/trips?q=wellness", bg: "from-rose-400 to-pink-500" },
     { label: "City Breaks", emoji: "🌆", href: "/trips?q=city", bg: "from-stone-500 to-stone-700" },
@@ -662,7 +662,7 @@ function HowItWorks() {
               key={s.n}
               className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-amber-600 text-sm font-semibold text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-yellow-600 text-sm font-semibold text-white">
                 {s.n}
               </div>
               <div className="mt-4 text-lg font-semibold text-ink">{s.title}</div>
@@ -748,7 +748,7 @@ function TrustAndSafety() {
               key={p.title}
               className="rounded-2xl bg-stone-50 p-6 shadow-[var(--shadow-card)]"
             >
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-100 text-amber-700">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-yellow-100 text-yellow-700">
                 {p.icon}
               </div>
               <div className="mt-4 text-base font-semibold text-ink">
@@ -866,7 +866,7 @@ function SectionHeader({
     accent === "teal"
       ? "text-green-800"
       : accent === "amber"
-        ? "text-amber-700"
+        ? "text-yellow-700"
         : "text-stone-500";
   return (
     <div
@@ -1040,7 +1040,7 @@ function QuoteIcon() {
       height="28"
       viewBox="0 0 24 24"
       fill="currentColor"
-      className="text-amber-500/70"
+      className="text-yellow-500/70"
       aria-hidden
     >
       <path d="M7 11H4v8h6v-8H7L9 4H5l-2 7h4zm10 0h-3v8h6v-8h-3l2-7h-4l-2 7h4z" />

@@ -93,8 +93,8 @@ function RevenueKpiCard({ metrics }: { metrics: AdminMetrics }) {
         <RevenueStatusRow
           label="Reserved"
           value={metrics.reservedRevenue}
-          color="text-amber-700"
-          dot="bg-amber-400"
+          color="text-yellow-700"
+          dot="bg-yellow-400"
         />
         <RevenueStatusRow
           label="Captured"
@@ -204,7 +204,7 @@ function RevenueSplit({ metrics }: { metrics: AdminMetrics }) {
         <>
           <div className="mt-6 flex h-3 overflow-hidden rounded-full bg-stone-100">
             <div
-              className="bg-amber-600 transition-all"
+              className="bg-yellow-600 transition-all"
               style={{ width: `${originalsPct}%` }}
               aria-label={`${originalsPct.toFixed(0)}% Originals`}
             />
@@ -217,7 +217,7 @@ function RevenueSplit({ metrics }: { metrics: AdminMetrics }) {
 
           <div className="mt-5 grid grid-cols-2 gap-4">
             <SplitRow
-              dot="bg-amber-600"
+              dot="bg-yellow-600"
               label="Packuptrip Originals"
               amount={originals}
               pct={originalsPct}
@@ -333,7 +333,7 @@ function NeedsAttention({
                 <span
                   className={
                     it.count > 0
-                      ? "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800"
+                      ? "rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800"
                       : "text-xs font-medium text-stone-400"
                   }
                 >
@@ -390,7 +390,7 @@ function ActivityRow({ item }: { item: AdminActivityItem }) {
       <span
         className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${
           isBooking
-            ? "bg-amber-100 text-amber-700"
+            ? "bg-yellow-100 text-yellow-700"
             : "bg-green-100 text-green-800"
         }`}
         aria-hidden

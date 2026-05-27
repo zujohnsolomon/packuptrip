@@ -35,9 +35,9 @@ export function ImagesEditor({
   const dropTint =
     accent === "teal"
       ? "hover:border-green-500 hover:bg-green-50"
-      : "hover:border-amber-400 hover:bg-amber-50";
+      : "hover:border-yellow-400 hover:bg-yellow-50";
   const activeTint =
-    accent === "teal" ? "border-green-600 bg-green-50" : "border-amber-500 bg-amber-50";
+    accent === "teal" ? "border-green-600 bg-green-50" : "border-yellow-500 bg-yellow-50";
 
   async function uploadOne(file: File): Promise<string | null> {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -146,7 +146,7 @@ export function ImagesEditor({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="ml-1 font-semibold text-amber-700 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            className="ml-1 font-semibold text-yellow-700 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
           >
             choose files
           </button>
@@ -155,7 +155,7 @@ export function ImagesEditor({
           JPEG / PNG / WebP · up to 5 MB each · first photo is the cover
         </p>
         {progress && (
-          <p className="mt-2 text-xs font-medium text-amber-700">{progress}</p>
+          <p className="mt-2 text-xs font-medium text-yellow-700">{progress}</p>
         )}
         {error && (
           <p className="mt-2 text-xs font-medium text-red-700">{error}</p>
@@ -196,7 +196,7 @@ export function ImagesEditor({
                 value={url}
                 placeholder="https://…"
                 onChange={(e) => updateRow(idx, e.target.value)}
-                className="block flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                className="block flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100"
               />
               <div className="flex shrink-0 flex-col items-stretch gap-1">
                 <button

@@ -9,8 +9,8 @@ import type { Package } from "@/types/db";
 function spotsLabel(left: number, total: number) {
   if (left === 0) return { label: "Sold out", cls: "bg-stone-500/80 text-white" };
   if (left <= 2) return { label: "Almost full", cls: "bg-red-500/90 text-white" };
-  if (left / total <= 0.4) return { label: `${left} spots left`, cls: "bg-amber-500/90 text-white" };
-  return { label: `${left} spots left`, cls: "bg-amber-700/80 text-white" };
+  if (left / total <= 0.4) return { label: `${left} spots left`, cls: "bg-yellow-500/90 text-white" };
+  return { label: `${left} spots left`, cls: "bg-yellow-700/80 text-white" };
 }
 
 export function PackageCard({ pkg }: { pkg: Package }) {
@@ -41,7 +41,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-amber-50">
+            <div className="flex h-full w-full items-center justify-center bg-yellow-50">
               <MountainIcon />
             </div>
           )}
@@ -51,7 +51,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
 
           {/* "Original" chip — top left */}
           <div className="absolute left-3 top-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-600/90 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-600/90 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
               ✦ Original
             </span>
           </div>
@@ -76,7 +76,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
         <div className="p-3.5">
           {/* Rating row */}
           <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-xs text-amber-700 font-medium">Packuptrip Original</span>
+            <span className="truncate text-xs text-yellow-700 font-medium">Packuptrip Original</span>
             {pkg.review_count > 0 && (
               <span className="flex shrink-0 items-center gap-0.5 text-xs">
                 <StarFillIcon />
@@ -89,7 +89,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
           </div>
 
           {/* Title */}
-          <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-amber-700">
+          <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-yellow-700">
             {pkg.title}
           </h3>
 

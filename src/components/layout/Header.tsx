@@ -162,7 +162,7 @@ function GuestActions({ transparent }: { transparent: boolean }) {
           "inline-flex h-9 items-center rounded-full px-4 text-sm font-medium transition shadow-sm",
           transparent
             ? "bg-white text-ink hover:bg-stone-100"
-            : "bg-amber-600 text-white hover:bg-amber-700",
+            : "bg-yellow-600 text-white hover:bg-yellow-700",
         )}
       >
         Sign up

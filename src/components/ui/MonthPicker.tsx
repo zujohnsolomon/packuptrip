@@ -107,7 +107,7 @@ export function MonthPicker() {
                     onMouseDown={(e) => { e.preventDefault(); pick(m); }}
                     className={`rounded-xl px-3 py-3.5 text-left transition-all ${
                       isSelected
-                        ? "border border-amber-500 bg-amber-50 ring-1 ring-amber-400"
+                        ? "border border-yellow-500 bg-yellow-50 ring-1 ring-yellow-400"
                         : "border border-dashed border-stone-300 hover:border-stone-400 hover:bg-stone-50"
                     }`}
                   >

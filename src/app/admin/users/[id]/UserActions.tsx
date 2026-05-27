@@ -63,14 +63,14 @@ function RoleCard({
         <select
           name="role"
           defaultValue={currentRole}
-          className="h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          className="h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-700 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100"
         >
           <option value="traveller">Traveller</option>
           <option value="host">Host</option>
           <option value="admin">Admin</option>
         </select>
         {isSelf && (
-          <p className="text-xs text-amber-700">
+          <p className="text-xs text-yellow-700">
             This is your own account - you can&rsquo;t demote yourself.
           </p>
         )}

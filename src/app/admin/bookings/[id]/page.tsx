@@ -76,7 +76,7 @@ export default async function AdminBookingDetailPage({
                 <span
                   className={`absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
                     itemType === "package"
-                      ? "bg-amber-100 text-amber-800 ring-amber-200"
+                      ? "bg-yellow-100 text-yellow-800 ring-yellow-200"
                       : "bg-green-100 text-green-900 ring-green-200"
                   }`}
                 >
@@ -113,7 +113,7 @@ export default async function AdminBookingDetailPage({
                         ? `/admin/originals/${itemId}`
                         : `/admin/approvals/${itemId}`
                     }
-                    className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+                    className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
                   >
                     View item in admin →
                   </Link>
@@ -166,7 +166,7 @@ export default async function AdminBookingDetailPage({
               </div>
               {user ? (
                 <div className="mt-3 flex items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-amber-100 text-base font-semibold text-amber-800">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-yellow-100 text-base font-semibold text-yellow-800">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -179,7 +179,7 @@ export default async function AdminBookingDetailPage({
                   </div>
                   <Link
                     href={`/admin/users/${user.id}`}
-                    className="text-xs font-semibold text-amber-700 hover:text-amber-800"
+                    className="text-xs font-semibold text-yellow-700 hover:text-yellow-800"
                   >
                     Manage user →
                   </Link>
@@ -269,7 +269,7 @@ function Banner({
 }) {
   const cls =
     variant === "warning"
-      ? "bg-amber-50 text-amber-800 ring-amber-100"
+      ? "bg-yellow-50 text-yellow-800 ring-yellow-100"
       : "bg-stone-50 text-stone-700 ring-stone-200";
   return (
     <div className={`mb-5 rounded-xl px-4 py-3 text-sm ring-1 ring-inset ${cls}`}>

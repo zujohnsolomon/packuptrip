@@ -17,7 +17,7 @@ export type TripCardHost = {
 function spotsLabel(left: number, total: number) {
   if (left === 0) return { label: "Full", cls: "bg-stone-500/80 text-white" };
   if (left <= 2) return { label: "Almost full", cls: "bg-red-500/90 text-white" };
-  if (left / total <= 0.4) return { label: `${left} spots left`, cls: "bg-amber-500/90 text-white" };
+  if (left / total <= 0.4) return { label: `${left} spots left`, cls: "bg-yellow-500/90 text-white" };
   return { label: `${left} spots left`, cls: "bg-green-700/80 text-white" };
 }
 

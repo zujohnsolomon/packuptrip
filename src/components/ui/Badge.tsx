@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 type Variant = "originals" | "community" | "neutral";
 
 const styles: Record<Variant, string> = {
-  originals: "bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-200",
+  originals: "bg-yellow-100 text-yellow-800 ring-1 ring-inset ring-yellow-200",
   community: "bg-green-100 text-green-900 ring-1 ring-inset ring-green-200",
   neutral: "bg-stone-100 text-stone-700 ring-1 ring-inset ring-stone-200",
 };

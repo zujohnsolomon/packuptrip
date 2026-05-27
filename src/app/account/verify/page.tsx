@@ -12,7 +12,7 @@ const STATUS_COPY = {
     eyebrow: "Under review",
     title: "Your documents are being reviewed",
     body: "Our trust team will verify your documents within 1–2 business days. You'll see the verified badge on your profile once approved.",
-    color: "bg-amber-50 ring-amber-200 text-amber-900",
+    color: "bg-yellow-50 ring-yellow-200 text-yellow-900",
   },
   approved: {
     eyebrow: "Verified ✓",

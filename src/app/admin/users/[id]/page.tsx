@@ -87,7 +87,7 @@ export default async function AdminUserDetailPage({
             {/* Profile block */}
             <section className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)]">
               <div className="flex items-start gap-5">
-                <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-amber-100 text-xl font-semibold text-amber-800">
+                <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-yellow-100 text-xl font-semibold text-yellow-800">
                   {profile.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -279,7 +279,7 @@ function RoleChip({ role }: { role: "traveller" | "host" | "admin" }) {
   const styles = {
     traveller: "bg-stone-100 text-stone-700 ring-stone-200",
     host: "bg-green-100 text-green-900 ring-green-200",
-    admin: "bg-amber-100 text-amber-800 ring-amber-200",
+    admin: "bg-yellow-100 text-yellow-800 ring-yellow-200",
   } as const;
   return (
     <span
@@ -292,7 +292,7 @@ function RoleChip({ role }: { role: "traveller" | "host" | "admin" }) {
 
 function BookingStatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    requested: "bg-amber-100 text-amber-800 ring-amber-200",
+    requested: "bg-yellow-100 text-yellow-800 ring-yellow-200",
     confirmed: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     cancelled: "bg-stone-200 text-stone-700 ring-stone-300",
     refunded: "bg-stone-200 text-stone-700 ring-stone-300",
@@ -311,7 +311,7 @@ function BookingStatusChip({ status }: { status: string }) {
 function TripStatusChip({ status }: { status: string }) {
   const styles: Record<string, string> = {
     draft: "bg-stone-100 text-stone-700 ring-stone-200",
-    pending: "bg-amber-100 text-amber-800 ring-amber-200",
+    pending: "bg-yellow-100 text-yellow-800 ring-yellow-200",
     live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     completed: "bg-stone-200 text-stone-700 ring-stone-300",
     cancelled: "bg-red-100 text-red-800 ring-red-200",
@@ -370,7 +370,7 @@ function Banner({
   const cls = {
     success: "bg-emerald-50 text-emerald-800 ring-emerald-100",
     info: "bg-stone-50 text-stone-700 ring-stone-200",
-    warning: "bg-amber-50 text-amber-800 ring-amber-100",
+    warning: "bg-yellow-50 text-yellow-800 ring-yellow-100",
   }[variant];
   return (
     <div className={`mb-5 rounded-xl px-4 py-3 text-sm ring-1 ring-inset ${cls}`}>

@@ -247,7 +247,7 @@ export default async function HostTripDetailPage({
 function StatusChip({ status }: { status: TripStatus }) {
   const styles: Record<TripStatus, string> = {
     draft: "bg-stone-100 text-stone-700 ring-stone-200",
-    pending: "bg-amber-100 text-amber-800 ring-amber-200",
+    pending: "bg-yellow-100 text-yellow-800 ring-yellow-200",
     live: "bg-emerald-100 text-emerald-800 ring-emerald-200",
     completed: "bg-stone-200 text-stone-700 ring-stone-300",
     cancelled: "bg-red-100 text-red-800 ring-red-200",
@@ -284,8 +284,8 @@ function FeedbackBlock({
   const cls =
     tone === "red"
       ? "bg-red-50 ring-red-100"
-      : "bg-amber-50 ring-amber-100";
-  const eyebrowCls = tone === "red" ? "text-red-700" : "text-amber-800";
+      : "bg-yellow-50 ring-yellow-100";
+  const eyebrowCls = tone === "red" ? "text-red-700" : "text-yellow-800";
   return (
     <div className={`mb-5 rounded-2xl p-5 ring-1 ring-inset ${cls}`}>
       <div
@@ -331,7 +331,7 @@ function Banner({
   const cls =
     variant === "success"
       ? "bg-emerald-50 text-emerald-800 ring-emerald-100"
-      : "bg-amber-50 text-amber-800 ring-amber-100";
+      : "bg-yellow-50 text-yellow-800 ring-yellow-100";
   return (
     <div className={`mb-5 rounded-xl px-4 py-3 text-sm ring-1 ring-inset ${cls}`}>
       {children}

@@ -43,7 +43,7 @@ export default async function HostLandingPage() {
         {/* Hero */}
         <section className="relative isolate overflow-hidden">
           <div className="pointer-events-none absolute -top-32 -right-20 h-[420px] w-[420px] rounded-full bg-green-200/40 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 -left-20 h-[420px] w-[420px] rounded-full bg-amber-200/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 -left-20 h-[420px] w-[420px] rounded-full bg-yellow-200/30 blur-3xl" />
 
           <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
