@@ -59,6 +59,7 @@ export type Profile = {
   travel_style_tags: string[];
   languages: string[];
   countries_visited: string[]; // ISO 3166-1 alpha-3 codes (e.g. 'USA', 'IND')
+  profile_gallery: string[]; // Personal photos uploaded by the host (URLs)
   id_verified: boolean;
   role: UserRole;
   created_at: string;

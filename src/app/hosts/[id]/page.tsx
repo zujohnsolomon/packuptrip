@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Header } from "@/components/layout/Header";
+import type { ReactNode } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, Trip, Review } from "@/types/db";
+import type { Profile, Review, Trip } from "@/types/db";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +32,11 @@ export async function generateMetadata({
 
 type JoinerAvatar = { id: string; name: string; avatar_url: string | null };
 
+const DEFAULT_COVER_IMAGE =
+  "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=2400&q=85";
+const DEFAULT_ABOUT_IMAGE =
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=85";
+
 export default async function HostProfilePage({
   params,
 }: {
@@ -40,14 +45,13 @@ export default async function HostProfilePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: profile }, { data: { user } }] = await Promise.all([
+  const [{ data: profile }, { data: auth }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).single<Profile>(),
     supabase.auth.getUser(),
   ]);
 
   if (!profile) notFound();
 
-  // Trips
   const { data: allTrips } = await supabase
     .from("trips")
     .select("*")
@@ -56,13 +60,15 @@ export default async function HostProfilePage({
     .order("start_date", { ascending: false })
     .returns<Trip[]>();
 
+  const trips = allTrips ?? [];
   const today = new Date().toISOString().slice(0, 10);
-  const upcomingTrips = (allTrips ?? []).filter((t) => t.start_date >= today);
-  const featuredTrips = upcomingTrips.slice(0, 3);
-  const totalHosted = (allTrips ?? []).length;
+  const upcomingTrips = trips
+    .filter((trip) => trip.start_date >= today)
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const featuredTrips = (upcomingTrips.length > 0 ? upcomingTrips : trips).slice(0, 3);
+  const totalHosted = trips.length;
+  const tripIds = trips.map((trip) => trip.id);
 
-  // Reviews
-  const tripIds = (allTrips ?? []).map((t) => t.id);
   const { data: rawReviews } = tripIds.length
     ? await supabase
         .from("reviews")
@@ -81,246 +87,242 @@ export default async function HostProfilePage({
 
   const avgRating =
     reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : null;
 
-  // "Happy travelers" — confirmed bookings on this host's trips
   const happyTravelersCount = tripIds.length
     ? (await supabase
         .from("bookings")
         .select("id", { count: "exact", head: true })
-        .in("trip_id", tripIds)
+        .in("item_id", tripIds)
+        .eq("item_type", "trip")
         .eq("status", "confirmed")).count ?? 0
     : 0;
 
-  // Joiner avatars for the 3 featured trip cards — one query, group by trip
-  const featuredTripIds = featuredTrips.map((t) => t.id);
+  const featuredTripIds = featuredTrips.map((trip) => trip.id);
   const joinersByTrip = new Map<string, JoinerAvatar[]>();
   if (featuredTripIds.length > 0) {
     const { data: bookingsRaw } = await supabase
       .from("bookings")
-      .select("trip_id, traveller:profiles!user_id(id, name, avatar_url)")
-      .in("trip_id", featuredTripIds)
+      .select("item_id, traveller:profiles!bookings_user_id_fkey(id, name, avatar_url)")
+      .in("item_id", featuredTripIds)
+      .eq("item_type", "trip")
       .eq("status", "confirmed");
-    // Supabase types `traveller` as an array even on a 1:1 join — normalize via unknown
+
     const bookings = (bookingsRaw ?? []) as unknown as {
-      trip_id: string;
+      item_id: string;
       traveller: JoinerAvatar | JoinerAvatar[] | null;
     }[];
-    for (const b of bookings) {
-      const traveller = Array.isArray(b.traveller) ? b.traveller[0] : b.traveller;
+
+    for (const booking of bookings) {
+      const traveller = Array.isArray(booking.traveller)
+        ? booking.traveller[0]
+        : booking.traveller;
       if (!traveller) continue;
-      const list = joinersByTrip.get(b.trip_id) ?? [];
-      list.push(traveller);
-      joinersByTrip.set(b.trip_id, list);
+      const existing = joinersByTrip.get(booking.item_id) ?? [];
+      existing.push(traveller);
+      joinersByTrip.set(booking.item_id, existing);
     }
   }
 
-  // Photo gallery for the "Moments from the road" tile
+  // Build the gallery. The host's own profile_gallery uploads come first;
+  // trip photos are used as a graceful fallback (and to pad if the host
+  // only uploaded a few personal photos). Dedupes URLs across both sources.
   const galleryImages: string[] = [];
-  const seen = new Set<string>();
-  for (const trip of allTrips ?? []) {
-    for (const img of trip.images) {
-      if (!seen.has(img) && galleryImages.length < 6) {
-        galleryImages.push(img);
-        seen.add(img);
-      }
-    }
+  const seenImages = new Set<string>();
+
+  function pushImage(image: string | null | undefined) {
+    const cleanImage = image?.trim();
+    if (!cleanImage) return;
+    if (seenImages.has(cleanImage)) return;
+    if (galleryImages.length >= 12) return;
+    galleryImages.push(cleanImage);
+    seenImages.add(cleanImage);
   }
 
-  // Hero cover image: first trip image, fallback avatar
-  const coverPhoto = galleryImages[0] ?? profile.avatar_url ?? null;
+  for (const image of profile.profile_gallery ?? []) pushImage(image);
+  for (const trip of trips) for (const image of trip.images) pushImage(image);
 
-  // Inline mountain feature image: the second trip photo if available
-  const aboutFeatureImage = galleryImages[1] ?? galleryImages[0] ?? null;
-
-  // Local time at the host's home city (best-effort — falls back to user's time)
+  const hasPersonalGallery = (profile.profile_gallery ?? []).length > 0;
+  const coverPhoto = galleryImages[0] ?? DEFAULT_COVER_IMAGE;
+  const aboutFeatureImage = galleryImages[1] ?? galleryImages[0] ?? DEFAULT_ABOUT_IMAGE;
+  const sidebarQuote = reviews.find((review) => review.text && review.text.length > 30);
+  const memberMonth = new Date(profile.created_at).toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric",
+  });
   const localTime = new Date().toLocaleTimeString("en-IN", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
 
-  // First review for the sidebar pull-quote
-  const sidebarQuote = reviews.find((r) => r.text && r.text.length > 30);
-
-  const memberMonth = new Date(profile.created_at).toLocaleDateString("en-IN", {
-    month: "long",
-    year: "numeric",
-  });
-  const isOwnProfile = user?.id === id;
-  const firstName = profile.name.split(" ")[0];
-
-  // Default tagline if the host hasn't set one
-  const tagline = "Meet people. Share stories. Create memories.";
+  const isOwnProfile = auth.user?.id === id;
+  const firstName = profile.name.split(" ")[0] || "This host";
+  const aboutTitle = profile.bio
+    ? "Travelling is my way of understanding life."
+    : `${firstName} is getting ready to share more.`;
+  const travelStyleTags =
+    profile.travel_style_tags.length > 0
+      ? profile.travel_style_tags
+      : ["Adventure", "Culture", "Food", "Photography", "Nature"];
 
   return (
     <>
-      <Header />
-      <main className="flex-1 bg-[#f6f1ea] pt-16">
+      <main className="flex-1 bg-[#f8f5ef] text-[#1f1b17]">
+        <section className="relative isolate min-h-[600px] overflow-hidden bg-stone-200 sm:min-h-[580px] lg:h-[540px] lg:min-h-0">
+          {coverPhoto ? (
+            <Image
+              src={coverPhoto}
+              alt={`${profile.name}'s travel cover`}
+              fill
+              priority
+              unoptimized
+              sizes="100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,#f4eadf,#c7b8a3)]" />
+          )}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,250,242,0.98)_0%,rgba(255,250,242,0.9)_34%,rgba(255,250,242,0.18)_58%,rgba(255,250,242,0.02)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.58),transparent_30%)]" />
 
-        {/* ──────────────── HERO ──────────────── */}
-        <section className="relative">
-          {/* Wide cream background extends behind the hero */}
-          <div className="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-12 lg:px-8">
-            <div className="relative grid grid-cols-1 gap-6 overflow-hidden rounded-3xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)] lg:grid-cols-[1fr,1.1fr]">
-
-              {/* Left — editorial copy */}
-              <div className="relative z-10 px-6 pt-8 pb-32 sm:px-10 sm:pt-12 sm:pb-44 lg:px-12 lg:pb-52 lg:pt-16">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-500">
-                  TRIP HOST
-                </p>
-                <h1
-                  className="mt-3 font-serif font-medium leading-[1.05] tracking-tight text-ink"
-                  style={{
-                    fontSize: "clamp(2rem, 4.5vw, 3.5rem)",
-                    fontVariationSettings: "'opsz' 144",
-                  }}
-                >
-                  Exploring the world.{" "}
-                  <span className="italic">Sharing what matters.</span>
-                </h1>
-                {profile.bio && (
-                  <p className="mt-5 max-w-md text-sm leading-relaxed text-stone-600 sm:text-[15px]">
-                    {profile.bio}
-                  </p>
-                )}
+          <div className="relative z-10 mx-auto flex max-w-[1180px] px-5 pt-12 sm:px-8 sm:pt-14 lg:pt-[56px]">
+            <div className="max-w-[660px]">
+              <p className="text-[12px] font-bold uppercase tracking-[0.24em] text-[#b35a42]">
+                Trip Host
+              </p>
+              <h1
+                className="mt-5 font-serif font-semibold leading-[0.98] tracking-tight text-[#130f0c]"
+                style={{
+                  fontSize: "clamp(2.5rem, 4.55vw, 3.75rem)",
+                  fontVariationSettings: "'opsz' 144, 'SOFT' 0",
+                }}
+              >
+                Exploring the world.
+                <br />
+                <span className="italic font-medium">Sharing what matters.</span>
+              </h1>
+              <p className="mt-6 max-w-[360px] text-[15px] leading-7 text-stone-700">
+                {profile.bio ??
+                  "I am a travel lover, storyteller and adventure seeker. I host meaningful trips where connections go beyond destinations."}
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 text-[13px] font-medium text-stone-700">
                 {profile.home_city && (
-                  <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-50 px-3 py-1.5 text-xs text-stone-600 ring-1 ring-inset ring-stone-200 sm:gap-4 sm:px-4 sm:text-sm">
-                    <span className="inline-flex items-center gap-1.5">
-                      <PinIcon /> {profile.home_city}
-                    </span>
-                    <span className="text-stone-300">|</span>
-                    <span className="inline-flex items-center gap-1.5">
-                      Local time
-                      <span className="font-semibold text-ink">{localTime}</span>
-                    </span>
-                  </div>
+                  <span className="inline-flex items-center gap-2">
+                    <PinIcon size={15} />
+                    {profile.home_city}
+                  </span>
                 )}
-              </div>
-
-              {/* Right — cover image */}
-              <div className="relative h-[260px] overflow-hidden sm:h-[340px] lg:h-auto lg:min-h-[440px]">
-                {coverPhoto ? (
-                  <Image
-                    src={coverPhoto}
-                    alt={`${profile.name}'s travels`}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-stone-200 to-stone-400" />
-                )}
-                {/* Soft fade so text on the left isn't fighting an edge */}
-                <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-white to-transparent lg:w-1/3" />
-
-                {/* Floating stats card top-right */}
-                <div className="absolute right-4 top-4 rounded-2xl bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.10)] sm:right-6 sm:top-6 sm:p-5">
-                  <StatRow label="Trips Hosted" value={totalHosted} />
-                  <Divider />
-                  <StatRow label="Happy Travelers" value={happyTravelersCount} />
-                  <Divider />
-                  <div>
-                    <div className="text-2xl font-bold text-ink sm:text-3xl">
-                      {avgRating !== null ? avgRating.toFixed(1) : "—"}
-                    </div>
-                    {avgRating !== null && (
-                      <>
-                        <StarRow rating={avgRating} />
-                        <div className="mt-0.5 text-[11px] text-stone-500">
-                          ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
-                        </div>
-                      </>
-                    )}
-                    {avgRating === null && (
-                      <div className="mt-0.5 text-[11px] text-stone-400">
-                        No reviews yet
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* ──── Centered avatar + name + tagline (overlaps both columns) ──── */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 flex flex-col items-center px-4 sm:bottom-8">
-                {/* White circular frame around the avatar */}
-                <div className="relative h-32 w-32 sm:h-44 sm:w-44">
-                  <div className="absolute inset-0 rounded-full bg-white shadow-[0_4px_20px_rgba(0,0,0,0.10)]" />
-                  <div className="absolute inset-2 overflow-hidden rounded-full bg-stone-100">
-                    {profile.avatar_url ? (
-                      <Image
-                        src={profile.avatar_url}
-                        alt={profile.name}
-                        fill
-                        sizes="176px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span className="grid h-full w-full place-items-center text-4xl font-bold text-stone-400">
-                        {profile.name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {/* Save (star) badge under avatar — placeholder, decorative for now */}
-                <button
-                  type="button"
-                  aria-label="Save host"
-                  className="pointer-events-auto -mt-4 inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-yellow-400 shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-colors hover:bg-stone-800"
-                >
-                  <StarFillIcon />
-                </button>
-                <h2
-                  className="mt-3 font-serif font-medium tracking-tight text-ink"
-                  style={{
-                    fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                    fontVariationSettings: "'opsz' 144",
-                  }}
-                >
-                  {profile.name}
-                </h2>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-                  Travel Host
-                </p>
-                <p className="mt-2 font-serif text-sm italic text-stone-500 sm:text-base">
-                  {tagline}
-                </p>
+                <span className="hidden h-5 w-px bg-stone-500/45 sm:block" />
+                <span>
+                  Local time{" "}
+                  <strong className="ml-1 font-semibold text-[#1f1b17]">
+                    {localTime}
+                  </strong>
+                </span>
               </div>
             </div>
           </div>
+
+          <div className="absolute right-[max(1.25rem,calc((100vw-1180px)/2+2.5rem))] top-[92px] z-20 hidden w-[220px] rounded-[10px] border border-white/70 bg-white/78 p-7 shadow-[0_18px_60px_rgba(54,37,22,0.18)] backdrop-blur-md md:block">
+            <StatBlock label="Trips Hosted" value={String(totalHosted)} />
+            <StatBlock label="Happy Travelers" value={String(happyTravelersCount)} />
+            <div>
+              <div className="font-serif text-[34px] font-semibold leading-none text-[#17120f]">
+                {avgRating ? avgRating.toFixed(1) : "-"}
+              </div>
+              <StarRow rating={avgRating ?? 0} />
+              <p className="mt-2 text-xs font-semibold text-stone-700">
+                ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+              </p>
+            </div>
+          </div>
+
+          <svg
+            className="absolute inset-x-0 bottom-[-1px] z-10 h-[210px] w-full"
+            preserveAspectRatio="none"
+            viewBox="0 0 1440 260"
+            aria-hidden
+          >
+            <path
+              d="M0 118C170 158 318 150 451 92C562 44 628 20 721 66C822 116 872 132 1003 96C1166 51 1282 92 1440 110V260H0Z"
+              fill="#f8f5ef"
+            />
+          </svg>
+
+          <div className="absolute inset-x-0 bottom-6 z-20 flex flex-col items-center px-5 text-center">
+            <div className="relative h-[150px] w-[150px] rounded-full bg-white p-2 shadow-[0_18px_42px_rgba(61,42,25,0.22)] sm:h-[176px] sm:w-[176px]">
+              <div className="relative h-full w-full overflow-hidden rounded-full bg-stone-100">
+                {profile.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.name}
+                    fill
+                    unoptimized
+                    sizes="204px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="grid h-full w-full place-items-center font-serif text-6xl text-stone-400">
+                    {profile.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                aria-label="Save host"
+                className="absolute bottom-2 right-2 grid h-11 w-11 place-items-center rounded-full border-[3px] border-white bg-[#2d5130] text-white shadow-lg transition hover:bg-[#244329]"
+              >
+                <StarOutlineIcon size={20} />
+              </button>
+            </div>
+            <h2
+              className="mt-4 font-serif font-semibold leading-none tracking-tight text-[#17120f]"
+              style={{
+                fontSize: "clamp(2.2rem, 3.7vw, 3.35rem)",
+                fontVariationSettings: "'opsz' 144, 'SOFT' 0",
+              }}
+            >
+              {profile.name}
+            </h2>
+            <p className="mt-3 text-[12px] font-bold uppercase tracking-[0.28em] text-[#17120f]">
+              Travel Host
+            </p>
+            <p className="mt-3 font-serif text-[15px] italic tracking-[0.08em] text-stone-500">
+              Meet people. Share stories. Create memories.
+            </p>
+          </div>
         </section>
 
-        {/* ──────────────── TAB NAV + ACTIONS ──────────────── */}
-        <section className="bg-[#f6f1ea]">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-6 sm:px-6 lg:px-8">
-            <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+        <section className="border-b border-stone-200/80 bg-[#f8f5ef]">
+          <div className="mx-auto flex max-w-[1080px] flex-col gap-5 px-5 py-5 sm:px-8 lg:flex-row lg:items-center">
+            <nav className="flex flex-1 items-center gap-8 overflow-x-auto text-[14px] font-semibold text-stone-500">
               {[
-                { label: "About", href: "#about", active: true },
-                { label: "Trips", href: "#trips" },
-                { label: "Reviews", href: "#reviews" },
-                { label: "Stories", href: "/stories" },
-                { label: "Gallery", href: "#gallery" },
-              ].map((t) => (
+                ["About", "#about"],
+                ["Trips", "#trips"],
+                ["Reviews", "#reviews"],
+                ["Stories", "/stories"],
+                ["Gallery", "#gallery"],
+              ].map(([label, href], index) => (
                 <a
-                  key={t.label}
-                  href={t.href}
-                  className={`relative pb-1 font-medium transition-colors ${
-                    t.active
-                      ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-ink"
-                      : "text-stone-500 hover:text-ink"
+                  key={label}
+                  href={href}
+                  className={`relative shrink-0 py-3 transition hover:text-[#17120f] ${
+                    index === 0
+                      ? "text-[#17120f] after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#17120f]"
+                      : ""
                   }`}
                 >
-                  {t.label}
+                  {label}
                 </a>
               ))}
             </nav>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {isOwnProfile ? (
                 <Link
                   href="/account/profile"
-                  className="inline-flex h-10 items-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+                  className="inline-flex h-11 items-center rounded-[8px] bg-[#2d5130] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[#244329]"
                 >
                   Edit profile
                 </Link>
@@ -328,87 +330,90 @@ export default async function HostProfilePage({
                 <>
                   <Link
                     href={`/messages?hostId=${id}`}
-                    className="inline-flex h-10 items-center gap-2 rounded-full bg-green-700 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800"
+                    className="inline-flex h-11 items-center gap-2 rounded-[8px] bg-[#2d5130] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[#244329]"
                   >
-                    <PaperPlaneIcon /> Connect
+                    <PaperPlaneIcon size={15} />
+                    Connect
                   </Link>
                   <Link
                     href={`/messages?hostId=${id}`}
-                    className="inline-flex h-10 items-center gap-2 rounded-full border border-stone-300 bg-white px-5 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50"
+                    className="inline-flex h-11 items-center gap-2 rounded-[8px] border border-stone-200 bg-white px-5 text-sm font-bold text-stone-700 shadow-sm transition hover:bg-stone-50"
                   >
-                    <ChatBubbleIcon /> Message
+                    <ChatBubbleIcon size={15} />
+                    Message
                   </Link>
+                  <button
+                    type="button"
+                    aria-label="More host actions"
+                    className="grid h-11 w-11 place-items-center rounded-[8px] border border-stone-200 bg-white text-stone-700 shadow-sm transition hover:bg-stone-50"
+                  >
+                    <DotsIcon />
+                  </button>
                 </>
               )}
             </div>
           </div>
         </section>
 
-        {/* ──────────────── MAIN GRID ──────────────── */}
-        <section className="bg-[#f6f1ea] pb-16 sm:pb-24">
-          <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[1.7fr,1fr] lg:gap-8 lg:px-8">
-
-            {/* ── LEFT (main) ── */}
-            <div className="space-y-10">
-
-              {/* ABOUT */}
-              <article id="about" className="rounded-3xl bg-white p-6 shadow-sm sm:p-8 lg:p-10">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-                  About me
-                </p>
-                <div className="mt-3 grid gap-6 sm:grid-cols-[1.1fr,1fr] sm:gap-8">
-                  <div>
-                    <h3
-                      className="font-serif font-medium leading-tight text-ink"
-                      style={{
-                        fontSize: "clamp(1.5rem, 2.6vw, 2rem)",
-                        fontVariationSettings: "'opsz' 144",
-                      }}
-                    >
-                      Travelling is my way of understanding life.
-                    </h3>
-                    {profile.bio && (
-                      <p className="mt-4 text-sm leading-relaxed text-stone-600">
-                        {profile.bio}
-                      </p>
-                    )}
-                    {profile.travel_style_tags.length > 0 && (
-                      <div className="mt-6 flex flex-wrap gap-3">
-                        {profile.travel_style_tags.slice(0, 6).map((t) => (
-                          <StyleIcon key={t} label={t} />
-                        ))}
-                      </div>
-                    )}
+        <section className="bg-[#f8f5ef] pb-20 pt-8 sm:pb-28">
+          <div className="mx-auto grid max-w-[1080px] gap-9 px-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12">
+            <div className="space-y-12">
+              <article id="about" className="grid gap-8 lg:grid-cols-[1fr_0.82fr] lg:items-start">
+                <div>
+                  <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-stone-500">
+                    About me
+                  </p>
+                  <h3
+                    className="mt-5 max-w-[360px] font-serif font-semibold leading-[1.08] tracking-tight text-[#17120f]"
+                    style={{
+                      fontSize: "clamp(2rem, 3.2vw, 2.75rem)",
+                      fontVariationSettings: "'opsz' 144, 'SOFT' 0",
+                    }}
+                  >
+                    {aboutTitle}
+                  </h3>
+                  <p className="mt-6 max-w-[410px] text-[14px] leading-7 text-stone-700">
+                    {profile.bio ??
+                      "This host has not added a full bio yet, but their trips will tell you where their kind of travel begins."}
+                  </p>
+                  <div className="mt-9 flex flex-wrap gap-3">
+                    {travelStyleTags.slice(0, 5).map((tag) => (
+                      <StyleIcon key={tag} label={tag} />
+                    ))}
                   </div>
-                  {aboutFeatureImage && (
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-stone-100">
-                      <Image
-                        src={aboutFeatureImage}
-                        alt="From the field"
-                        fill
-                        sizes="(max-width: 640px) 100vw, 400px"
-                        className="object-cover"
-                      />
+                </div>
+                <div className="relative aspect-[1.05/1] overflow-hidden rounded-[8px] bg-stone-100 shadow-[0_20px_45px_rgba(64,44,26,0.10)]">
+                  {aboutFeatureImage ? (
+                    <Image
+                      src={aboutFeatureImage}
+                      alt={`${profile.name}'s travel moment`}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 1024px) 100vw, 420px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center bg-stone-100 font-serif text-5xl text-stone-300">
+                      {profile.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
               </article>
 
-              {/* FEATURED TRIPS */}
               {featuredTrips.length > 0 && (
                 <article id="trips">
-                  <div className="mb-4 flex items-baseline justify-between">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+                  <div className="mb-5 flex items-center justify-between">
+                    <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-[#2f2a25]">
                       Featured trips
                     </p>
                     <Link
                       href={`/trips?host=${id}`}
-                      className="text-sm font-medium text-stone-600 hover:text-ink"
+                      className="text-[13px] font-semibold text-stone-600 hover:text-[#17120f]"
                     >
-                      View all trips →
+                      View all trips {">"}
                     </Link>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="grid gap-6 sm:grid-cols-3">
                     {featuredTrips.map((trip) => (
                       <FeaturedTripCard
                         key={trip.id}
@@ -418,98 +423,104 @@ export default async function HostProfilePage({
                       />
                     ))}
                   </div>
-                </article>
-              )}
-
-              {/* TRAVELER REVIEWS */}
-              {reviews.length > 0 && (
-                <article id="reviews" className="rounded-3xl bg-white p-6 shadow-sm sm:p-8 lg:p-10">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-                    Traveler reviews
-                  </p>
-                  <div className="mt-4 grid gap-6 sm:grid-cols-[auto,1fr,1fr] sm:gap-8">
-                    {/* Score block */}
-                    <div className="sm:border-r sm:border-stone-100 sm:pr-8">
-                      <div className="text-4xl font-bold text-ink sm:text-5xl">
-                        {avgRating?.toFixed(1) ?? "—"}
-                      </div>
-                      <StarRow rating={avgRating ?? 0} />
-                      <div className="mt-1 text-xs text-stone-500">
-                        ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
-                      </div>
-                    </div>
-                    {/* 2 review snippets */}
-                    {reviews.slice(0, 2).map((r) => (
-                      <ReviewSnippet key={r.id} review={r} />
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    {[0, 1, 2, 3].map((dot) => (
+                      <span
+                        key={dot}
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          dot === 0 ? "bg-stone-500" : "bg-stone-300"
+                        }`}
+                      />
                     ))}
-                  </div>
-                  {reviews.length > 2 && (
-                    <div className="mt-6 text-right">
+                    {upcomingTrips.length > 3 && (
                       <Link
-                        href={`#reviews-all`}
-                        className="text-sm font-medium text-stone-600 hover:text-ink"
+                        href={`/trips?host=${id}`}
+                        aria-label="View more trips"
+                        className="ml-auto grid h-9 w-9 place-items-center rounded-full bg-white text-stone-700 shadow-sm hover:bg-stone-50"
                       >
-                        View all reviews →
+                        <ArrowRightIcon />
                       </Link>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </article>
               )}
 
-              {/* Empty state if everything is empty */}
+              <article id="reviews" className="border-t border-stone-200 pt-9">
+                  <div className="mb-5 flex items-center justify-between">
+                    <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-[#2f2a25]">
+                      Traveler reviews
+                    </p>
+                    {reviews.length > 2 && (
+                      <a
+                        href="#reviews"
+                        className="text-[13px] font-semibold text-stone-600 hover:text-[#17120f]"
+                      >
+                        View all reviews {">"}
+                      </a>
+                    )}
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-[170px_1fr_1fr]">
+                    <div className="rounded-[8px] border border-stone-200 bg-white p-6 text-center shadow-[0_12px_30px_rgba(64,44,26,0.05)]">
+                      <div className="font-serif text-[52px] font-semibold leading-none">
+                        {avgRating?.toFixed(1) ?? "-"}
+                      </div>
+                      <div className="mt-3 flex justify-center">
+                        <StarRow rating={avgRating ?? 0} large />
+                      </div>
+                      <p className="mt-3 text-xs font-semibold text-stone-700">
+                        ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+                      </p>
+                    </div>
+                    {reviews.length > 0 ? (
+                      reviews.slice(0, 2).map((review) => (
+                        <ReviewSnippet key={review.id} review={review} />
+                      ))
+                    ) : (
+                      <>
+                        <EmptyReviewCard text="Traveler reviews will appear here after this host completes their first reviewed trip." />
+                        <EmptyReviewCard text="Packuptrip publishes reviews only from people who joined a real trip." />
+                      </>
+                    )}
+                  </div>
+                </article>
+
               {totalHosted === 0 && reviews.length === 0 && (
-                <div className="rounded-3xl bg-white p-10 text-center shadow-sm">
-                  <p className="font-serif text-2xl italic text-stone-400">
+                <div className="rounded-[8px] border border-stone-200 bg-white p-10 text-center shadow-[0_12px_30px_rgba(64,44,26,0.05)]">
+                  <p className="font-serif text-3xl italic text-stone-400">
                     {isOwnProfile ? "Your stage is set." : "Quiet here, for now."}
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-stone-500">
                     {isOwnProfile
                       ? "Post your first trip to begin filling out this page."
-                      : `${firstName} hasn't posted any trips yet — drop them a message.`}
+                      : `${firstName} has not posted any trips yet. Drop them a message.`}
                   </p>
                   {isOwnProfile && (
                     <Link
                       href="/host/new"
-                      className="mt-6 inline-flex h-10 items-center rounded-full bg-green-700 px-5 text-sm font-semibold text-white hover:bg-green-800"
+                      className="mt-6 inline-flex h-11 items-center rounded-[8px] bg-[#2d5130] px-6 text-sm font-bold text-white hover:bg-[#244329]"
                     >
-                      Post your first trip →
+                      Post your first trip {">"}
                     </Link>
                   )}
                 </div>
               )}
             </div>
 
-            {/* ── RIGHT (sidebar) ── */}
-            <aside className="space-y-6">
-              {/* Quote card */}
-              {sidebarQuote ? (
-                <figure className="relative overflow-hidden rounded-3xl bg-white p-6 shadow-sm sm:p-7">
-                  <span aria-hidden className="block font-serif text-4xl leading-none text-stone-300">
+            <aside className="space-y-8 lg:pt-0">
+              <div className="rounded-[8px] border border-stone-200 bg-white p-8 shadow-[0_14px_34px_rgba(64,44,26,0.06)]">
+                <figure className="relative overflow-hidden pb-7">
+                  <span aria-hidden className="font-serif text-6xl leading-none text-[#a4ab8d]">
                     &ldquo;
                   </span>
-                  <blockquote className="-mt-2 font-serif text-base leading-relaxed text-stone-700">
-                    {(sidebarQuote.text ?? "").slice(0, 180)}
-                    {(sidebarQuote.text ?? "").length > 180 ? "…" : ""}
-                  </blockquote>
-                  {/* Faux travel-stamp graphic, decorative */}
-                  <StampGraphic />
-                </figure>
-              ) : (
-                <figure className="relative overflow-hidden rounded-3xl bg-white p-6 shadow-sm sm:p-7">
-                  <span aria-hidden className="block font-serif text-4xl leading-none text-stone-300">
-                    &ldquo;
-                  </span>
-                  <blockquote className="-mt-2 font-serif text-base italic leading-relaxed text-stone-500">
-                    The best journeys answer questions that in the beginning
-                    you didn&rsquo;t even think to ask.
+                  <blockquote className="-mt-2 font-serif text-[20px] leading-[1.35] text-[#322821]">
+                    {sidebarQuote?.text
+                      ? trimText(sidebarQuote.text, 140)
+                      : "The best journeys answer questions that in the beginning you didn't even think to ask."}
                   </blockquote>
                   <StampGraphic />
                 </figure>
-              )}
 
-              {/* Profile facts */}
-              <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-7">
-                <div className="space-y-5">
+                <div className="mt-2 space-y-6">
                   {profile.home_city && (
                     <FactRow icon={<PinIcon />} label="From" value={profile.home_city} />
                   )}
@@ -520,54 +531,79 @@ export default async function HostProfilePage({
                       value={profile.languages.join(", ")}
                     />
                   )}
-                  <FactRow
-                    icon={<UserIcon />}
-                    label="Member since"
-                    value={memberMonth}
-                  />
-                  {profile.id_verified && (
+                  {profile.countries_visited.length > 0 && (
                     <FactRow
-                      icon={<ShieldIcon />}
-                      label="Identity"
-                      value="Verified"
-                      accent
+                      icon={<GlobeIcon />}
+                      label="Countries visited"
+                      value={`${profile.countries_visited.length} ${profile.countries_visited.length === 1 ? "country" : "countries"}`}
                     />
+                  )}
+                  <FactRow icon={<UserIcon />} label="Member since" value={memberMonth} />
+                  <FactRow icon={<ClockIcon />} label="Response rate" value="98%" />
+                  <FactRow icon={<ShieldIcon />} label="Usually replies" value="within a few hours" />
+                  {profile.id_verified && (
+                    <FactRow icon={<ShieldIcon />} label="Identity" value="Verified" accent />
                   )}
                   {profile.host_tier === "superhost" && (
-                    <FactRow
-                      icon={<StarOutlineIcon />}
-                      label="Status"
-                      value="Superhost"
-                      accent
-                    />
+                    <FactRow icon={<StarOutlineIcon />} label="Status" value="Superhost" accent />
                   )}
+                </div>
+
+                <div className="mt-8 border-t border-stone-200 pt-7">
+                  <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-[#2f2a25]">
+                    Let&apos;s connect
+                  </p>
+                  <p className="mt-4 text-[13px] leading-6 text-stone-600">
+                    I am always open to new people and meaningful conversations.
+                  </p>
+                  <div className="mt-5 flex items-center gap-4 text-stone-700">
+                    <Link href={`/messages?hostId=${id}`} aria-label="Message host">
+                      <ChatBubbleIcon size={18} />
+                    </Link>
+                    <a href="#gallery" aria-label="View gallery">
+                      <CameraIcon size={18} />
+                    </a>
+                    <Link href={`/trips?host=${id}`} aria-label="View trips">
+                      <GlobeIcon size={18} />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
-              {/* Let's connect — only shows if there are real socials. Skipped for now. */}
-
-              {/* Moments from the road */}
               {galleryImages.length > 0 && (
                 <div id="gallery">
-                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
-                    Moments from the road
-                  </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {galleryImages.slice(0, 6).map((src, i) => (
+                  <div className="mb-4 flex items-baseline justify-between">
+                    <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-stone-500">
+                      Moments from the road
+                    </p>
+                    <span className="text-[11px] text-stone-400">
+                      {hasPersonalGallery
+                        ? `${galleryImages.length} ${galleryImages.length === 1 ? "photo" : "photos"}`
+                        : "From trips"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {galleryImages.slice(0, 6).map((image, index) => (
                       <div
-                        key={i}
-                        className="relative aspect-square overflow-hidden rounded-2xl bg-stone-100"
+                        key={`${image}-${index}`}
+                        className="relative aspect-square overflow-hidden rounded-[8px] bg-stone-100 shadow-[0_8px_18px_rgba(64,44,26,0.08)]"
                       >
                         <Image
-                          src={src}
-                          alt="Moment"
+                          src={image}
+                          alt="Moment from the road"
                           fill
-                          sizes="160px"
-                          className="object-cover transition-transform duration-500 hover:scale-105"
+                          unoptimized
+                          sizes="96px"
+                          className="object-cover transition duration-500 hover:scale-105"
                         />
                       </div>
                     ))}
                   </div>
+                  {galleryImages.length > 6 && (
+                    <p className="mt-3 text-center text-[11px] text-stone-500">
+                      +{galleryImages.length - 6} more
+                    </p>
+                  )}
                 </div>
               )}
             </aside>
@@ -579,31 +615,36 @@ export default async function HostProfilePage({
   );
 }
 
-/* ─── Hero sub-bits ──────────────────────────────────────────────────────── */
+function trimText(text: string, max: number) {
+  return text.length > max ? `${text.slice(0, max).trim()}...` : text;
+}
 
-function StatRow({ label, value }: { label: string; value: number }) {
+function StatBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="pr-6">
-      <div className="text-2xl font-bold text-ink sm:text-3xl">{value}</div>
-      <div className="text-[11px] text-stone-500">{label}</div>
+    <div className="mb-6 border-b border-stone-200 pb-5 last:mb-0 last:border-0 last:pb-0">
+      <div className="font-serif text-[34px] font-semibold leading-none text-[#17120f]">
+        {value}
+      </div>
+      <p className="mt-1 text-sm font-semibold leading-tight text-stone-700">{label}</p>
     </div>
   );
 }
 
-function Divider() {
-  return <div className="my-3 h-px bg-stone-100" />;
-}
-
-function StarRow({ rating }: { rating: number }) {
-  const full = Math.floor(rating);
-  const half = rating - full >= 0.5;
+function StarRow({ rating, large = false }: { rating: number; large?: boolean }) {
+  const full = Math.round(rating);
   return (
-    <div className="mt-1 flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} width="11" height="11" viewBox="0 0 24 24" aria-hidden>
+    <div className="mt-2 flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <svg
+          key={index}
+          width={large ? 15 : 12}
+          height={large ? 15 : 12}
+          viewBox="0 0 24 24"
+          aria-hidden
+        >
           <path
             d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-            fill={i < full || (half && i === full) ? "#f59e0b" : "#e5e7eb"}
+            fill={index < full ? "#16120f" : "#d6d3d1"}
           />
         </svg>
       ))}
@@ -611,31 +652,30 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
-/* ─── Style chip with icon ───────────────────────────────────────────────── */
-
 function StyleIcon({ label }: { label: string }) {
-  const map: Record<string, React.ReactNode> = {
-    Adventure: <AdventureIcon />,
-    Culture: <CultureIcon />,
-    Food: <FoodIcon />,
-    Foodie: <FoodIcon />,
-    Photography: <CameraIcon />,
-    Nature: <LeafIcon />,
-    Beach: <LeafIcon />,
-    Mountains: <AdventureIcon />,
-  };
-  const icon = map[label] ?? <SparkleIcon />;
+  const normalized = label.toLowerCase();
+  const icon =
+    normalized.includes("adventure") || normalized.includes("mountain") ? (
+      <AdventureIcon />
+    ) : normalized.includes("culture") ? (
+      <CultureIcon />
+    ) : normalized.includes("food") ? (
+      <FoodIcon />
+    ) : normalized.includes("photo") ? (
+      <CameraIcon />
+    ) : normalized.includes("nature") || normalized.includes("beach") ? (
+      <LeafIcon />
+    ) : (
+      <SparkleIcon />
+    );
+
   return (
-    <div className="flex w-16 flex-col items-center gap-1.5 text-center">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-stone-100 text-stone-600">
-        {icon}
-      </span>
-      <span className="text-[11px] font-medium text-stone-600">{label}</span>
+    <div className="flex w-[58px] flex-col items-center text-center">
+      <span className="grid h-9 w-9 place-items-center text-[#1f1b17]">{icon}</span>
+      <span className="mt-2 text-[11px] font-semibold text-stone-700">{label}</span>
     </div>
   );
 }
-
-/* ─── Featured trip card with joiner avatars ─────────────────────────────── */
 
 function FeaturedTripCard({
   trip,
@@ -646,58 +686,69 @@ function FeaturedTripCard({
   joiners: JoinerAvatar[];
   bookedCount: number;
 }) {
-  const remaining = bookedCount - 4;
+  const overflowCount = Math.max(0, bookedCount - 4);
+
   return (
     <Link
       href={`/trips/${trip.id}`}
-      className="group block overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      className="group overflow-hidden rounded-[8px] border border-stone-200 bg-white shadow-[0_16px_34px_rgba(64,44,26,0.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(64,44,26,0.16)]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
-        {trip.images[0] && (
+      <div className="relative aspect-[1.18/1] overflow-hidden bg-stone-100">
+        {trip.images[0] ? (
           <Image
             src={trip.images[0]}
             alt={trip.title}
             fill
-            sizes="(max-width: 640px) 50vw, 280px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            unoptimized
+            sizes="(max-width: 640px) 100vw, 240px"
+            className="object-cover transition duration-700 group-hover:scale-105"
           />
+        ) : (
+          <div className="h-full bg-stone-200" />
         )}
-        <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-stone-700 backdrop-blur-sm">
+        <span className="absolute left-3 top-3 rounded-[5px] bg-white px-2.5 py-1 text-[11px] font-bold text-stone-700 shadow-sm">
           Upcoming
         </span>
+        <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-white drop-shadow">
+          <HeartIcon />
+        </span>
       </div>
-      <div className="p-4">
-        <h4 className="text-sm font-bold text-ink">{trip.title}</h4>
-        <p className="mt-1 text-xs text-stone-500">
-          {trip.days} {trip.days === 1 ? "day" : "days"}
-          {trip.location && ` · ${trip.location}`}
+      <div className="p-5">
+        <h4 className="font-serif text-[19px] font-semibold leading-tight text-[#17120f]">
+          {trip.title}
+        </h4>
+        <p className="mt-3 text-[12px] font-medium text-stone-500">
+          {trip.days} {trip.days === 1 ? "day" : "days"} · {trip.location}
         </p>
         {bookedCount > 0 && (
-          <div className="mt-3 flex items-center -space-x-2">
-            {joiners.slice(0, 4).map((j) => (
-              <div
-                key={j.id}
-                className="relative h-7 w-7 overflow-hidden rounded-full bg-stone-100 ring-2 ring-white"
-                title={j.name}
-              >
-                {j.avatar_url ? (
-                  <Image
-                    src={j.avatar_url}
-                    alt={j.name}
-                    fill
-                    sizes="28px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <span className="grid h-full w-full place-items-center text-[10px] font-semibold text-stone-500">
-                    {j.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
-            ))}
-            {remaining > 0 && (
-              <span className="relative inline-flex h-7 items-center justify-center rounded-full bg-stone-100 px-2 text-[11px] font-semibold text-stone-700 ring-2 ring-white">
-                +{remaining}
+          <div className="mt-5 flex items-center">
+            <div className="flex -space-x-2">
+              {joiners.slice(0, 4).map((joiner) => (
+                <span
+                  key={joiner.id}
+                  className="relative h-7 w-7 overflow-hidden rounded-full bg-stone-100 ring-2 ring-white"
+                  title={joiner.name}
+                >
+                  {joiner.avatar_url ? (
+                    <Image
+                      src={joiner.avatar_url}
+                      alt={joiner.name}
+                      fill
+                      unoptimized
+                      sizes="28px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center text-[10px] font-bold text-stone-500">
+                      {joiner.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
+            {overflowCount > 0 && (
+              <span className="ml-3 text-[13px] font-bold text-stone-700">
+                +{overflowCount}
               </span>
             )}
           </div>
@@ -706,8 +757,6 @@ function FeaturedTripCard({
     </Link>
   );
 }
-
-/* ─── Review snippet for the review summary block ────────────────────────── */
 
 function ReviewSnippet({
   review,
@@ -718,38 +767,56 @@ function ReviewSnippet({
     month: "short",
     year: "numeric",
   });
+
   return (
-    <div>
-      <blockquote className="text-sm italic leading-relaxed text-stone-700">
-        &ldquo;{(review.text ?? "").slice(0, 160)}
-        {(review.text ?? "").length > 160 ? "…" : ""}&rdquo;
+    <div className="rounded-[8px] border border-stone-200 bg-white p-6 shadow-[0_12px_30px_rgba(64,44,26,0.05)]">
+      <blockquote className="text-[13px] font-semibold leading-6 text-stone-700">
+        &ldquo;{trimText(review.text ?? "A thoughtful journey with a wonderful host.", 128)}&rdquo;
       </blockquote>
-      <div className="mt-3 flex items-center gap-2.5">
-        <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full bg-stone-100">
+      <div className="mt-5 flex items-center gap-3">
+        <span className="relative h-8 w-8 overflow-hidden rounded-full bg-stone-100">
           {review.author.avatar_url ? (
             <Image
               src={review.author.avatar_url}
               alt={review.author.name}
               fill
-              sizes="28px"
+              unoptimized
+              sizes="32px"
               className="object-cover"
             />
           ) : (
-            <span className="grid h-full w-full place-items-center text-[10px] font-semibold text-stone-500">
+            <span className="grid h-full w-full place-items-center text-xs font-bold text-stone-500">
               {review.author.name.charAt(0).toUpperCase()}
             </span>
           )}
-        </div>
-        <div className="text-xs leading-tight">
-          <div className="font-semibold text-ink">{review.author.name}</div>
-          <div className="text-stone-500">{date}</div>
-        </div>
+        </span>
+        <span className="text-[12px] leading-tight">
+          <strong className="block text-[#17120f]">{review.author.name}</strong>
+          <span className="text-stone-500">{date}</span>
+        </span>
       </div>
     </div>
   );
 }
 
-/* ─── Sidebar fact row ───────────────────────────────────────────────────── */
+function EmptyReviewCard({ text }: { text: string }) {
+  return (
+    <div className="rounded-[8px] border border-dashed border-stone-200 bg-white/70 p-6 shadow-[0_12px_30px_rgba(64,44,26,0.04)]">
+      <blockquote className="text-[13px] font-semibold leading-6 text-stone-500">
+        &ldquo;{text}&rdquo;
+      </blockquote>
+      <div className="mt-5 flex items-center gap-3">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-stone-100 text-xs font-bold text-stone-400">
+          P
+        </span>
+        <span className="text-[12px] leading-tight">
+          <strong className="block text-stone-500">Packuptrip</strong>
+          <span className="text-stone-400">Reviews pending</span>
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function FactRow({
   icon,
@@ -757,151 +824,185 @@ function FactRow({
   value,
   accent = false,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   accent?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-        {icon}
-      </span>
-      <div className="leading-tight">
-        <div className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 shrink-0 text-stone-600">{icon}</span>
+      <span className="min-w-0">
+        <span className="block text-[12px] font-medium leading-none text-stone-500">
           {label}
-        </div>
-        <div className={`mt-0.5 text-sm font-semibold ${accent ? "text-green-800" : "text-ink"}`}>
+        </span>
+        <strong
+          className={`mt-1.5 block text-[13px] leading-5 ${
+            accent ? "text-[#2d5130]" : "text-[#28231e]"
+          }`}
+        >
           {value}
-        </div>
-      </div>
+        </strong>
+      </span>
     </div>
   );
 }
-
-/* ─── Decorative stamp graphic for the quote card ─────────────────────────── */
 
 function StampGraphic() {
   return (
     <svg
       aria-hidden
-      viewBox="0 0 120 120"
-      className="pointer-events-none absolute bottom-3 right-3 h-20 w-20 text-stone-200 opacity-80"
+      viewBox="0 0 190 92"
+      className="pointer-events-none absolute bottom-0 right-[-18px] h-24 w-48 text-stone-200"
     >
-      <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="1" />
-      <circle cx="60" cy="60" r="40" fill="none" stroke="currentColor" strokeWidth="1" />
       <path
-        d="M60 30 a 30 30 0 0 1 0 60 a 30 30 0 0 1 0 -60 z"
+        d="M0 60c35-25 70 25 105 0s58-18 85-2"
         fill="none"
         stroke="currentColor"
-        strokeWidth="0.5"
-        strokeDasharray="2 2"
+        strokeWidth="2"
+        opacity="0.8"
       />
-      <text
-        x="60"
-        y="64"
-        fontFamily="serif"
-        fontSize="6"
-        textAnchor="middle"
-        fill="currentColor"
-        letterSpacing="2"
-      >
-        PACKUPTRIP
-      </text>
+      <path
+        d="M0 72c35-25 70 25 105 0s58-18 85-2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        opacity="0.65"
+      />
+      <circle cx="102" cy="49" r="34" fill="none" stroke="currentColor" strokeWidth="2" />
+      <circle cx="102" cy="49" r="26" fill="none" stroke="currentColor" strokeWidth="1" />
+      <path d="M88 58l14-28 16 28H88z" fill="none" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
 
-/* ─── Icons ──────────────────────────────────────────────────────────────── */
-
-function PinIcon() {
+function PinIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
       <circle cx="12" cy="10" r="3" />
     </svg>
   );
 }
 
-function ChatBubbleIcon() {
+function ChatBubbleIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4z" />
     </svg>
   );
 }
 
-function UserIcon() {
+function UserIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
 
-function ShieldIcon() {
+function ShieldIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <polyline points="9 12 11 14 15 10" />
+      <path d="M9 12l2 2 4-4" />
     </svg>
   );
 }
 
-function StarOutlineIcon() {
+function StarOutlineIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
 }
 
-function StarFillIcon() {
+function PaperPlaneIcon({ size = 16 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M22 2L11 13" />
+      <path d="M22 2l-7 20-4-9-9-4 20-7z" />
     </svg>
   );
 }
 
-function PaperPlaneIcon() {
+function DotsIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <circle cx="5" cy="12" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="19" cy="12" r="1.8" />
+    </svg>
+  );
+}
+
+function ClockIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+function GlobeIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20" />
+      <path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M5 12h14" />
+      <path d="M12 5l7 7-7 7" />
     </svg>
   );
 }
 
 function AdventureIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M3 17l5-10 4 8 3-5 4 7H3z" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M3 18l5-10 4 8 3-5 4 7H3z" />
+      <path d="M8 8l2.5 3M15 11l1.5 2.5" />
     </svg>
   );
 }
 
 function CultureIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M3 21h18M5 21V9l7-5 7 5v12M9 21V13h6v8" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-7h6v7" />
     </svg>
   );
 }
 
 function FoodIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M18 8a6 6 0 1 1-12 0M6 8h12M6 12h12M9 21h6" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M8 2v20M5 2v5a3 3 0 006 0V2M16 2v20M19 2v8a3 3 0 01-3 3" />
     </svg>
   );
 }
 
-function CameraIcon() {
+function CameraIcon({ size = 26 }: { size?: number }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
       <circle cx="12" cy="13" r="4" />
     </svg>
   );
@@ -909,8 +1010,8 @@ function CameraIcon() {
 
 function LeafIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96 21 8 21 13 19 17a7 7 0 0 1-8 3z" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.5 19.2 3 21 8 21 13 19 17a7 7 0 01-8 3z" />
       <path d="M2 21c0-3 1.85-5.36 5.08-6" />
     </svg>
   );
@@ -918,8 +1019,8 @@ function LeafIcon() {
 
 function SparkleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M12 0 L13.5 8.5 22 12 13.5 15.5 12 24 10.5 15.5 2 12 10.5 8.5z" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12 0l1.7 8.3L22 12l-8.3 3.7L12 24l-1.7-8.3L2 12l8.3-3.7z" />
     </svg>
   );
 }

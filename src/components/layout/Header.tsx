@@ -18,8 +18,14 @@ const NAV_LINKS = [
   { href: "/plus", label: "✦ Plus" },
 ];
 
-export function Header({ overlay = false }: { overlay?: boolean }) {
-  const [scrolled, setScrolled] = useState(false);
+export function Header({
+  overlay = false,
+  overlayTone = "light",
+}: {
+  overlay?: boolean;
+  overlayTone?: "light" | "dark";
+}) {
+  const [scrolled, setScrolled] = useState(!overlay);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,15 +33,13 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
   // Close mobile menu on route change
   useEffect(() => {
-    setMenuOpen(false);
+    const timeout = window.setTimeout(() => setMenuOpen(false), 0);
+    return () => window.clearTimeout(timeout);
   }, [pathname]);
 
   // Scroll behaviour
   useEffect(() => {
-    if (!overlay) {
-      setScrolled(true);
-      return;
-    }
+    if (!overlay) return;
     const onScroll = () => setScrolled(window.scrollY > 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -60,6 +64,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
   // Don't stay transparent when the mobile menu is open
   const transparent = overlay && !scrolled && !menuOpen;
+  const lightTransparent = transparent && overlayTone === "light";
 
   return (
     <header
@@ -71,17 +76,26 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Logo light={transparent} />
+        <Logo light={lightTransparent} />
 
         {/* Desktop nav */}
         <nav
           className={cn(
             "hidden items-center gap-8 text-sm font-medium md:flex transition-colors",
-            transparent ? "text-white/90" : "text-stone-700",
+            transparent
+              ? overlayTone === "light"
+                ? "text-white/90"
+                : "text-stone-800"
+              : "text-stone-700",
           )}
         >
           {NAV_LINKS.map(({ href, label }) => (
-            <NavLink key={href} href={href} transparent={transparent}>
+            <NavLink
+              key={href}
+              href={href}
+              transparent={transparent}
+              overlayTone={overlayTone}
+            >
               {label}
             </NavLink>
           ))}
@@ -90,11 +104,11 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
         <div className="flex items-center gap-2">
           {!authReady ? null : user ? (
             // Logged-in: unified profile panel (notifications + chat + nav)
-            <ProfilePanel user={user} transparent={transparent} />
+            <ProfilePanel user={user} transparent={lightTransparent} />
           ) : (
             // Guest: auth buttons + hamburger for nav links
             <>
-              <GuestActions transparent={transparent} />
+              <GuestActions transparent={transparent} overlayTone={overlayTone} />
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
@@ -102,7 +116,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
                 aria-expanded={menuOpen}
                 className={cn(
                   "inline-flex h-9 w-9 items-center justify-center rounded-full transition md:hidden",
-                  transparent
+                  lightTransparent
                     ? "text-white hover:bg-white/10"
                     : "text-stone-700 hover:bg-stone-100",
                 )}
@@ -144,14 +158,21 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
 
 // ─── Guest actions ────────────────────────────────────────────────────────────
 
-function GuestActions({ transparent }: { transparent: boolean }) {
+function GuestActions({
+  transparent,
+  overlayTone,
+}: {
+  transparent: boolean;
+  overlayTone: "light" | "dark";
+}) {
+  const lightTransparent = transparent && overlayTone === "light";
   return (
     <>
       <Link
         href="/login"
         className={cn(
           "hidden sm:inline-flex h-9 items-center rounded-full px-4 text-sm font-medium transition",
-          transparent
+          lightTransparent
             ? "text-white hover:bg-white/10"
             : "text-stone-700 hover:bg-stone-100",
         )}
@@ -162,7 +183,7 @@ function GuestActions({ transparent }: { transparent: boolean }) {
         href="/signup"
         className={cn(
           "inline-flex h-9 items-center rounded-full px-4 text-sm font-medium transition shadow-sm",
-          transparent
+          lightTransparent
             ? "bg-white text-ink hover:bg-stone-100"
             : "bg-yellow-400 text-stone-900 hover:bg-yellow-500",
         )}
@@ -178,10 +199,12 @@ function GuestActions({ transparent }: { transparent: boolean }) {
 function NavLink({
   href,
   transparent,
+  overlayTone,
   children,
 }: {
   href: string;
   transparent: boolean;
+  overlayTone: "light" | "dark";
   children: React.ReactNode;
 }) {
   return (
@@ -189,7 +212,11 @@ function NavLink({
       href={href}
       className={cn(
         "transition-colors",
-        transparent ? "hover:text-white" : "hover:text-ink",
+        transparent
+          ? overlayTone === "light"
+            ? "hover:text-white"
+            : "hover:text-ink"
+          : "hover:text-ink",
       )}
     >
       {children}

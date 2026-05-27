@@ -26,23 +26,45 @@ export default async function EditProfilePage() {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-white pt-20">
-        <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mb-8">
+      <main className="flex-1 bg-[#f8f5ef] pt-20">
+        <section className="border-b border-stone-200/80 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
             <Link
               href="/account"
-              className="text-xs text-stone-400 hover:text-stone-600"
+              className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 hover:text-stone-600"
             >
-              ← Account
+              Back to account
             </Link>
-            <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink">
-              Edit your profile
-            </h1>
-            <p className="mt-1 text-sm text-stone-500">
-              This is what other travellers see when they click your name.
-            </p>
+            <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[12px] font-bold uppercase tracking-[0.24em] text-[#b35a42]">
+                  Host profile editor
+                </p>
+                <h1
+                  className="mt-3 font-serif font-semibold leading-tight tracking-tight text-[#17120f]"
+                  style={{
+                    fontSize: "clamp(2.4rem, 5vw, 4.25rem)",
+                    fontVariationSettings: "'opsz' 144, 'SOFT' 0",
+                  }}
+                >
+                  Shape what travellers see.
+                </h1>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-stone-600">
+                  Everything here powers your public host profile: hero photo,
+                  intro, About section, travel style, languages and trust facts.
+                </p>
+              </div>
+              <Link
+                href={`/hosts/${profile.id}`}
+                className="inline-flex h-11 items-center justify-center rounded-[8px] bg-[#17120f] px-5 text-sm font-bold text-white shadow-sm hover:bg-stone-800"
+              >
+                Preview public page
+              </Link>
+            </div>
           </div>
+        </section>
 
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <ProfileEditor profile={profile} />
         </div>
       </main>

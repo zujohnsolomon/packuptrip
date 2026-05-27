@@ -10,6 +10,7 @@ export type UpdateProfilePayload = {
   travelStyleTags: string[];
   languages: string[];
   countriesVisited: string[];
+  profileGallery: string[];
   avatarUrl?: string | null;
 };
 
@@ -29,6 +30,7 @@ export async function updateProfile(
     travel_style_tags: payload.travelStyleTags,
     languages: payload.languages,
     countries_visited: payload.countriesVisited,
+    profile_gallery: payload.profileGallery,
   };
 
   if (payload.avatarUrl !== undefined) {
