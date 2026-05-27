@@ -11,6 +11,9 @@ export const metadata = {
     "Meet the travellers running trips on Packuptrip. Filter by where they're from and where they've travelled.",
 };
 
+// Always fetch fresh — host roster and trip status change between requests.
+export const dynamic = "force-dynamic";
+
 type SP = {
   from?: string; // host's home city
   to?: string;   // trip destination
