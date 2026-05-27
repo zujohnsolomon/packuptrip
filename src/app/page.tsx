@@ -490,34 +490,64 @@ function ExploreDestinations() {
 
 function TravelCategories() {
   const cats = [
-    { label: "Beach", emoji: "🏖️", href: "/trips?q=beach", bg: "from-sky-400 to-blue-500" },
-    { label: "Mountains", emoji: "⛰️", href: "/trips?q=mountains", bg: "from-green-600 to-emerald-600" },
-    { label: "Heritage", emoji: "🏛️", href: "/trips?q=heritage", bg: "from-yellow-500 to-orange-600" },
-    { label: "Backpacking", emoji: "🎒", href: "/trips?q=backpacking", bg: "from-violet-500 to-purple-600" },
-    { label: "Wellness", emoji: "🧘", href: "/trips?q=wellness", bg: "from-rose-400 to-pink-500" },
-    { label: "City Breaks", emoji: "🌆", href: "/trips?q=city", bg: "from-stone-500 to-stone-700" },
+    {
+      label: "Beach",
+      href: "/trips?q=beach",
+      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      label: "Mountains",
+      href: "/trips?q=mountains",
+      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      label: "Heritage",
+      href: "/trips?q=heritage",
+      image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      label: "Backpacking",
+      href: "/trips?q=backpacking",
+      image: "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      label: "Wellness",
+      href: "/trips?q=wellness",
+      image: "https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      label: "City Breaks",
+      href: "/trips?q=city",
+      image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=400&q=80",
+    },
   ];
 
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-        <SectionHeader
-          eyebrow="Trip types"
-          title="Travel your way"
-          subtitle="Find trips that match your style — wherever the mood takes you."
-          center
-        />
-        <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-6 sm:gap-4">
+        <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-stone-400">
+          Trip types
+        </p>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
           {cats.map((c) => (
             <Link
               key={c.label}
               href={c.href}
-              className={`group flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-br ${c.bg} p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:p-5`}
+              className="group relative aspect-[2/3] overflow-hidden rounded-xl shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
             >
-              <span className="text-3xl sm:text-4xl">{c.emoji}</span>
-              <span className="text-center text-[11px] font-semibold text-white sm:text-xs">
-                {c.label}
-              </span>
+              <Image
+                src={c.image}
+                alt={c.label}
+                fill
+                sizes="(max-width: 640px) 33vw, 180px"
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-2.5">
+                <p className="text-center text-xs font-semibold text-white sm:text-sm">
+                  {c.label}
+                </p>
+              </div>
             </Link>
           ))}
         </div>
