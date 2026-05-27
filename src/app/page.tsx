@@ -942,33 +942,41 @@ function TrustAndSafety() {
 function Testimonials() {
   return (
     <section className="bg-stone-50">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-        <SectionHeader
-          eyebrow="Travellers"
-          title="Stories from the road"
-          center
-        />
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          {testimonials.map((t) => (
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+          · In their words ·
+        </p>
+
+        <div className="mt-10 grid gap-10 sm:gap-12 lg:grid-cols-3 lg:gap-14">
+          {testimonials.map((t, i) => (
             <figure
               key={t.name}
-              className="flex flex-col gap-5 rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] sm:p-7"
+              className={`flex flex-col ${
+                i > 0
+                  ? "border-t border-stone-200 pt-10 lg:border-l lg:border-t-0 lg:pl-14 lg:pt-0"
+                  : ""
+              }`}
             >
-              <QuoteIcon />
-              <blockquote className="text-base leading-relaxed text-ink">
+              <blockquote
+                className="font-serif italic leading-[1.4] text-ink"
+                style={{
+                  fontSize: "clamp(1.25rem, 1.8vw, 1.5rem)",
+                  fontVariationSettings: "'opsz' 144",
+                }}
+              >
                 &ldquo;{t.quote}&rdquo;
               </blockquote>
-              <figcaption className="mt-auto flex items-center gap-3">
-                <div className="relative h-11 w-11 overflow-hidden rounded-full ring-2 ring-white shadow">
+              <figcaption className="mt-6 flex items-center gap-3">
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
                   <Image
                     src={t.avatar}
                     alt={t.name}
                     fill
-                    sizes="44px"
+                    sizes="40px"
                     className="object-cover"
                   />
                 </div>
-                <div>
+                <div className="leading-tight">
                   <div className="text-sm font-semibold text-ink">{t.name}</div>
                   <div className="text-xs text-stone-500">{t.trip}</div>
                 </div>
