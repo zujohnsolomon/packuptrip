@@ -23,6 +23,15 @@ export type BrowseFilters = {
   maxPrice?: number;
 };
 
+/**
+ * Columns safe to expose on public-facing profile reads (host pages, trip
+ * detail). Deliberately excludes PII / sensitive fields — email,
+ * suspension_*, referral_*, *_credits, plus_*, role — which anon must not
+ * be able to read. Keep in sync with the column GRANTs revoked from anon.
+ */
+export const PUBLIC_PROFILE_COLUMNS =
+  "id, name, avatar_url, bio, home_city, travel_style_tags, languages, countries_visited, profile_gallery, id_verified, host_tier, created_at";
+
 /** Featured live packages for the homepage hero strip — max 4. */
 export async function listFeaturedPackages(): Promise<Package[]> {
   const supabase = await createClient();
@@ -131,7 +140,7 @@ export async function getLiveTrip(
   }
   const { data: host } = await supabase
     .from("profiles")
-    .select("*")
+    .select(PUBLIC_PROFILE_COLUMNS)
     .eq("id", trip.host_id)
     .maybeSingle<Profile>();
   return { trip, host: host ?? null };
@@ -835,7 +844,7 @@ export async function getTripForReview(
   if (!trip) return null;
   const { data: host } = await supabase
     .from("profiles")
-    .select("*")
+    .select(PUBLIC_PROFILE_COLUMNS)
     .eq("id", trip.host_id)
     .maybeSingle<Profile>();
   return { trip, host: host ?? null };

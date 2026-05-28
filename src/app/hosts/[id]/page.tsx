@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/supabase/queries";
 import type { Profile, Review, Trip } from "@/types/db";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,7 @@ export default async function HostProfilePage({
   const supabase = await createClient();
 
   const [{ data: profile }, { data: auth }, { data: contactRows }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", id).single<Profile>(),
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("id", id).single<Profile>(),
     supabase.auth.getUser(),
     // Returns ONLY the contact fields the host marked public (private ones
     // come back null). Enforced server-side in the SECURITY DEFINER function.
