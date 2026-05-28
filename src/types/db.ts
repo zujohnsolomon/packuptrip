@@ -60,6 +60,17 @@ export type Profile = {
   languages: string[];
   countries_visited: string[]; // ISO 3166-1 alpha-3 codes (e.g. 'USA', 'IND')
   profile_gallery: string[]; // Personal photos uploaded by the host (URLs)
+  // Contact details + per-field visibility toggles
+  contact_phone: string | null;
+  contact_whatsapp: string | null;
+  contact_email: string | null;
+  contact_instagram: string | null;
+  contact_website: string | null;
+  contact_phone_public: boolean;
+  contact_whatsapp_public: boolean;
+  contact_email_public: boolean;
+  contact_instagram_public: boolean;
+  contact_website_public: boolean;
   id_verified: boolean;
   role: UserRole;
   created_at: string;

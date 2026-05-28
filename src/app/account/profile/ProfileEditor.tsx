@@ -48,6 +48,19 @@ const LANGUAGES = [
 const CROP_DISPLAY = 280;
 const CROP_OUTPUT = 400;
 
+type ContactDraft = {
+  phone: string;
+  whatsapp: string;
+  email: string;
+  instagram: string;
+  website: string;
+  phonePublic: boolean;
+  whatsappPublic: boolean;
+  emailPublic: boolean;
+  instagramPublic: boolean;
+  websitePublic: boolean;
+};
+
 type DraftProfile = {
   name: string;
   bio: string;
@@ -56,6 +69,7 @@ type DraftProfile = {
   languages: string[];
   countriesVisited: string[];
   profileGallery: string[];
+  contact: ContactDraft;
   avatarUrl: string | null;
 };
 
@@ -69,6 +83,18 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     languages: profile.languages ?? [],
     countriesVisited: profile.countries_visited ?? [],
     profileGallery: profile.profile_gallery ?? [],
+    contact: {
+      phone: profile.contact_phone ?? "",
+      whatsapp: profile.contact_whatsapp ?? "",
+      email: profile.contact_email ?? "",
+      instagram: profile.contact_instagram ?? "",
+      website: profile.contact_website ?? "",
+      phonePublic: profile.contact_phone_public ?? false,
+      whatsappPublic: profile.contact_whatsapp_public ?? false,
+      emailPublic: profile.contact_email_public ?? false,
+      instagramPublic: profile.contact_instagram_public ?? true,
+      websitePublic: profile.contact_website_public ?? true,
+    },
     avatarUrl: profile.avatar_url,
   });
   const [saved, setSaved] = useState(false);
@@ -91,6 +117,11 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
 
   function updateDraft(patch: Partial<DraftProfile>) {
     setDraft((current) => ({ ...current, ...patch }));
+    setSaved(false);
+  }
+
+  function updateContact(patch: Partial<ContactDraft>) {
+    setDraft((current) => ({ ...current, contact: { ...current.contact, ...patch } }));
     setSaved(false);
   }
 
@@ -120,6 +151,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
         languages: draft.languages,
         countriesVisited: draft.countriesVisited,
         profileGallery: draft.profileGallery,
+        contact: draft.contact,
         avatarUrl: draft.avatarUrl,
       });
       if (err) {
@@ -249,6 +281,67 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               );
             })}
           </TagGrid>
+        </EditorCard>
+
+        {/* Contact & connect — each row has its own public/private toggle.
+            Only fields the host marks public will render on the profile. */}
+        <EditorCard
+          eyebrow="Contact & connect"
+          title="Ways travellers can reach you"
+          description="Fill in only what you're comfortable sharing. Use the toggle next to each field to decide what shows on your public profile — everything is private by default unless you flip it on."
+        >
+          <div className="space-y-4">
+            <ContactRow
+              label="Phone"
+              hint="Include country code (e.g. +91 98765 43210)"
+              type="tel"
+              placeholder="+91 ..."
+              value={draft.contact.phone}
+              isPublic={draft.contact.phonePublic}
+              onValueChange={(phone) => updateContact({ phone })}
+              onPublicChange={(phonePublic) => updateContact({ phonePublic })}
+            />
+            <ContactRow
+              label="WhatsApp"
+              hint="Digits only (country code first). Will become a wa.me link."
+              type="tel"
+              placeholder="9198765..."
+              value={draft.contact.whatsapp}
+              isPublic={draft.contact.whatsappPublic}
+              onValueChange={(whatsapp) => updateContact({ whatsapp })}
+              onPublicChange={(whatsappPublic) => updateContact({ whatsappPublic })}
+            />
+            <ContactRow
+              label="Public email"
+              hint="Different from your sign-in email. Use a business or public-facing one."
+              type="email"
+              placeholder="hello@yourdomain.com"
+              value={draft.contact.email}
+              isPublic={draft.contact.emailPublic}
+              onValueChange={(email) => updateContact({ email })}
+              onPublicChange={(emailPublic) => updateContact({ emailPublic })}
+            />
+            <ContactRow
+              label="Instagram"
+              hint="Just the handle, no @"
+              type="text"
+              placeholder="yourhandle"
+              value={draft.contact.instagram}
+              isPublic={draft.contact.instagramPublic}
+              onValueChange={(instagram) => updateContact({ instagram })}
+              onPublicChange={(instagramPublic) => updateContact({ instagramPublic })}
+            />
+            <ContactRow
+              label="Website"
+              hint="https:// will be added automatically"
+              type="url"
+              placeholder="yourdomain.com"
+              value={draft.contact.website}
+              isPublic={draft.contact.websitePublic}
+              onValueChange={(website) => updateContact({ website })}
+              onPublicChange={(websitePublic) => updateContact({ websitePublic })}
+            />
+          </div>
         </EditorCard>
 
         {/* Countries last — most tedious section (clicking through a long
@@ -736,6 +829,91 @@ function Field({
 
 function TagGrid({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap gap-2">{children}</div>;
+}
+
+function ContactRow({
+  label,
+  hint,
+  type,
+  placeholder,
+  value,
+  isPublic,
+  onValueChange,
+  onPublicChange,
+}: {
+  label: string;
+  hint: string;
+  type: "tel" | "email" | "text" | "url";
+  placeholder: string;
+  value: string;
+  isPublic: boolean;
+  onValueChange: (v: string) => void;
+  onPublicChange: (v: boolean) => void;
+}) {
+  const inputId = `contact-${label.toLowerCase().replace(/\s+/g, "-")}`;
+  const hasValue = value.trim().length > 0;
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <label htmlFor={inputId} className="text-sm font-bold text-[#28231e]">
+          {label}
+        </label>
+        <VisibilityToggle
+          isPublic={isPublic}
+          disabled={!hasValue}
+          onChange={onPublicChange}
+        />
+      </div>
+      <input
+        id={inputId}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+        className="mt-3 block w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-[#2d5130] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2d5130]/15"
+      />
+      <p className="mt-1.5 text-xs text-stone-400">{hint}</p>
+    </div>
+  );
+}
+
+function VisibilityToggle({
+  isPublic,
+  disabled,
+  onChange,
+}: {
+  isPublic: boolean;
+  disabled: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => !disabled && onChange(!isPublic)}
+      disabled={disabled}
+      aria-pressed={isPublic}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+        disabled
+          ? "cursor-not-allowed bg-stone-50 text-stone-300"
+          : isPublic
+            ? "bg-green-50 text-green-800 ring-1 ring-inset ring-green-200 hover:bg-green-100"
+            : "bg-stone-100 text-stone-600 ring-1 ring-inset ring-stone-200 hover:bg-stone-200"
+      }`}
+    >
+      <span
+        className={`relative inline-block h-3.5 w-6 rounded-full transition-colors ${
+          isPublic ? "bg-green-600" : "bg-stone-400"
+        } ${disabled ? "opacity-40" : ""}`}
+      >
+        <span
+          className={`absolute top-0.5 h-2.5 w-2.5 rounded-full bg-white transition-all ${
+            isPublic ? "left-3" : "left-0.5"
+          }`}
+        />
+      </span>
+      {disabled ? "Add details first" : isPublic ? "Public" : "Private"}
+    </button>
+  );
 }
 
 function ToggleChip({
