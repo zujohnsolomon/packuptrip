@@ -45,8 +45,13 @@ export function BookingSummary({
         </span>
       </div>
       <div className="p-5 sm:p-6">
-        <h2 className="text-xl font-semibold text-ink">{title}</h2>
-        <p className="mt-0.5 text-sm text-stone-500">{location}</p>
+        <h2
+          className="font-serif font-medium leading-tight text-ink"
+          style={{ fontSize: "clamp(1.35rem, 2.4vw, 1.75rem)", fontVariationSettings: "'opsz' 144" }}
+        >
+          {title}
+        </h2>
+        <p className="mt-1 text-sm text-stone-500">{location}</p>
         <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <div>
             <dt className="text-stone-500">Departs</dt>

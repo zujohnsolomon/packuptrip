@@ -50,19 +50,28 @@ export default async function BookPackagePage({
   return (
     <>
       <Header />
-      <main className="flex-1 bg-white pt-20">
+      <main className="flex-1 bg-[#f6f1ea] pt-20">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <Link
             href={`/packages/${pkg.id}`}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-ink"
           >
-            ← Back to trip
+            ← Back to package
           </Link>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Confirm your spot
+          <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.22em] text-yellow-500">
+            · Confirm your spot ·
+          </p>
+          <h1
+            className="mt-3 font-serif font-medium leading-[1.05] tracking-tight text-ink"
+            style={{
+              fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
+              fontVariationSettings: "'opsz' 144",
+            }}
+          >
+            Confirm your booking
           </h1>
-          <p className="mt-1 text-stone-600">
-            Review the trip and lock in your booking. No payment today.
+          <p className="mt-3 max-w-xl text-stone-600">
+            Review the trip and lock in your spot. No payment is taken today.
           </p>
 
           <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr] md:gap-12">
@@ -97,14 +106,17 @@ function SoldOut({ href, title }: { href: string; title: string }) {
   return (
     <>
       <Header />
-      <main className="flex-1 bg-white pt-20">
+      <main className="flex-1 bg-[#f6f1ea] pt-20">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="rounded-2xl bg-white p-8 text-center shadow-[var(--shadow-card)]">
-            <h1 className="text-2xl font-semibold text-ink">
+            <h1
+              className="font-serif font-medium text-ink"
+              style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontVariationSettings: "'opsz' 144" }}
+            >
               Sold out
             </h1>
             <p className="mt-2 text-stone-600">
-              {title} is fully booked. Browse other Packuptrip Originals - new
+              {title} is fully booked. Browse other Packuptrip Originals — new
               departures are added regularly.
             </p>
             <div className="mt-6 flex justify-center gap-3">
