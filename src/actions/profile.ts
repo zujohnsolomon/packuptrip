@@ -39,20 +39,6 @@ export async function updateProfile(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in" };
 
-  // Normalise contact fields — trim, strip @ from Instagram, ensure http(s)
-  // on website, keep null when empty so the public profile cleanly hides
-  // unset rows.
-  const c = payload.contact;
-  const cleanPhone     = c.phone.trim() || null;
-  const cleanWhatsapp  = c.whatsapp.replace(/\D/g, "") || null;
-  const cleanEmail     = c.email.trim().toLowerCase() || null;
-  const cleanInstagram = c.instagram.trim().replace(/^@/, "") || null;
-  const cleanWebsite   = c.website.trim()
-    ? c.website.trim().match(/^https?:\/\//)
-      ? c.website.trim()
-      : `https://${c.website.trim()}`
-    : null;
-
   const update: Record<string, unknown> = {
     name: payload.name.trim() || "Traveller",
     bio: payload.bio.trim() || null,
@@ -61,16 +47,6 @@ export async function updateProfile(
     languages: payload.languages,
     countries_visited: payload.countriesVisited,
     profile_gallery: payload.profileGallery,
-    contact_phone: cleanPhone,
-    contact_whatsapp: cleanWhatsapp,
-    contact_email: cleanEmail,
-    contact_instagram: cleanInstagram,
-    contact_website: cleanWebsite,
-    contact_phone_public: c.phonePublic,
-    contact_whatsapp_public: c.whatsappPublic,
-    contact_email_public: c.emailPublic,
-    contact_instagram_public: c.instagramPublic,
-    contact_website_public: c.websitePublic,
   };
 
   if (payload.avatarUrl !== undefined) {
@@ -85,6 +61,41 @@ export async function updateProfile(
   if (error) {
     console.error("updateProfile failed:", error);
     return { error: error.message };
+  }
+
+  // Contact details live in the RLS-protected host_contacts table (so private
+  // fields are never readable by other users via the API). Normalise here —
+  // strip @ from Instagram, ensure http(s) on website, null when empty.
+  const c = payload.contact;
+  const cleanWebsite = c.website.trim()
+    ? c.website.trim().match(/^https?:\/\//)
+      ? c.website.trim()
+      : `https://${c.website.trim()}`
+    : null;
+
+  const { error: contactErr } = await supabase
+    .from("host_contacts")
+    .upsert(
+      {
+        user_id: user.id,
+        phone: c.phone.trim() || null,
+        whatsapp: c.whatsapp.replace(/\D/g, "") || null,
+        email: c.email.trim().toLowerCase() || null,
+        instagram: c.instagram.trim().replace(/^@/, "") || null,
+        website: cleanWebsite,
+        phone_public: c.phonePublic,
+        whatsapp_public: c.whatsappPublic,
+        email_public: c.emailPublic,
+        instagram_public: c.instagramPublic,
+        website_public: c.websitePublic,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+
+  if (contactErr) {
+    console.error("updateProfile (contacts) failed:", contactErr);
+    return { error: contactErr.message };
   }
 
   revalidatePath("/account");

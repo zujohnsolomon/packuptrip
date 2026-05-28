@@ -45,12 +45,23 @@ export default async function HostProfilePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: profile }, { data: auth }] = await Promise.all([
+  const [{ data: profile }, { data: auth }, { data: contactRows }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).single<Profile>(),
     supabase.auth.getUser(),
+    // Returns ONLY the contact fields the host marked public (private ones
+    // come back null). Enforced server-side in the SECURITY DEFINER function.
+    supabase.rpc("get_public_host_contact", { p_host_id: id }),
   ]);
 
   if (!profile) notFound();
+
+  const publicContact = (contactRows?.[0] ?? null) as {
+    phone: string | null;
+    whatsapp: string | null;
+    email: string | null;
+    instagram: string | null;
+    website: string | null;
+  } | null;
 
   const { data: allTrips } = await supabase
     .from("trips")
@@ -551,18 +562,7 @@ export default async function HostProfilePage({
 
                 <ConnectSection
                   hostId={id}
-                  contact={{
-                    phone: profile.contact_phone,
-                    whatsapp: profile.contact_whatsapp,
-                    email: profile.contact_email,
-                    instagram: profile.contact_instagram,
-                    website: profile.contact_website,
-                    phonePublic: profile.contact_phone_public,
-                    whatsappPublic: profile.contact_whatsapp_public,
-                    emailPublic: profile.contact_email_public,
-                    instagramPublic: profile.contact_instagram_public,
-                    websitePublic: profile.contact_website_public,
-                  }}
+                  contact={publicContact}
                   firstName={firstName}
                 />
               </div>
@@ -851,11 +851,6 @@ type PublicContact = {
   email: string | null;
   instagram: string | null;
   website: string | null;
-  phonePublic: boolean;
-  whatsappPublic: boolean;
-  emailPublic: boolean;
-  instagramPublic: boolean;
-  websitePublic: boolean;
 };
 
 function ConnectSection({
@@ -864,13 +859,14 @@ function ConnectSection({
   firstName,
 }: {
   hostId: string;
-  contact: PublicContact;
+  contact: PublicContact | null;
   firstName: string;
 }) {
-  // Build the list of channels the host has marked public AND filled in.
+  // `contact` already contains ONLY the public fields (the DB function masks
+  // private ones to null). So we just render whatever is present.
   const channels: { key: string; label: string; href: string; icon: ReactNode }[] = [];
 
-  if (contact.whatsappPublic && contact.whatsapp) {
+  if (contact?.whatsapp) {
     channels.push({
       key: "whatsapp",
       label: "WhatsApp",
@@ -878,7 +874,7 @@ function ConnectSection({
       icon: <WhatsAppIcon />,
     });
   }
-  if (contact.phonePublic && contact.phone) {
+  if (contact?.phone) {
     channels.push({
       key: "phone",
       label: "Phone",
@@ -886,7 +882,7 @@ function ConnectSection({
       icon: <PhoneIcon />,
     });
   }
-  if (contact.emailPublic && contact.email) {
+  if (contact?.email) {
     channels.push({
       key: "email",
       label: "Email",
@@ -894,7 +890,7 @@ function ConnectSection({
       icon: <MailIcon />,
     });
   }
-  if (contact.instagramPublic && contact.instagram) {
+  if (contact?.instagram) {
     channels.push({
       key: "instagram",
       label: `@${contact.instagram}`,
@@ -902,7 +898,7 @@ function ConnectSection({
       icon: <InstagramIcon />,
     });
   }
-  if (contact.websitePublic && contact.website) {
+  if (contact?.website) {
     channels.push({
       key: "website",
       label: friendlyDomain(contact.website),

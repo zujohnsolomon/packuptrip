@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/actions/profile";
 import { CountryPicker } from "@/components/shared/CountryPicker";
 import { ImagesEditor } from "@/components/shared/ImagesEditor";
-import type { Profile } from "@/types/db";
+import type { Profile, HostContact } from "@/types/db";
 
 const STYLE_TAGS = [
   "Adventure",
@@ -73,7 +73,13 @@ type DraftProfile = {
   avatarUrl: string | null;
 };
 
-export function ProfileEditor({ profile }: { profile: Profile }) {
+export function ProfileEditor({
+  profile,
+  contact,
+}: {
+  profile: Profile;
+  contact: HostContact | null;
+}) {
   const router = useRouter();
   const [draft, setDraft] = useState<DraftProfile>({
     name: profile.name ?? "",
@@ -84,16 +90,16 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     countriesVisited: profile.countries_visited ?? [],
     profileGallery: profile.profile_gallery ?? [],
     contact: {
-      phone: profile.contact_phone ?? "",
-      whatsapp: profile.contact_whatsapp ?? "",
-      email: profile.contact_email ?? "",
-      instagram: profile.contact_instagram ?? "",
-      website: profile.contact_website ?? "",
-      phonePublic: profile.contact_phone_public ?? false,
-      whatsappPublic: profile.contact_whatsapp_public ?? false,
-      emailPublic: profile.contact_email_public ?? false,
-      instagramPublic: profile.contact_instagram_public ?? true,
-      websitePublic: profile.contact_website_public ?? true,
+      phone: contact?.phone ?? "",
+      whatsapp: contact?.whatsapp ?? "",
+      email: contact?.email ?? "",
+      instagram: contact?.instagram ?? "",
+      website: contact?.website ?? "",
+      phonePublic: contact?.phone_public ?? false,
+      whatsappPublic: contact?.whatsapp_public ?? false,
+      emailPublic: contact?.email_public ?? false,
+      instagramPublic: contact?.instagram_public ?? true,
+      websitePublic: contact?.website_public ?? true,
     },
     avatarUrl: profile.avatar_url,
   });

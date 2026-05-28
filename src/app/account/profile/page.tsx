@@ -4,7 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileEditor } from "./ProfileEditor";
-import type { Profile } from "@/types/db";
+import type { Profile, HostContact } from "@/types/db";
 
 export const metadata = { title: "Edit profile · Packuptrip" };
 
@@ -15,11 +15,11 @@ export default async function EditProfilePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirectTo=/account/profile");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
+  const [{ data: profile }, { data: contact }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
+    // Owner can read their own full contact row (RLS allows user_id = auth.uid())
+    supabase.from("host_contacts").select("*").eq("user_id", user.id).maybeSingle<HostContact>(),
+  ]);
 
   if (!profile) redirect("/login");
 
@@ -65,7 +65,7 @@ export default async function EditProfilePage() {
         </section>
 
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <ProfileEditor profile={profile} />
+          <ProfileEditor profile={profile} contact={contact ?? null} />
         </div>
       </main>
       <Footer />

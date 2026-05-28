@@ -60,17 +60,6 @@ export type Profile = {
   languages: string[];
   countries_visited: string[]; // ISO 3166-1 alpha-3 codes (e.g. 'USA', 'IND')
   profile_gallery: string[]; // Personal photos uploaded by the host (URLs)
-  // Contact details + per-field visibility toggles
-  contact_phone: string | null;
-  contact_whatsapp: string | null;
-  contact_email: string | null;
-  contact_instagram: string | null;
-  contact_website: string | null;
-  contact_phone_public: boolean;
-  contact_whatsapp_public: boolean;
-  contact_email_public: boolean;
-  contact_instagram_public: boolean;
-  contact_website_public: boolean;
   id_verified: boolean;
   role: UserRole;
   created_at: string;
@@ -87,6 +76,31 @@ export type Profile = {
   plus_expires_at: string | null;
   // Promo credits received from being referred (fix_referral_credit_both_parties):
   promo_credits: number;
+};
+
+// Full contact row — readable only by the owner (RLS-protected table).
+export type HostContact = {
+  user_id: string;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  instagram: string | null;
+  website: string | null;
+  phone_public: boolean;
+  whatsapp_public: boolean;
+  email_public: boolean;
+  instagram_public: boolean;
+  website_public: boolean;
+};
+
+// What get_public_host_contact() returns — only the fields the host
+// chose to make public (others come back null).
+export type PublicHostContact = {
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  instagram: string | null;
+  website: string | null;
 };
 
 export type Package = {
