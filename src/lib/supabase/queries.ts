@@ -1373,7 +1373,14 @@ export async function adminSetHostTier(
   tier: "standard" | "superhost" | "flagged",
 ): Promise<void> {
   const supabase = await createClient();
-  await supabase.from("profiles").update({ host_tier: tier }).eq("id", userId);
+  // Direct UPDATE on host_tier is revoked for the authenticated role
+  // (privilege-escalation lockdown). Goes through a SECURITY DEFINER RPC
+  // that re-checks the caller is an admin.
+  const { error } = await supabase.rpc("admin_set_host_tier", {
+    p_user_id: userId,
+    p_tier: tier,
+  });
+  if (error) throw error;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

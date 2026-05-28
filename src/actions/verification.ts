@@ -57,11 +57,13 @@ export async function approveVerification(
     .eq("id", requestId);
   if (reqErr) return { error: reqErr.message };
 
-  // Flip id_verified on profile
-  const { error: profileErr } = await supabase
-    .from("profiles")
-    .update({ id_verified: true })
-    .eq("id", userId);
+  // Flip id_verified on profile. Direct UPDATE on id_verified is revoked for
+  // the authenticated role (privilege-escalation lockdown), so this goes
+  // through a SECURITY DEFINER RPC that re-checks the caller is an admin.
+  const { error: profileErr } = await supabase.rpc("admin_set_id_verified", {
+    p_user_id: userId,
+    p_verified: true,
+  });
   if (profileErr) return { error: profileErr.message };
 
   // Email — fire and forget
