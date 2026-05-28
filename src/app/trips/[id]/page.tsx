@@ -80,46 +80,43 @@ export default async function TripDetailPage({
         />
 
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_360px] lg:gap-12 lg:px-8 lg:py-16">
-          <div className="min-w-0 space-y-12">
+          <div className="min-w-0 space-y-14">
             {host && <HostCard host={host} currentUserId={user?.id} />}
 
             {trip.description && (
               <section>
-                <p className="max-w-2xl text-base leading-relaxed text-stone-700">
+                <SectionLabel eyebrow="About this trip" title="What you're signing up for" />
+                <p className="mt-5 max-w-2xl font-serif text-lg leading-relaxed text-stone-700 sm:text-xl sm:leading-[1.65]">
                   {trip.description}
                 </p>
+                {trip.tags.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {trip.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-100"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </section>
             )}
 
             <section>
-              <h2 className="text-xl font-semibold text-ink">What's included</h2>
-              <div className="mt-4">
+              <SectionLabel eyebrow="Included" title="What's covered" />
+              <div className="mt-6">
                 <Inclusions items={trip.includes} />
               </div>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-ink">Day-by-day</h2>
-              <div className="mt-6">
+              <SectionLabel eyebrow="The plan" title="Day by day" />
+              <div className="mt-7">
                 <Itinerary days={trip.itinerary} accent="teal" />
               </div>
             </section>
-
-            {trip.tags.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold text-ink">Tags</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {trip.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="inline-flex items-center rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
 
             <ReportLink subjectType="trip" subjectId={trip.id} />
           </div>
@@ -182,6 +179,25 @@ export default async function TripDetailPage({
       </main>
       <Footer />
     </>
+  );
+}
+
+function SectionLabel({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-400">
+        {eyebrow}
+      </p>
+      <h2
+        className="mt-2 font-serif font-medium leading-tight text-ink"
+        style={{
+          fontSize: "clamp(1.5rem, 2.6vw, 2rem)",
+          fontVariationSettings: "'opsz' 144",
+        }}
+      >
+        {title}
+      </h2>
+    </div>
   );
 }
 

@@ -36,10 +36,18 @@ export function DetailHero({
               {variant === "originals" ? "Packuptrip Original" : "Community trip"}
             </Badge>
           </div>
-          <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
+          <h1
+            className="mt-3 max-w-3xl font-serif font-medium leading-[1.05] tracking-tight text-white"
+            style={{
+              fontSize: "clamp(2rem, 4.5vw, 3.5rem)",
+              fontVariationSettings: "'opsz' 144",
+            }}
+          >
             {title}
           </h1>
-          <p className="mt-2 text-base text-white/85">{location}</p>
+          <p className="mt-2 font-serif text-base italic text-white/85 sm:text-lg">
+            {location}
+          </p>
         </div>
       </div>
     </section>
