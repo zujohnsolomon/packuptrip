@@ -192,6 +192,23 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           </Field>
         </EditorCard>
 
+        {/* Photos sit right after the basic identity — they power the hero,
+            About feature image, and Moments grid, so they have the biggest
+            visual impact on the public profile. */}
+        <EditorCard
+          eyebrow="Gallery"
+          title="Photos from the road"
+          description="Upload up to 12 personal photos. These power the cover image, the About section feature photo, the Moments grid, and the Gallery tab — falling back to your trip photos only if this is empty."
+        >
+          <ImagesEditor
+            images={draft.profileGallery}
+            onChange={(profileGallery) =>
+              updateDraft({ profileGallery: profileGallery.slice(0, 12) })
+            }
+            accent="teal"
+          />
+        </EditorCard>
+
         <EditorCard
           eyebrow="Travel personality"
           title="Travel style"
@@ -234,28 +251,16 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           </TagGrid>
         </EditorCard>
 
+        {/* Countries last — most tedious section (clicking through a long
+            list), but ends the form with the satisfying world-map fill. */}
         <EditorCard
           eyebrow="Travel history"
           title="Countries visited"
-          description="This helps build trust and can be shown as experience on the host profile."
+          description="Tick every country you've been to. They light up green on the world map on your public profile."
         >
           <CountryPicker
             selected={draft.countriesVisited}
             onChange={(countriesVisited) => updateDraft({ countriesVisited })}
-          />
-        </EditorCard>
-
-        <EditorCard
-          eyebrow="Gallery"
-          title="Photos from the road"
-          description="Upload up to 12 personal photos. These power the feature image in your About section, the Moments grid on the right of your profile, and the Gallery tab — falling back to your trip photos only if this is empty."
-        >
-          <ImagesEditor
-            images={draft.profileGallery}
-            onChange={(profileGallery) =>
-              updateDraft({ profileGallery: profileGallery.slice(0, 12) })
-            }
-            accent="teal"
           />
         </EditorCard>
 
