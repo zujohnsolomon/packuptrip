@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Codex / MCP local tooling config
 .codex/
+
+# Preview tooling (local dev server config)
+.claude/launch.json
