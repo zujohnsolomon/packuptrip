@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { isReservedUsername } from "@/lib/reserved-usernames";
 import { revalidatePath } from "next/cache";
 
 export type ContactChannel = "phone" | "whatsapp" | "email" | "instagram" | "website";
@@ -47,6 +48,11 @@ export async function updateProfile(
 
   const usernameRaw = payload.username.trim().toLowerCase();
   const usernameValid = /^[a-z0-9_]{3,30}$/.test(usernameRaw);
+
+  // Block usernames that collide with real routes (e.g. "packages", "about").
+  if (usernameRaw && isReservedUsername(usernameRaw)) {
+    return { error: "That username is reserved. Please choose another." };
+  }
 
   const update: Record<string, unknown> = {
     name: payload.name.trim() || "Traveller",

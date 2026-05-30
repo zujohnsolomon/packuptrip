@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/actions/profile";
 import { CountryPicker } from "@/components/shared/CountryPicker";
 import { ImagesEditor } from "@/components/shared/ImagesEditor";
+import { isReservedUsername } from "@/lib/reserved-usernames";
 import type { Profile, HostContact } from "@/types/db";
 
 const STYLE_TAGS = [
@@ -120,13 +121,14 @@ export function ProfileEditor({
   const [isPending, startTransition] = useTransition();
 
   // Username availability check
-  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle");
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid" | "reserved">("idle");
   const usernameCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const checkUsername = useCallback(async (value: string) => {
     const trimmed = value.trim().toLowerCase();
     if (!trimmed) { setUsernameStatus("idle"); return; }
     if (!USERNAME_RE.test(trimmed)) { setUsernameStatus("invalid"); return; }
+    if (isReservedUsername(trimmed)) { setUsernameStatus("reserved"); return; }
     if (trimmed === (profile.username ?? "")) { setUsernameStatus("available"); return; }
     setUsernameStatus("checking");
     const supabase = createClient();
@@ -145,13 +147,14 @@ export function ProfileEditor({
   }, [draft.username, checkUsername]);
 
   const publicProfileHref = draft.username.trim()
-    ? `/hosts/${draft.username.trim().toLowerCase()}`
+    ? `/${draft.username.trim().toLowerCase()}`
     : `/hosts/${profile.id}`;
 
   const canSave =
     !isPending &&
     usernameStatus !== "taken" &&
     usernameStatus !== "invalid" &&
+    usernameStatus !== "reserved" &&
     usernameStatus !== "checking";
   const completion = useMemo(() => {
     const checks = [
@@ -262,13 +265,14 @@ export function ProfileEditor({
             hint={
               usernameStatus === "checking" ? "Checking…" :
               usernameStatus === "taken" ? "Already taken" :
+              usernameStatus === "reserved" ? "That name is reserved" :
               usernameStatus === "available" && draft.username.trim() ? "Available" :
               usernameStatus === "invalid" ? "3–30 chars, letters/numbers/_ only" :
-              "Your profile URL: packuptrip.vercel.app/hosts/username"
+              "Your link: packuptrip.com/username"
             }
             hintAccent={
               usernameStatus === "available" ? "green" :
-              usernameStatus === "taken" || usernameStatus === "invalid" ? "red" : undefined
+              usernameStatus === "taken" || usernameStatus === "invalid" || usernameStatus === "reserved" ? "red" : undefined
             }
           >
             <div className="relative flex items-center">

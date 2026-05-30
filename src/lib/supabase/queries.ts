@@ -34,7 +34,7 @@ export const PUBLIC_PROFILE_COLUMNS =
 
 /** Returns the canonical URL for a host profile — username slug when available, UUID fallback. */
 export function hostUrl(host: { id: string; username?: string | null }): string {
-  return `/hosts/${host.username ?? host.id}`;
+  return host.username ? `/${host.username}` : `/hosts/${host.id}`;
 }
 
 /** Featured live packages for the homepage hero strip — max 4. */
