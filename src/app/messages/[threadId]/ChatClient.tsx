@@ -325,7 +325,7 @@ export function ChatClient({
   }
 
   return (
-    <div className="flex h-dvh flex-col" style={{ backgroundColor: PAPER }}>
+    <div className="flex h-full flex-col" style={{ backgroundColor: PAPER }}>
       {/* ── Header ── */}
       <header
         className="flex items-center gap-3 border-b border-stone-200/70 px-4 py-3 backdrop-blur-md"
@@ -333,7 +333,7 @@ export function ChatClient({
       >
         <Link
           href="/messages"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-500 transition hover:bg-white/70"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-500 transition hover:bg-white/70 md:hidden"
           aria-label="Back to inbox"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
