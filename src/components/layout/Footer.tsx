@@ -3,7 +3,7 @@ import { Logo } from "@/components/ui/Logo";
 
 export function Footer() {
   return (
-    <footer className="mt-24 bg-ink text-stone-300">
+    <footer className="bg-ink text-stone-300">
       {/* ── Editorial closing ── */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
