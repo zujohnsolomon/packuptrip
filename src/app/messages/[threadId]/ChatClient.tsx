@@ -6,6 +6,10 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Message } from "@/types/db";
 
+// ─── palette ─────────────────────────────────────────────────────────────────
+const PAPER = "#f1e9da"; // warm parchment background
+const AMBER = "#d97706"; // own message bubbles / accents
+
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 function formatTime(iso: string) {
@@ -42,12 +46,10 @@ function isSameGroup(a: Message, b: Message) {
 
 function DateSeparator({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 py-4">
-      <div className="h-px flex-1 bg-stone-100" />
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+    <div className="flex justify-center py-5">
+      <span className="rounded-full bg-white/70 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 shadow-[0_2px_10px_rgba(64,44,26,0.06)] ring-1 ring-stone-200/60 backdrop-blur">
         {label}
       </span>
-      <div className="h-px flex-1 bg-stone-100" />
     </div>
   );
 }
@@ -72,8 +74,8 @@ function Bubble({
   const isOptimistic = msg.id.startsWith("opt-");
 
   return (
-    <div className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar — tappable, links to sender's profile */}
+    <div className={`flex items-end gap-2.5 ${isFirst ? "mt-3" : "mt-0.5"} ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+      {/* Avatar — only under the last bubble of an incoming group */}
       <div className="w-8 shrink-0">
         {!isOwn && isLast && (
           <Link href={`/hosts/${otherId}`} className="block">
@@ -83,10 +85,10 @@ function Bubble({
                 alt=""
                 width={32}
                 height={32}
-                className="h-8 w-8 rounded-full object-cover transition-opacity hover:opacity-80"
+                className="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white transition-opacity hover:opacity-80"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-[11px] font-semibold text-yellow-400 transition-opacity hover:opacity-80">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ece0cd] text-[11px] font-bold text-[#b45309] ring-2 ring-white transition-opacity hover:opacity-80">
                 {otherInitials}
               </div>
             )}
@@ -94,22 +96,19 @@ function Bubble({
         )}
       </div>
 
-      <div className={`flex max-w-[72%] flex-col ${isOwn ? "items-end" : "items-start"}`}>
+      <div className={`flex max-w-[74%] flex-col ${isOwn ? "items-end" : "items-start"}`}>
         <div
-          className={`px-4 py-2.5 text-sm leading-relaxed transition-opacity ${
+          className={`px-4 py-2.5 text-[14px] leading-relaxed transition-opacity ${
             isOwn
-              ? `bg-yellow-500 text-stone-900 ${
-                  isFirst ? "rounded-t-2xl" : "rounded-t-lg"
-                } ${isLast ? "rounded-bl-2xl rounded-br-sm" : "rounded-b-lg"}`
-              : `bg-white shadow-[0_1px_4px_rgba(0,0,0,0.08)] text-stone-800 ${
-                  isFirst ? "rounded-t-2xl" : "rounded-t-lg"
-                } ${isLast ? "rounded-br-2xl rounded-bl-sm" : "rounded-b-lg"}`
+              ? `rounded-[20px] text-white ${isLast ? "rounded-br-md" : ""}`
+              : `rounded-[20px] bg-white text-stone-800 ring-1 ring-stone-200/70 shadow-[0_2px_12px_rgba(64,44,26,0.06)] ${isLast ? "rounded-bl-md" : ""}`
           } ${isOptimistic ? "opacity-70" : "opacity-100"}`}
+          style={isOwn ? { backgroundColor: AMBER } : undefined}
         >
           {msg.body}
         </div>
         {isLast && (
-          <span className="mt-1 text-[10px] text-stone-400">
+          <span className="mt-1 px-1 text-[10px] font-medium text-stone-400">
             {isOptimistic ? "Sending…" : formatTime(msg.created_at)}
           </span>
         )}
@@ -171,6 +170,8 @@ export function ChatClient({
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  const firstName = otherUser?.name?.split(" ")[0] ?? "them";
 
   async function handleBlock() {
     setBlockBusy(true);
@@ -324,12 +325,15 @@ export function ChatClient({
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-white">
+    <div className="flex h-dvh flex-col" style={{ backgroundColor: PAPER }}>
       {/* ── Header ── */}
-      <header className="flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3 shadow-sm">
+      <header
+        className="flex items-center gap-3 border-b border-stone-200/70 px-4 py-3 backdrop-blur-md"
+        style={{ backgroundColor: "rgba(241,233,218,0.85)" }}
+      >
         <Link
           href="/messages"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-500 transition hover:bg-stone-100"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-500 transition hover:bg-white/70"
           aria-label="Back to inbox"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -343,28 +347,34 @@ export function ChatClient({
             <Image
               src={otherUser.avatar_url}
               alt={otherUser.name}
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full object-cover transition-opacity hover:opacity-80"
+              width={42}
+              height={42}
+              className="h-[42px] w-[42px] rounded-full object-cover shadow-sm ring-2 ring-white transition-opacity hover:opacity-80"
             />
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-400 transition-opacity hover:opacity-80">
+            <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[#ece0cd] text-sm font-bold text-[#b45309] ring-2 ring-white transition-opacity hover:opacity-80">
               {otherInitials}
             </div>
           )}
         </Link>
 
         <div className="min-w-0 flex-1">
-          <Link href={`/hosts/${otherUser?.id}`} className="block truncate text-sm font-semibold text-ink hover:text-yellow-400 transition-colors">
+          <Link
+            href={`/hosts/${otherUser?.id}`}
+            className="block truncate font-serif text-[18px] font-semibold leading-tight text-[#17120f] transition-colors hover:text-[#b45309]"
+          >
             {otherUser?.name ?? "Unknown"}
           </Link>
-          {trip && (
+          {trip ? (
             <Link
               href={`/trips/${trip.id}`}
-              className="block truncate text-[11px] text-green-700 hover:underline"
+              className="mt-0.5 inline-flex max-w-full items-center gap-1 truncate text-[11px] font-semibold text-[#2d5130] hover:underline"
             >
-              {trip.title}
+              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#2d5130]" />
+              <span className="truncate">{trip.title}</span>
             </Link>
+          ) : (
+            <span className="text-[11px] text-stone-400">Direct message</span>
           )}
         </div>
 
@@ -372,7 +382,7 @@ export function ChatClient({
         <div ref={menuRef} className="relative shrink-0">
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-stone-500 transition hover:bg-stone-100"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-stone-500 transition hover:bg-white/70"
             aria-label="More options"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
@@ -424,12 +434,12 @@ export function ChatClient({
                     <circle cx="8" cy="8" r="6" />
                     <line x1="4" y1="4" x2="12" y2="12" />
                   </svg>
-                  {blockBusy ? "Unblocking…" : `Unblock ${otherUser?.name?.split(" ")[0] ?? "user"}`}
+                  {blockBusy ? "Unblocking…" : `Unblock ${firstName}`}
                 </button>
               ) : confirmBlock ? (
                 <div className="px-4 py-3">
                   <p className="text-xs text-stone-500">
-                    Block {otherUser?.name?.split(" ")[0]}? They won't be able to message you.
+                    Block {firstName}? They won&apos;t be able to message you.
                   </p>
                   <div className="mt-2 flex gap-2">
                     <button
@@ -456,7 +466,7 @@ export function ChatClient({
                     <circle cx="8" cy="8" r="6" />
                     <line x1="4" y1="4" x2="12" y2="12" />
                   </svg>
-                  Block {otherUser?.name?.split(" ")[0] ?? "user"}
+                  Block {firstName}
                 </button>
               )}
 
@@ -474,7 +484,7 @@ export function ChatClient({
                     <line x1="8" y1="7" x2="8" y2="10" />
                     <circle cx="8" cy="12" r="0.5" fill="currentColor" />
                   </svg>
-                  Report {otherUser?.name?.split(" ")[0] ?? "user"}
+                  Report {firstName}
                 </Link>
               )}
             </div>
@@ -483,56 +493,71 @@ export function ChatClient({
       </header>
 
       {/* ── Messages ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
-        {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <div className="text-5xl">👋</div>
-              <p className="mt-3 font-medium text-ink">Say hello!</p>
-              <p className="mt-1 text-sm text-stone-500">
-                This is the start of your conversation with {otherUser?.name?.split(" ")[0] ?? "them"}.
-              </p>
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8">
+        <div className="mx-auto w-full max-w-3xl">
+          {messages.length === 0 ? (
+            <div className="flex h-[60vh] items-center justify-center">
+              <div className="max-w-xs text-center">
+                <div
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-white shadow-[0_12px_30px_rgba(217,119,6,0.3)]"
+                  style={{ backgroundColor: AMBER }}
+                >
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4z" />
+                  </svg>
+                </div>
+                <h2 className="mt-5 font-serif text-2xl font-semibold text-[#17120f]">
+                  Say hello to {firstName}.
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-stone-500">
+                  This is the beginning of your conversation. Break the ice — ask about the trip, the dates, or the plan.
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {rendered}
-          </div>
-        )}
-        <div ref={bottomRef} />
+          ) : (
+            <div className="pb-2">{rendered}</div>
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* ── Input bar / Blocked state ── */}
       {isBlocked ? (
-        <div className="border-t border-stone-200 bg-stone-50 px-4 py-4 text-center">
-          <p className="text-sm font-medium text-stone-500">
-            You have blocked {otherUser?.name?.split(" ")[0] ?? "this user"}
+        <div className="border-t border-stone-200/70 px-4 py-5 text-center" style={{ backgroundColor: "rgba(241,233,218,0.9)" }}>
+          <p className="text-sm font-semibold text-stone-600">
+            You have blocked {firstName}
           </p>
           <button
             onClick={handleUnblock}
             disabled={blockBusy}
-            className="mt-2 text-xs font-semibold text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
+            className="mt-2 text-xs font-bold text-[#b45309] hover:text-[#92400e] disabled:opacity-50"
           >
             {blockBusy ? "Unblocking…" : "Unblock"}
           </button>
         </div>
       ) : (
-        <div className="border-t border-stone-200 bg-white px-4 py-3 sm:px-6">
-          <div className="flex items-end gap-3">
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={input}
-              onChange={handleInput}
-              onKeyDown={handleKeyDown}
-              placeholder="Type a message…"
-              className="flex-1 resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-100"
-              style={{ maxHeight: 120 }}
-            />
+        <div
+          className="border-t border-stone-200/70 px-4 py-3.5 backdrop-blur-md sm:px-8"
+          style={{ backgroundColor: "rgba(241,233,218,0.9)" }}
+        >
+          <div className="mx-auto flex w-full max-w-3xl items-end gap-2.5">
+            <div className="flex flex-1 items-end rounded-[24px] border border-stone-200 bg-white px-2 py-1 shadow-[0_2px_12px_rgba(64,44,26,0.06)] focus-within:border-[#d97706] focus-within:ring-2 focus-within:ring-[#d97706]/15">
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                value={input}
+                onChange={handleInput}
+                onKeyDown={handleKeyDown}
+                placeholder="Write a message…"
+                className="flex-1 resize-none bg-transparent px-3 py-2 text-[14px] text-ink placeholder:text-stone-400 focus:outline-none"
+                style={{ maxHeight: 120 }}
+              />
+            </div>
             <button
               onClick={handleSend}
               disabled={!input.trim() || sending}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-stone-900 shadow-sm transition hover:bg-yellow-400 disabled:opacity-40"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-[0_8px_20px_rgba(217,119,6,0.35)] transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none"
+              style={{ backgroundColor: AMBER }}
               aria-label="Send"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -540,7 +565,7 @@ export function ChatClient({
               </svg>
             </button>
           </div>
-          <p className="mt-1.5 text-center text-[10px] text-stone-400">
+          <p className="mt-2 text-center text-[10px] text-stone-400">
             Enter to send · Shift+Enter for new line
           </p>
         </div>
