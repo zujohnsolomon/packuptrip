@@ -30,7 +30,12 @@ export type BrowseFilters = {
  * be able to read. Keep in sync with the column GRANTs revoked from anon.
  */
 export const PUBLIC_PROFILE_COLUMNS =
-  "id, name, avatar_url, bio, home_city, travel_style_tags, languages, countries_visited, profile_gallery, id_verified, host_tier, created_at";
+  "id, name, username, avatar_url, bio, home_city, travel_style_tags, languages, countries_visited, profile_gallery, id_verified, host_tier, created_at";
+
+/** Returns the canonical URL for a host profile — username slug when available, UUID fallback. */
+export function hostUrl(host: { id: string; username?: string | null }): string {
+  return `/hosts/${host.username ?? host.id}`;
+}
 
 /** Featured live packages for the homepage hero strip — max 4. */
 export async function listFeaturedPackages(): Promise<Package[]> {

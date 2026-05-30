@@ -8,7 +8,7 @@ import { Itinerary } from "@/components/detail/Itinerary";
 import { Inclusions } from "@/components/detail/Inclusions";
 import { PriceCard } from "@/components/detail/PriceCard";
 import { StickyBookBar } from "@/components/detail/StickyBookBar";
-import { getLiveTrip, getListingReviews } from "@/lib/supabase/queries";
+import { getLiveTrip, getListingReviews, hostUrl } from "@/lib/supabase/queries";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { createClient } from "@/lib/supabase/server";
@@ -244,7 +244,7 @@ function HostCard({
   return (
     <div className="rounded-2xl bg-white p-5 shadow-[var(--shadow-card)]">
       <Link
-        href={`/hosts/${host.id}`}
+        href={hostUrl(host)}
         className="group flex items-center gap-4"
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-green-100 ring-2 ring-white">

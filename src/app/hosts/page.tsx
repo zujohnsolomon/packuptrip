@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
+import { hostUrl } from "@/lib/supabase/queries";
 
 export const metadata = {
   title: "Hosts on Packuptrip",
@@ -17,6 +18,7 @@ type SP = { from?: string; to?: string };
 type HostRow = {
   id: string;
   name: string;
+  username: string | null;
   avatar_url: string | null;
   id_verified: boolean;
   bio: string | null;
@@ -66,7 +68,7 @@ export default async function HostsPage({
   if (hostIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, name, avatar_url, id_verified, bio, home_city")
+      .select("id, name, username, avatar_url, id_verified, bio, home_city")
       .in("id", hostIds);
     profiles = (data ?? []) as Omit<HostRow, "trip_count" | "destinations">[];
   }
@@ -189,7 +191,7 @@ function EditorialHostCard({ host, index }: { host: HostRow; index: number }) {
 
   return (
     <Link
-      href={`/hosts/${host.id}`}
+      href={hostUrl(host)}
       className="group block overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
     >
       <div className="grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">

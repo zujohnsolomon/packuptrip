@@ -38,6 +38,7 @@ end $$;
 create table if not exists public.profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
   name        text        not null,
+  username    text unique check (username ~ '^[a-z0-9_]{3,30}$'),
   email       text        not null unique,
   avatar_url  text,
   bio         text,

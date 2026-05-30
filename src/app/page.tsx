@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { DestinationPicker } from "@/components/ui/DestinationPicker";
 import { MonthPicker } from "@/components/ui/MonthPicker";
 import { createClient } from "@/lib/supabase/server";
-import { listLiveTrips, listLivePackages, listFeaturedPackages } from "@/lib/supabase/queries";
+import { listLiveTrips, listLivePackages, listFeaturedPackages, hostUrl } from "@/lib/supabase/queries";
 import { engineImages, heroImage, testimonials } from "@/lib/seed-data";
 import type { Trip, Package } from "@/types/db";
 
@@ -46,6 +46,7 @@ export default async function Home() {
   let featuredHosts: {
     id: string;
     name: string;
+    username: string | null;
     avatar_url: string | null;
     id_verified: boolean;
     bio: string | null;
@@ -54,7 +55,7 @@ export default async function Home() {
   if (allHostIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, name, avatar_url, id_verified, bio, home_city")
+      .select("id, name, username, avatar_url, id_verified, bio, home_city")
       .in("id", allHostIds);
     featuredHosts = (data ?? []).slice(0, 8);
   }
@@ -581,6 +582,7 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
 type FeaturedHost = {
   id: string;
   name: string;
+  username: string | null;
   avatar_url: string | null;
   id_verified: boolean;
   bio: string | null;
@@ -632,7 +634,7 @@ function HostFeatureCard({ host, tripCount }: { host: FeaturedHost; tripCount: n
   const location = host.home_city ?? "Packuptrip host";
   return (
     <Link
-      href={`/hosts/${host.id}`}
+      href={hostUrl(host)}
       className="group grid overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] sm:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]"
     >
       {/* Photo */}
@@ -735,7 +737,7 @@ function HostPortraitTile({
 }) {
   return (
     <Link
-      href={`/hosts/${host.id}`}
+      href={hostUrl(host)}
       className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
     >
       {host.avatar_url ? (

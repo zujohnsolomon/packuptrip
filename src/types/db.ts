@@ -52,6 +52,7 @@ export type ItineraryDay = {
 export type Profile = {
   id: string;
   name: string;
+  username: string | null;
   email: string;
   avatar_url: string | null;
   bio: string | null;
@@ -91,16 +92,25 @@ export type HostContact = {
   email_public: boolean;
   instagram_public: boolean;
   website_public: boolean;
+  // Social profile links (always public — no toggle)
+  facebook: string | null;
+  youtube: string | null;
+  linkedin: string | null;
+  twitter: string | null;
 };
 
 // What get_public_host_contact() returns — only the fields the host
-// chose to make public (others come back null).
+// chose to make public (others come back null). Social links always included.
 export type PublicHostContact = {
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
   instagram: string | null;
   website: string | null;
+  facebook: string | null;
+  youtube: string | null;
+  linkedin: string | null;
+  twitter: string | null;
 };
 
 export type Package = {

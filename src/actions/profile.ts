@@ -16,10 +16,16 @@ export type ContactDraft = {
   emailPublic: boolean;
   instagramPublic: boolean;
   websitePublic: boolean;
+  // Social profile links (always public)
+  facebook: string;
+  youtube: string;
+  linkedin: string;
+  twitter: string;
 };
 
 export type UpdateProfilePayload = {
   name: string;
+  username: string;
   bio: string;
   homeCity: string;
   travelStyleTags: string[];
@@ -39,8 +45,12 @@ export async function updateProfile(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in" };
 
+  const usernameRaw = payload.username.trim().toLowerCase();
+  const usernameValid = /^[a-z0-9_]{3,30}$/.test(usernameRaw);
+
   const update: Record<string, unknown> = {
     name: payload.name.trim() || "Traveller",
+    username: usernameValid ? usernameRaw : null,
     bio: payload.bio.trim() || null,
     home_city: payload.homeCity.trim() || null,
     travel_style_tags: payload.travelStyleTags,
@@ -63,15 +73,18 @@ export async function updateProfile(
     return { error: error.message };
   }
 
-  // Contact details live in the RLS-protected host_contacts table (so private
-  // fields are never readable by other users via the API). Normalise here —
-  // strip @ from Instagram, ensure http(s) on website, null when empty.
   const c = payload.contact;
   const cleanWebsite = c.website.trim()
     ? c.website.trim().match(/^https?:\/\//)
       ? c.website.trim()
       : `https://${c.website.trim()}`
     : null;
+
+  const cleanSocialUrl = (val: string) => {
+    const t = val.trim();
+    if (!t) return null;
+    return t.match(/^https?:\/\//) ? t : `https://${t}`;
+  };
 
   const { error: contactErr } = await supabase
     .from("host_contacts")
@@ -88,6 +101,10 @@ export async function updateProfile(
         email_public: c.emailPublic,
         instagram_public: c.instagramPublic,
         website_public: c.websitePublic,
+        facebook: cleanSocialUrl(c.facebook),
+        youtube: cleanSocialUrl(c.youtube),
+        linkedin: cleanSocialUrl(c.linkedin),
+        twitter: c.twitter.trim().replace(/^@/, "") || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" },
