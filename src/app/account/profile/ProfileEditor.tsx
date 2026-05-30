@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/actions/profile";
 import { CountryPicker } from "@/components/shared/CountryPicker";
 import { ImagesEditor } from "@/components/shared/ImagesEditor";
+import { isReservedUsername } from "@/lib/reserved-usernames";
 import type { Profile, HostContact } from "@/types/db";
 
 const STYLE_TAGS = [
@@ -59,10 +60,17 @@ type ContactDraft = {
   emailPublic: boolean;
   instagramPublic: boolean;
   websitePublic: boolean;
+  facebook: string;
+  youtube: string;
+  linkedin: string;
+  twitter: string;
 };
+
+const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
 
 type DraftProfile = {
   name: string;
+  username: string;
   bio: string;
   homeCity: string;
   styleTags: string[];
@@ -83,6 +91,7 @@ export function ProfileEditor({
   const router = useRouter();
   const [draft, setDraft] = useState<DraftProfile>({
     name: profile.name ?? "",
+    username: profile.username ?? "",
     bio: profile.bio ?? "",
     homeCity: profile.home_city ?? "",
     styleTags: profile.travel_style_tags ?? [],
@@ -100,6 +109,10 @@ export function ProfileEditor({
       emailPublic: contact?.email_public ?? false,
       instagramPublic: contact?.instagram_public ?? true,
       websitePublic: contact?.website_public ?? true,
+      facebook: contact?.facebook ?? "",
+      youtube: contact?.youtube ?? "",
+      linkedin: contact?.linkedin ?? "",
+      twitter: contact?.twitter ?? "",
     },
     avatarUrl: profile.avatar_url,
   });
@@ -107,7 +120,42 @@ export function ProfileEditor({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const publicProfileHref = `/hosts/${profile.id}`;
+  // Username availability check
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid" | "reserved">("idle");
+  const usernameCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const checkUsername = useCallback(async (value: string) => {
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) { setUsernameStatus("idle"); return; }
+    if (!USERNAME_RE.test(trimmed)) { setUsernameStatus("invalid"); return; }
+    if (isReservedUsername(trimmed)) { setUsernameStatus("reserved"); return; }
+    if (trimmed === (profile.username ?? "")) { setUsernameStatus("available"); return; }
+    setUsernameStatus("checking");
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", trimmed)
+      .maybeSingle();
+    setUsernameStatus(data ? "taken" : "available");
+  }, [profile.username]);
+
+  useEffect(() => {
+    if (usernameCheckRef.current) clearTimeout(usernameCheckRef.current);
+    usernameCheckRef.current = setTimeout(() => checkUsername(draft.username), 500);
+    return () => { if (usernameCheckRef.current) clearTimeout(usernameCheckRef.current); };
+  }, [draft.username, checkUsername]);
+
+  const publicProfileHref = draft.username.trim()
+    ? `/${draft.username.trim().toLowerCase()}`
+    : `/hosts/${profile.id}`;
+
+  const canSave =
+    !isPending &&
+    usernameStatus !== "taken" &&
+    usernameStatus !== "invalid" &&
+    usernameStatus !== "reserved" &&
+    usernameStatus !== "checking";
   const completion = useMemo(() => {
     const checks = [
       !!draft.name.trim(),
@@ -151,6 +199,7 @@ export function ProfileEditor({
     startTransition(async () => {
       const { error: err } = await updateProfile({
         name: draft.name,
+        username: draft.username,
         bio: draft.bio,
         homeCity: draft.homeCity,
         travelStyleTags: draft.styleTags,
@@ -171,12 +220,13 @@ export function ProfileEditor({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-      <div className="space-y-5">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_272px] lg:items-start xl:grid-cols-[minmax(0,1fr)_288px]">
+      <div className="space-y-2">
         <EditorCard
-          eyebrow="Profile photo"
-          title="Your face on the host page"
-          description="This appears in the large circular frame on your public host profile."
+          eyebrow="Profile"
+          title="Photo & identity"
+          description="Avatar, name, city, bio."
+          tight
         >
           <AvatarUploader
             userId={profile.id}
@@ -184,14 +234,9 @@ export function ProfileEditor({
             name={draft.name || "Host"}
             onUploaded={(url) => updateDraft({ avatarUrl: url })}
           />
-        </EditorCard>
 
-        <EditorCard
-          eyebrow="Public identity"
-          title="Name, home city and intro"
-          description="These fields feed the hero, About section and sidebar facts on your host profile."
-        >
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="border-t border-stone-100 pt-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Display name">
               <input
                 type="text"
@@ -216,6 +261,37 @@ export function ProfileEditor({
           </div>
 
           <Field
+            label="Username"
+            hint={
+              usernameStatus === "checking" ? "Checking…" :
+              usernameStatus === "taken" ? "Already taken" :
+              usernameStatus === "reserved" ? "That name is reserved" :
+              usernameStatus === "available" && draft.username.trim() ? "Available" :
+              usernameStatus === "invalid" ? "3–30 chars, letters/numbers/_ only" :
+              "Your link: packuptrip.com/username"
+            }
+            hintAccent={
+              usernameStatus === "available" ? "green" :
+              usernameStatus === "taken" || usernameStatus === "invalid" || usernameStatus === "reserved" ? "red" : undefined
+            }
+          >
+            <div className="relative flex items-center">
+              <span className="pointer-events-none absolute left-3 select-none text-[14px] font-medium text-stone-400">@</span>
+              <input
+                type="text"
+                value={draft.username}
+                onChange={(event) => {
+                  const val = event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "");
+                  updateDraft({ username: val });
+                }}
+                maxLength={30}
+                placeholder="johnsolomon"
+                className={`${inputClassName} pl-7`}
+              />
+            </div>
+          </Field>
+
+          <Field
             label="Bio"
             hint={`${draft.bio.length}/280 characters`}
           >
@@ -223,20 +299,19 @@ export function ProfileEditor({
               value={draft.bio}
               onChange={(event) => updateDraft({ bio: event.target.value })}
               maxLength={280}
-              rows={5}
+              rows={4}
               placeholder="Tell travellers how you travel, what you host, and what kind of people should join you."
               className={`${inputClassName} resize-none leading-6`}
             />
           </Field>
+          </div>
         </EditorCard>
 
-        {/* Photos sit right after the basic identity — they power the hero,
-            About feature image, and Moments grid, so they have the biggest
-            visual impact on the public profile. */}
         <EditorCard
           eyebrow="Gallery"
           title="Photos from the road"
-          description="Upload up to 12 personal photos. These power the cover image, the About section feature photo, the Moments grid, and the Gallery tab — falling back to your trip photos only if this is empty."
+          description="Up to 12 — cover, About & Moments."
+          tight
         >
           <ImagesEditor
             images={draft.profileGallery}
@@ -248,9 +323,10 @@ export function ProfileEditor({
         </EditorCard>
 
         <EditorCard
-          eyebrow="Travel personality"
-          title="Travel style"
-          description="Pick up to five. These show as icon labels in the About section."
+          eyebrow="Travel style"
+          title="How you travel"
+          description="Up to 5 tags."
+          tight
         >
           <TagGrid>
             {STYLE_TAGS.map((tag) => {
@@ -270,9 +346,10 @@ export function ProfileEditor({
         </EditorCard>
 
         <EditorCard
-          eyebrow="Communication"
+          eyebrow="Languages"
           title="Languages you speak"
-          description="These appear in the right sidebar on your public host profile."
+          description="Shown on profile."
+          tight
         >
           <TagGrid>
             {LANGUAGES.map((language) => {
@@ -292,16 +369,17 @@ export function ProfileEditor({
         {/* Contact & connect — each row has its own public/private toggle.
             Only fields the host marks public will render on the profile. */}
         <EditorCard
-          eyebrow="Contact & connect"
-          title="Ways travellers can reach you"
-          description="Fill in only what you're comfortable sharing. Use the toggle next to each field to decide what shows on your public profile — everything is private by default unless you flip it on."
+          eyebrow="Contact"
+          title="Reach you"
+          description="Toggle Public to show on profile."
+          tight
         >
-          <div className="space-y-4">
+          <div className="divide-y divide-stone-100/90">
             <ContactRow
               label="Phone"
-              hint="Include country code (e.g. +91 98765 43210)"
+              hint="Include country code, e.g. +91 98765 43210"
               type="tel"
-              placeholder="+91 ..."
+              placeholder="+91 98765 43210"
               value={draft.contact.phone}
               isPublic={draft.contact.phonePublic}
               onValueChange={(phone) => updateContact({ phone })}
@@ -309,17 +387,17 @@ export function ProfileEditor({
             />
             <ContactRow
               label="WhatsApp"
-              hint="Digits only (country code first). Will become a wa.me link."
+              hint="Digits only with country code — becomes wa.me link"
               type="tel"
-              placeholder="9198765..."
+              placeholder="919876543210"
               value={draft.contact.whatsapp}
               isPublic={draft.contact.whatsappPublic}
               onValueChange={(whatsapp) => updateContact({ whatsapp })}
               onPublicChange={(whatsappPublic) => updateContact({ whatsappPublic })}
             />
             <ContactRow
-              label="Public email"
-              hint="Different from your sign-in email. Use a business or public-facing one."
+              label="Email"
+              hint="Public-facing email, not your login"
               type="email"
               placeholder="hello@yourdomain.com"
               value={draft.contact.email}
@@ -329,7 +407,7 @@ export function ProfileEditor({
             />
             <ContactRow
               label="Instagram"
-              hint="Just the handle, no @"
+              hint="Handle only, no @"
               type="text"
               placeholder="yourhandle"
               value={draft.contact.instagram}
@@ -339,7 +417,7 @@ export function ProfileEditor({
             />
             <ContactRow
               label="Website"
-              hint="https:// will be added automatically"
+              hint="https:// added automatically"
               type="url"
               placeholder="yourdomain.com"
               value={draft.contact.website}
@@ -348,14 +426,47 @@ export function ProfileEditor({
               onPublicChange={(websitePublic) => updateContact({ websitePublic })}
             />
           </div>
+
+          <div className="border-t border-stone-100/90 pt-2">
+            <p className="mb-1 px-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-stone-400">
+              Social · public when filled
+            </p>
+            <div className="divide-y divide-stone-100/90">
+              <SocialRow
+                label="Facebook"
+                placeholder="facebook.com/yourpage"
+                value={draft.contact.facebook}
+                onChange={(facebook) => updateContact({ facebook })}
+              />
+              <SocialRow
+                label="YouTube"
+                placeholder="youtube.com/@yourchannel"
+                value={draft.contact.youtube}
+                onChange={(youtube) => updateContact({ youtube })}
+              />
+              <SocialRow
+                label="LinkedIn"
+                placeholder="linkedin.com/in/yourprofile"
+                value={draft.contact.linkedin}
+                onChange={(linkedin) => updateContact({ linkedin })}
+              />
+              <SocialRow
+                label="X / Twitter"
+                placeholder="yourhandle (no @)"
+                value={draft.contact.twitter}
+                onChange={(twitter) => updateContact({ twitter })}
+              />
+            </div>
+          </div>
         </EditorCard>
 
         {/* Countries last — most tedious section (clicking through a long
             list), but ends the form with the satisfying world-map fill. */}
         <EditorCard
-          eyebrow="Travel history"
+          eyebrow="Map"
           title="Countries visited"
-          description="Tick every country you've been to. They light up green on the world map on your public profile."
+          description="Lights up your profile map."
+          tight
         >
           <CountryPicker
             selected={draft.countriesVisited}
@@ -363,40 +474,36 @@ export function ProfileEditor({
           />
         </EditorCard>
 
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        )}
-
-        <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white/90 p-3 shadow-[0_18px_50px_rgba(41,37,36,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-stone-500">
+        <div className="sticky bottom-3 z-10 flex flex-col gap-2 rounded-xl border border-stone-200 bg-white/95 px-3 py-2.5 shadow-lg backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[13px] text-stone-500">
             {saved ? (
-              <span className="font-semibold text-[#2d5130]">Saved to your public profile.</span>
+              <span className="font-semibold text-[#2d5130]">Saved.</span>
+            ) : error ? (
+              <span className="text-red-600">{error}</span>
             ) : (
-              <span>Save changes before checking the public page.</span>
+              <span>Save before previewing.</span>
             )}
-          </div>
+          </p>
           <div className="flex gap-2">
             <Link
               href={publicProfileHref}
-              className="inline-flex h-11 items-center justify-center rounded-[8px] border border-stone-200 bg-white px-4 text-sm font-bold text-stone-700 shadow-sm hover:bg-stone-50"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-stone-200 bg-white px-3.5 text-[13px] font-bold text-stone-700 hover:bg-stone-50"
             >
               View profile
             </Link>
             <button
               type="button"
               onClick={handleSave}
-              disabled={isPending}
-              className="inline-flex h-11 items-center justify-center rounded-[8px] bg-[#2d5130] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[#244329] disabled:opacity-60"
+              disabled={!canSave}
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-[#2d5130] px-5 text-[13px] font-bold text-white hover:bg-[#244329] disabled:opacity-50"
             >
-              {isPending ? "Saving..." : saved ? "Saved" : "Save profile"}
+              {isPending ? "Saving…" : saved ? "Saved" : "Save profile"}
             </button>
           </div>
         </div>
       </div>
 
-      <aside className="lg:sticky lg:top-24">
+      <aside className="lg:sticky lg:top-[4.5rem]">
         <ProfilePreview
           draft={draft}
           completion={completion}
@@ -632,8 +739,8 @@ function AvatarUploader({
         </div>
       )}
 
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-        <div className="relative h-28 w-28 shrink-0 rounded-full bg-white p-2 shadow-[0_14px_36px_rgba(64,44,26,0.14)]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative h-[88px] w-[88px] shrink-0 rounded-full bg-white p-1.5 shadow-md ring-1 ring-stone-100">
           <div className="relative h-full w-full overflow-hidden rounded-full bg-stone-100">
             {preview ? (
               <Image
@@ -700,12 +807,12 @@ function ProfilePreview({
   hostTier: Profile["host_tier"];
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_18px_50px_rgba(64,44,26,0.08)]">
-      <div className="relative h-32 bg-[url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center">
+    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+      <div className="relative h-24 bg-[url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/20" />
       </div>
-      <div className="-mt-14 px-6 pb-6">
-        <div className="relative h-28 w-28 rounded-full bg-white p-2 shadow-[0_14px_34px_rgba(41,37,36,0.16)]">
+      <div className="-mt-10 px-4 pb-4">
+        <div className="relative h-20 w-20 rounded-full bg-white p-1 shadow-md ring-2 ring-white">
           <div className="relative h-full w-full overflow-hidden rounded-full bg-stone-100">
             {draft.avatarUrl ? (
               <Image
@@ -724,20 +831,20 @@ function ProfilePreview({
           </div>
         </div>
 
-        <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.24em] text-[#b35a42]">
-          Public host profile
+        <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#c45c3e]">
+          Preview
         </p>
-        <h3 className="mt-2 font-serif text-3xl font-semibold leading-none text-[#17120f]">
+        <h3 className="mt-1 font-serif text-xl font-semibold leading-tight text-[#17120f]">
           {draft.name || "Your name"}
         </h3>
-        <p className="mt-2 text-xs font-bold uppercase tracking-[0.22em] text-stone-500">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
           Travel Host
         </p>
-        <p className="mt-4 text-sm leading-6 text-stone-600">
-          {draft.bio || "Your bio will appear here on the public host profile."}
+        <p className="mt-2 line-clamp-3 text-[12px] leading-5 text-stone-600">
+          {draft.bio || "Your bio appears on your public profile."}
         </p>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 border-y border-stone-100 py-5">
+        <div className="mt-3 grid grid-cols-2 gap-2 border-y border-stone-100 py-3">
           <PreviewStat label="Home city" value={draft.homeCity || "Not set"} />
           <PreviewStat
             label="Languages"
@@ -753,12 +860,12 @@ function ProfilePreview({
           />
         </div>
 
-        <div className="mt-5">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.16em] text-stone-500">
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
             <span>Profile strength</span>
             <span>{completion}%</span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-stone-100">
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-100">
             <div
               className="h-full rounded-full bg-[#2d5130] transition-all"
               style={{ width: `${completion}%` }}
@@ -766,7 +873,7 @@ function ProfilePreview({
           </div>
         </div>
 
-        <div className="mt-5 space-y-2 text-sm">
+        <div className="mt-3 space-y-1.5 text-[12px]">
           <ChecklistItem done={!!draft.avatarUrl} label="Host photo added" />
           <ChecklistItem done={!!draft.bio.trim()} label="Bio written" />
           <ChecklistItem done={draft.styleTags.length > 0} label="Travel style selected" />
@@ -777,7 +884,7 @@ function ProfilePreview({
 
         <Link
           href={publicProfileHref}
-          className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-[8px] bg-[#17120f] px-4 text-sm font-bold text-white hover:bg-stone-800"
+          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-lg bg-[#17120f] text-[13px] font-bold text-white hover:bg-stone-800"
         >
           Open public profile
         </Link>
@@ -790,25 +897,31 @@ function EditorCard({
   eyebrow,
   title,
   description,
+  tight = false,
   children,
 }: {
   eyebrow: string;
   title: string;
   description: string;
+  tight?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[0_14px_36px_rgba(64,44,26,0.06)] sm:p-7">
-      <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-stone-400">
+    <section className="rounded-lg border border-stone-200 bg-white p-3 shadow-sm">
+      <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-stone-400">
         {eyebrow}
       </p>
-      <div className="mt-2 max-w-2xl">
-        <h2 className="font-serif text-3xl font-semibold leading-tight text-[#17120f]">
-          {title}
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-stone-500">{description}</p>
-      </div>
-      <div className="mt-6 space-y-5">{children}</div>
+      <h2
+        className={`font-serif font-semibold leading-snug text-[#17120f] ${
+          tight ? "mt-0.5 text-base" : "mt-1 text-lg"
+        }`}
+      >
+        {title}
+      </h2>
+      {description ? (
+        <p className="mt-0.5 text-[11px] leading-4 text-stone-500">{description}</p>
+      ) : null}
+      <div className={`${tight ? "mt-2" : "mt-3"} space-y-2`}>{children}</div>
     </section>
   );
 }
@@ -816,17 +929,23 @@ function EditorCard({
 function Field({
   label,
   hint,
+  hintAccent,
   children,
 }: {
   label: string;
   hint?: string;
+  hintAccent?: "green" | "red";
   children: ReactNode;
 }) {
+  const hintColor =
+    hintAccent === "green" ? "text-[#2d5130]" :
+    hintAccent === "red" ? "text-red-600" :
+    "text-stone-400";
   return (
     <label className="block">
-      <span className="mb-2 flex items-center justify-between gap-3 text-sm font-bold text-[#28231e]">
+      <span className="mb-1 flex items-center justify-between gap-2 text-[12px] font-semibold text-[#28231e]">
         <span>{label}</span>
-        {hint && <span className="text-xs font-medium text-stone-400">{hint}</span>}
+        {hint && <span className={`text-xs font-medium ${hintColor}`}>{hint}</span>}
       </span>
       {children}
     </label>
@@ -834,7 +953,7 @@ function Field({
 }
 
 function TagGrid({ children }: { children: ReactNode }) {
-  return <div className="flex flex-wrap gap-2">{children}</div>;
+  return <div className="flex flex-wrap gap-1.5">{children}</div>;
 }
 
 function ContactRow({
@@ -859,26 +978,53 @@ function ContactRow({
   const inputId = `contact-${label.toLowerCase().replace(/\s+/g, "-")}`;
   const hasValue = value.trim().length > 0;
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <label htmlFor={inputId} className="text-sm font-bold text-[#28231e]">
-          {label}
-        </label>
-        <VisibilityToggle
-          isPublic={isPublic}
-          disabled={!hasValue}
-          onChange={onPublicChange}
-        />
-      </div>
+    <div className="grid grid-cols-[minmax(4.25rem,5rem)_minmax(0,1fr)_auto] items-center gap-x-2 py-1.5">
+      <label htmlFor={inputId} className="text-[12px] font-semibold text-stone-700">
+        {label}
+      </label>
       <input
         id={inputId}
         type={type}
         placeholder={placeholder}
+        title={hint}
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
-        className="mt-3 block w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-[#2d5130] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2d5130]/15"
+        className={compactInputClassName}
       />
-      <p className="mt-1.5 text-xs text-stone-400">{hint}</p>
+      <VisibilityToggle
+        isPublic={isPublic}
+        disabled={!hasValue}
+        onChange={onPublicChange}
+      />
+    </div>
+  );
+}
+
+function SocialRow({
+  label,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const inputId = `social-${label.toLowerCase().replace(/[\s/]+/g, "-")}`;
+  return (
+    <div className="grid grid-cols-[minmax(4.25rem,5rem)_minmax(0,1fr)] items-center gap-x-2 py-1.5">
+      <label htmlFor={inputId} className="text-[12px] font-semibold text-stone-700">
+        {label}
+      </label>
+      <input
+        id={inputId}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={compactInputClassName}
+      />
     </div>
   );
 }
@@ -892,32 +1038,31 @@ function VisibilityToggle({
   disabled: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const label = disabled ? "Add value" : isPublic ? "Public" : "Private";
+
   return (
     <button
       type="button"
       onClick={() => !disabled && onChange(!isPublic)}
       disabled={disabled}
       aria-pressed={isPublic}
-      className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-        disabled
-          ? "cursor-not-allowed bg-stone-50 text-stone-300"
-          : isPublic
-            ? "bg-green-50 text-green-800 ring-1 ring-inset ring-green-200 hover:bg-green-100"
-            : "bg-stone-100 text-stone-600 ring-1 ring-inset ring-stone-200 hover:bg-stone-200"
+      aria-label={label}
+      title={label}
+      className={`inline-flex shrink-0 items-center rounded-full p-0.5 transition-colors ${
+        disabled ? "cursor-not-allowed opacity-40" : "hover:opacity-90"
       }`}
     >
       <span
-        className={`relative inline-block h-3.5 w-6 rounded-full transition-colors ${
-          isPublic ? "bg-green-600" : "bg-stone-400"
-        } ${disabled ? "opacity-40" : ""}`}
+        className={`relative inline-block h-5 w-9 rounded-full transition-colors ${
+          isPublic ? "bg-[#2d5130]" : "bg-stone-300"
+        }`}
       >
         <span
-          className={`absolute top-0.5 h-2.5 w-2.5 rounded-full bg-white transition-all ${
-            isPublic ? "left-3" : "left-0.5"
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+            isPublic ? "left-[18px]" : "left-0.5"
           }`}
         />
       </span>
-      {disabled ? "Add details first" : isPublic ? "Public" : "Private"}
     </button>
   );
 }
@@ -938,7 +1083,7 @@ function ToggleChip({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-bold transition ${
+      className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[12px] font-semibold transition ${
         selected
           ? "border-[#2d5130] bg-[#2d5130] text-white shadow-sm"
           : disabled
@@ -976,4 +1121,7 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
 }
 
 const inputClassName =
-  "w-full rounded-xl border border-stone-200 bg-[#fbfaf7] px-4 py-3 text-sm text-[#28231e] placeholder:text-stone-400 outline-none transition focus:border-[#2d5130] focus:bg-white focus:ring-4 focus:ring-[#2d5130]/10";
+  "w-full rounded-lg border border-stone-200 bg-[#fbfaf7] px-3 py-2 text-sm text-[#28231e] placeholder:text-stone-400 outline-none transition focus:border-[#2d5130] focus:bg-white focus:ring-2 focus:ring-[#2d5130]/12";
+
+const compactInputClassName =
+  "min-w-0 w-full rounded-md border border-stone-200 bg-stone-50/80 px-2.5 py-1.5 text-[13px] text-[#28231e] placeholder:text-stone-400 outline-none transition focus:border-[#2d5130] focus:bg-white focus:ring-1 focus:ring-[#2d5130]/15";

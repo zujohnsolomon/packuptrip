@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Caveat, Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ConciergeWidget } from "@/components/concierge/ConciergeWidget";
 
@@ -14,6 +14,12 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   axes: ["opsz", "SOFT"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://packuptrip.in";
@@ -68,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">
         {children}

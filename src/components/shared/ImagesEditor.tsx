@@ -113,7 +113,7 @@ export function ImagesEditor({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Drop zone / picker */}
       <div
         onDragOver={(e) => {
@@ -127,7 +127,7 @@ export function ImagesEditor({
           handleFiles(e.dataTransfer.files);
         }}
         className={[
-          "rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center transition-colors",
+          "rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-4 text-center transition-colors",
           dropTint,
           dragOver ? activeTint : "",
         ].join(" ")}
@@ -168,9 +168,9 @@ export function ImagesEditor({
           {images.map((url, idx) => (
             <li
               key={idx}
-              className="flex items-stretch gap-2 rounded-xl border border-stone-200 bg-white p-2"
+              className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white p-1.5"
             >
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-stone-100">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-stone-100">
                 {url ? (
                   <Image
                     src={url}
@@ -196,14 +196,14 @@ export function ImagesEditor({
                 value={url}
                 placeholder="https://…"
                 onChange={(e) => updateRow(idx, e.target.value)}
-                className="block flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-ink placeholder-stone-400 shadow-sm focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100"
+                className="block min-w-0 flex-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-1.5 text-[12px] text-ink placeholder-stone-400 focus:border-[#2d5130] focus:outline-none focus:ring-1 focus:ring-[#2d5130]/15"
               />
-              <div className="flex shrink-0 flex-col items-stretch gap-1">
+              <div className="flex shrink-0 gap-0.5">
                 <button
                   type="button"
                   onClick={() => move(idx, -1)}
                   disabled={idx === 0}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 bg-white text-xs text-stone-600 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-7 w-6 items-center justify-center rounded border border-stone-200 bg-white text-[10px] text-stone-600 hover:bg-stone-50 disabled:opacity-40"
                   aria-label="Move up"
                 >
                   ↑
@@ -212,7 +212,7 @@ export function ImagesEditor({
                   type="button"
                   onClick={() => move(idx, 1)}
                   disabled={idx === images.length - 1}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 bg-white text-xs text-stone-600 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-7 w-6 items-center justify-center rounded border border-stone-200 bg-white text-[10px] text-stone-600 hover:bg-stone-50 disabled:opacity-40"
                   aria-label="Move down"
                 >
                   ↓
@@ -221,7 +221,7 @@ export function ImagesEditor({
               <button
                 type="button"
                 onClick={() => removeRow(idx)}
-                className="inline-flex h-10 shrink-0 items-center justify-center self-center rounded-lg border border-stone-200 px-3 text-xs font-medium text-stone-600 hover:bg-stone-50"
+                className="inline-flex h-7 shrink-0 items-center justify-center rounded border border-stone-200 px-2 text-[10px] font-medium text-stone-600 hover:bg-stone-50"
               >
                 Remove
               </button>

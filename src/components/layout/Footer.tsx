@@ -1,89 +1,97 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
-export function Footer() {
-  return (
-    <footer className="mt-24 bg-ink text-stone-300">
-      {/* ── Editorial closing ── */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
-            · A note from the makers ·
-          </p>
-          <h2
-            className="mt-5 font-serif font-medium leading-[1.05] tracking-tight text-white"
-            style={{
-              fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
-              fontVariationSettings: "'opsz' 144",
-            }}
-          >
-            Travel together, never alone.
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl font-serif text-lg italic leading-relaxed text-stone-400">
-            Curated journeys and community trips — hand-picked, hand-led,
-            and run by people who&rsquo;d rather know your name than your
-            postcode.
-          </p>
-        </div>
-      </section>
+const AMBER = "#b45309";
 
-      {/* ── Links ── */}
-      <section>
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
-          {/* Logo column */}
-          <div className="lg:col-span-3">
-            <Logo light />
-            <p className="mt-6 max-w-xs text-sm leading-relaxed text-stone-400">
-              A small studio building a better way to travel together.
-              Based in Chennai. On the road, most weeks.
+export function Footer() {
+  const year = new Date().getFullYear();
+
+  return (
+    <footer className="bg-[#f4ede1] text-[#2b2520]">
+      <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-24">
+        <div className="grid gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-24">
+          {/* ── Editorial masthead ── */}
+          <div>
+            <span
+              className="inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em]"
+              style={{ color: AMBER }}
+            >
+              <span className="h-px w-7" style={{ backgroundColor: `${AMBER}55` }} />
+              A note from the makers
+            </span>
+
+            <h2
+              className="mt-6 font-serif font-medium leading-[0.98] tracking-tight text-[#211c1a]"
+              style={{
+                fontSize: "clamp(2.5rem, 4.6vw, 3.75rem)",
+                fontVariationSettings: "'opsz' 144",
+              }}
+            >
+              Go far,
+              <span className="block italic" style={{ color: AMBER }}>
+                go together.
+              </span>
+            </h2>
+
+            <p className="mt-6 max-w-md text-[15px] leading-[1.75] text-stone-600">
+              Curated journeys and community trips — hand-picked, hand-led,
+              and run by people who&rsquo;d rather know your name than your
+              postcode.
             </p>
           </div>
 
-          {/* Link groups */}
-          <FooterColumn
-            title="Find a trip"
-            links={[
-              { href: "/packages", label: "Packages" },
-              { href: "/trips", label: "Community trips" },
-              { href: "/host", label: "Host a trip" },
-              { href: "/plus", label: "✦ Plus" },
-            ]}
-          />
-          <FooterColumn
-            title="The Journal"
-            links={[
-              { href: "/stories", label: "Stories" },
-              { href: "/hosts", label: "Hosts" },
-            ]}
-          />
-          <FooterColumn
-            title="House"
-            links={[
-              { href: "/about", label: "About" },
-              { href: "/trust", label: "Trust & safety" },
-              { href: "/contact", label: "Get in touch" },
-            ]}
-          />
-          <FooterColumn
-            title="Fine print"
-            links={[
-              { href: "/terms", label: "Terms" },
-              { href: "/privacy", label: "Privacy" },
-              { href: "/refunds", label: "Refunds" },
-            ]}
-          />
+          {/* ── Navigation columns ── */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:pt-3">
+            <FooterColumn
+              title="Find a trip"
+              links={[
+                { href: "/packages", label: "Packages" },
+                { href: "/trips", label: "Community trips" },
+                { href: "/host", label: "Host a trip" },
+                { href: "/plus", label: "✦ Plus" },
+              ]}
+            />
+            <FooterColumn
+              title="The Journal"
+              links={[
+                { href: "/stories", label: "Stories" },
+                { href: "/hosts", label: "Hosts" },
+              ]}
+            />
+            <FooterColumn
+              title="House"
+              links={[
+                { href: "/about", label: "About" },
+                { href: "/trust", label: "Trust & safety" },
+                { href: "/contact", label: "Get in touch" },
+              ]}
+            />
+            <FooterColumn
+              title="Fine print"
+              links={[
+                { href: "/terms", label: "Terms" },
+                { href: "/privacy", label: "Privacy" },
+                { href: "/refunds", label: "Refunds" },
+              ]}
+            />
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* ── Bottom bar ── */}
-      <section className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-stone-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>© {new Date().getFullYear()} Packuptrip</span>
-          <span className="font-serif italic">
-            Made by humans in Chennai · with chai and a few too many maps
+      <div className="border-t border-[#e3d8c6]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-7 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+          <div className="flex items-center gap-4">
+            <Logo />
+            <span className="text-xs text-stone-500">
+              © {year} Packuptrip
+            </span>
+          </div>
+          <span className="font-serif text-sm italic text-stone-500">
+            Built by digital nomads · last pin dropped in Thalavadi
           </span>
         </div>
-      </section>
+      </div>
     </footer>
   );
 }
@@ -96,8 +104,11 @@ function FooterColumn({
   links: { href: string; label: string }[];
 }) {
   return (
-    <div className="lg:col-span-2">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <div>
+      <div
+        className="text-[11px] font-bold uppercase tracking-[0.18em]"
+        style={{ color: AMBER }}
+      >
         {title}
       </div>
       <ul className="mt-4 space-y-2.5 text-sm">
@@ -105,7 +116,7 @@ function FooterColumn({
           <li key={l.href}>
             <Link
               href={l.href}
-              className="text-stone-300 transition-colors hover:text-white"
+              className="text-stone-600 transition-colors hover:text-[#211c1a]"
             >
               {l.label}
             </Link>

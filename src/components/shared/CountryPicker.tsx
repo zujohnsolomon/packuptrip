@@ -36,7 +36,7 @@ export function CountryPicker({
   return (
     <div>
       {/* Selected count + clear */}
-      <div className="mb-3 flex items-baseline justify-between text-xs">
+      <div className="mb-2 flex items-baseline justify-between text-[11px]">
         <span className="text-stone-500">
           <span className="font-semibold text-ink">{selected.length}</span>{" "}
           {selected.length === 1 ? "country" : "countries"} selected
@@ -54,7 +54,7 @@ export function CountryPicker({
 
       {/* Selected chips */}
       {selected.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
+        <div className="mb-2 flex flex-wrap gap-1">
           {selected.map((code) => {
             const c = COUNTRIES.find((c) => c.code === code);
             if (!c) return null;
@@ -79,11 +79,11 @@ export function CountryPicker({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search countries…"
-        className="mb-2 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-yellow-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-100"
+        className="mb-2 w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-[13px] text-ink placeholder:text-stone-400 focus:border-[#2d5130] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2d5130]/15"
       />
 
       {/* Country list */}
-      <div className="max-h-56 overflow-y-auto rounded-xl border border-stone-200 bg-white">
+      <div className="max-h-44 overflow-y-auto rounded-lg border border-stone-200 bg-white">
         {filtered.length === 0 ? (
           <p className="px-4 py-6 text-center text-sm text-stone-400">
             No countries match &ldquo;{query}&rdquo;
@@ -97,7 +97,7 @@ export function CountryPicker({
                   <button
                     type="button"
                     onClick={() => toggle(c.code)}
-                    className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
+                    className={`flex w-full items-center justify-between px-3 py-1.5 text-left text-[13px] transition-colors ${
                       isSelected
                         ? "bg-green-50 text-green-800"
                         : "text-stone-700 hover:bg-stone-50"

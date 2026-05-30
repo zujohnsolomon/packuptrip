@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { DestinationPicker } from "@/components/ui/DestinationPicker";
 import { MonthPicker } from "@/components/ui/MonthPicker";
 import { createClient } from "@/lib/supabase/server";
-import { listLiveTrips, listLivePackages, listFeaturedPackages } from "@/lib/supabase/queries";
+import { listLiveTrips, listLivePackages, listFeaturedPackages, hostUrl } from "@/lib/supabase/queries";
 import { engineImages, heroImage, testimonials } from "@/lib/seed-data";
 import type { Trip, Package } from "@/types/db";
 
@@ -46,6 +46,7 @@ export default async function Home() {
   let featuredHosts: {
     id: string;
     name: string;
+    username: string | null;
     avatar_url: string | null;
     id_verified: boolean;
     bio: string | null;
@@ -54,7 +55,7 @@ export default async function Home() {
   if (allHostIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, name, avatar_url, id_verified, bio, home_city")
+      .select("id, name, username, avatar_url, id_verified, bio, home_city")
       .in("id", allHostIds);
     featuredHosts = (data ?? []).slice(0, 8);
   }
@@ -581,6 +582,7 @@ function FeaturedPackages({ packages }: { packages: Package[] }) {
 type FeaturedHost = {
   id: string;
   name: string;
+  username: string | null;
   avatar_url: string | null;
   id_verified: boolean;
   bio: string | null;
@@ -632,7 +634,7 @@ function HostFeatureCard({ host, tripCount }: { host: FeaturedHost; tripCount: n
   const location = host.home_city ?? "Packuptrip host";
   return (
     <Link
-      href={`/hosts/${host.id}`}
+      href={hostUrl(host)}
       className="group grid overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] sm:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]"
     >
       {/* Photo */}
@@ -735,7 +737,7 @@ function HostPortraitTile({
 }) {
   return (
     <Link
-      href={`/hosts/${host.id}`}
+      href={hostUrl(host)}
       className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
     >
       {host.avatar_url ? (
@@ -979,28 +981,38 @@ function Testimonials() {
 
 function HostCTA() {
   return (
-    <section className="bg-ink">
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-8">
+    <section className="relative overflow-hidden bg-ink">
+      <Image
+        src={engineImages.community}
+        alt=""
+        fill
+        unoptimized
+        sizes="100vw"
+        className="object-cover object-center"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#15100e]/95 via-[#15100e]/80 to-[#15100e]/45" />
+
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 py-11 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:px-10 lg:py-12">
         <div className="max-w-2xl">
-          <Badge
-            variant="neutral"
-            className="bg-white/10 text-white/90 ring-white/20"
-          >
-            Hosting on Packuptrip
-          </Badge>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Planning a trip? Bring people along.
+          <span className="inline-flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.3em] text-[#e3a857]">
+            <span className="h-px w-6 bg-[#e3a857]/50" />
+            Become a host
+          </span>
+          <h2 className="mt-3 font-serif text-[1.9rem] font-medium leading-[1.1] tracking-tight text-white sm:text-[2.5rem]">
+            Plan the trip.{" "}
+            <span className="italic text-[#e3a857]">Bring your people.</span>
           </h2>
-          <p className="mt-3 max-w-xl text-white/70">
-            Post your trip in minutes. Pick who joins. Split costs fairly. We
-            handle the payments — you handle the memories.
+          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/75">
+            Post your trip, pick who joins, split the cost fairly — we handle
+            the rest.
           </p>
         </div>
+
         <Link
           href="/host"
-          className="inline-flex h-12 shrink-0 items-center rounded-full bg-white px-7 text-sm font-semibold text-ink shadow-lg transition hover:bg-stone-100"
+          className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-[#d97706] px-7 text-sm font-bold text-white shadow-[0_12px_30px_rgba(217,119,6,0.35)] transition hover:bg-[#b45309]"
         >
-          Host a trip →
+          Start hosting →
         </Link>
       </div>
     </section>

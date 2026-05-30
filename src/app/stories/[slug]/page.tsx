@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
+import { hostUrl } from "@/lib/supabase/queries";
 import type { Story } from "@/types/db";
 
 export const dynamic = "force-dynamic";
 
-type AuthorMini = { id: string; name: string; avatar_url: string | null; home_city: string | null };
+type AuthorMini = { id: string; name: string; username: string | null; avatar_url: string | null; home_city: string | null };
 
 export async function generateMetadata({
   params,
@@ -57,7 +58,7 @@ export default async function StoryPage({
   if (story.author_id) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, name, avatar_url, home_city")
+      .select("id, name, username, avatar_url, home_city")
       .eq("id", story.author_id)
       .single();
     author = (data ?? undefined) as AuthorMini | undefined;
@@ -126,7 +127,7 @@ export default async function StoryPage({
           <div className="mt-8 flex flex-wrap items-center gap-3 border-y border-stone-100 py-5 text-sm">
             {author && (
               <Link
-                href={`/hosts/${author.id}`}
+                href={hostUrl(author)}
                 className="group flex items-center gap-3 text-stone-700 hover:text-ink"
               >
                 <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
