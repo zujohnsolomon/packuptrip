@@ -1005,15 +1005,15 @@ function HostCTA() {
           <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] font-medium text-white/80">
             <li className="flex items-center gap-1.5">
               <CheckMini />
-              Free to list
+              Post in minutes
             </li>
             <li className="flex items-center gap-1.5">
               <CheckMini />
-              Flat 12% fee
+              You choose who joins
             </li>
             <li className="flex items-center gap-1.5">
               <CheckMini />
-              Paid after the trip starts
+              We handle the payments
             </li>
           </ul>
         </div>
