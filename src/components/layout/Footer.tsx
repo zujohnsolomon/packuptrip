@@ -88,7 +88,7 @@ export function Footer() {
             </span>
           </div>
           <span className="font-serif text-sm italic text-stone-500">
-            Made by humans in Chennai · with chai and a few too many maps
+            Made by hand in Thalavadi · powered by chai and a little wanderlust
           </span>
         </div>
       </div>
