@@ -1002,20 +1002,10 @@ function HostCTA() {
             Plan the trip.{" "}
             <span className="italic text-[#e3a857]">Bring your people.</span>
           </h2>
-          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] font-medium text-white/80">
-            <li className="flex items-center gap-1.5">
-              <CheckMini />
-              Post in minutes
-            </li>
-            <li className="flex items-center gap-1.5">
-              <CheckMini />
-              You choose who joins
-            </li>
-            <li className="flex items-center gap-1.5">
-              <CheckMini />
-              We handle the payments
-            </li>
-          </ul>
+          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/75">
+            Post your trip, pick who joins, split the cost fairly — we handle
+            the rest.
+          </p>
         </div>
 
         <Link
@@ -1026,24 +1016,6 @@ function HostCTA() {
         </Link>
       </div>
     </section>
-  );
-}
-
-function CheckMini() {
-  return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#e3a857"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
   );
 }
 
