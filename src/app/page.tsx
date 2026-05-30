@@ -982,96 +982,48 @@ function Testimonials() {
 function HostCTA() {
   return (
     <section className="relative overflow-hidden bg-ink">
-      {/* Cinematic background */}
       <Image
         src={engineImages.community}
         alt=""
         fill
         unoptimized
         sizes="100vw"
-        className="object-cover"
+        className="object-cover object-center"
       />
-      {/* Single-color dark fade keeps text readable, photo visible on the right */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#15100e]/95 via-[#15100e]/80 to-[#15100e]/35" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#15100e]/95 via-[#15100e]/80 to-[#15100e]/45" />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10 lg:py-28">
-        {/* Left — editorial */}
-        <div className="max-w-xl">
-          <span className="inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-[#e3a857]">
-            <span className="h-px w-7 bg-[#e3a857]/50" />
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 py-11 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:px-10 lg:py-12">
+        <div className="max-w-2xl">
+          <span className="inline-flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.3em] text-[#e3a857]">
+            <span className="h-px w-6 bg-[#e3a857]/50" />
             Become a host
           </span>
-
-          <h2
-            className="mt-6 font-serif font-medium leading-[0.98] tracking-tight text-white"
-            style={{ fontSize: "clamp(2.6rem, 5vw, 4.25rem)" }}
-          >
-            Plan the trip.
-            <span className="block italic text-[#e3a857]">Bring your people.</span>
+          <h2 className="mt-3 font-serif text-[1.9rem] font-medium leading-[1.1] tracking-tight text-white sm:text-[2.5rem]">
+            Plan the trip.{" "}
+            <span className="italic text-[#e3a857]">Bring your people.</span>
           </h2>
-
-          <p className="mt-6 max-w-md text-[15px] leading-[1.75] text-white/75">
-            Post your journey, choose who joins, and split the costs fairly.
-            You bring the idea and the good company — we handle the payments
-            and the paperwork.
-          </p>
-
-          <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2.5 text-[13px] font-medium text-white/85">
-            <li className="flex items-center gap-2">
+          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] font-medium text-white/80">
+            <li className="flex items-center gap-1.5">
               <CheckMini />
               Free to list
             </li>
-            <li className="flex items-center gap-2">
+            <li className="flex items-center gap-1.5">
               <CheckMini />
               Flat 12% fee
             </li>
-            <li className="flex items-center gap-2">
+            <li className="flex items-center gap-1.5">
               <CheckMini />
               Paid after the trip starts
             </li>
           </ul>
-
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link
-              href="/host"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#d97706] px-7 text-sm font-bold text-white shadow-[0_12px_30px_rgba(217,119,6,0.35)] transition hover:bg-[#b45309]"
-            >
-              Start hosting →
-            </Link>
-            <Link
-              href="/host"
-              className="inline-flex h-12 items-center rounded-full border border-white/30 px-7 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/10"
-            >
-              See how it works
-            </Link>
-          </div>
         </div>
 
-        {/* Right — glass "how it works" card */}
-        <div className="hidden lg:block">
-          <div className="ml-auto max-w-sm rounded-3xl border border-white/15 bg-white/10 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md">
-            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">
-              How it works
-            </p>
-            <ol className="mt-6 space-y-6">
-              <HostStep
-                n="1"
-                title="Post your trip"
-                body="Dates, route, who it's for — live in minutes."
-              />
-              <HostStep
-                n="2"
-                title="Pick who joins"
-                body="Review requests and choose your travel companions."
-              />
-              <HostStep
-                n="3"
-                title="Get paid, stress-free"
-                body="We collect and split costs. Your payout lands after the trip starts."
-              />
-            </ol>
-          </div>
-        </div>
+        <Link
+          href="/host"
+          className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-[#d97706] px-7 text-sm font-bold text-white shadow-[0_12px_30px_rgba(217,119,6,0.35)] transition hover:bg-[#b45309]"
+        >
+          Start hosting →
+        </Link>
       </div>
     </section>
   );
@@ -1092,20 +1044,6 @@ function CheckMini() {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  );
-}
-
-function HostStep({ n, title, body }: { n: string; title: string; body: string }) {
-  return (
-    <li className="flex gap-4">
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#d97706] text-sm font-bold text-white">
-        {n}
-      </span>
-      <div>
-        <p className="text-sm font-bold text-white">{title}</p>
-        <p className="mt-1 text-[13px] leading-snug text-white/65">{body}</p>
-      </div>
-    </li>
   );
 }
 
