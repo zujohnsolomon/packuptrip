@@ -124,6 +124,9 @@ export async function updateProfile(
   revalidatePath("/account");
   revalidatePath("/account/profile");
   revalidatePath(`/hosts/${user.id}`);
+  if (usernameValid) {
+    revalidatePath(`/${usernameRaw}`);
+  }
 
   return { error: null };
 }
