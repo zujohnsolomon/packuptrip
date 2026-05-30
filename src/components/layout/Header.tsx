@@ -103,8 +103,24 @@ export function Header({
 
         <div className="flex items-center gap-2">
           {!authReady ? null : user ? (
-            // Logged-in: unified profile panel (notifications + chat + nav)
-            <ProfilePanel user={user} transparent={lightTransparent} />
+            // Logged-in: quick Messages access + unified profile panel
+            <>
+              <Link
+                href="/messages"
+                aria-label="Messages"
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-full transition",
+                  pathname.startsWith("/messages")
+                    ? "bg-amber-100 text-amber-700"
+                    : lightTransparent
+                      ? "text-white hover:bg-white/10"
+                      : "text-stone-700 hover:bg-stone-100",
+                )}
+              >
+                <EnvelopeIcon />
+              </Link>
+              <ProfilePanel user={user} transparent={lightTransparent} />
+            </>
           ) : (
             // Guest: auth buttons + hamburger for nav links
             <>
@@ -225,6 +241,25 @@ function NavLink({
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
+
+function EnvelopeIcon() {
+  return (
+    <svg
+      width="19"
+      height="19"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="M4 7l8 6 8-6" />
+    </svg>
+  );
+}
 
 function MenuIcon() {
   return (
