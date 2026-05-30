@@ -88,7 +88,7 @@ export function Footer() {
             </span>
           </div>
           <span className="font-serif text-sm italic text-stone-500">
-            Made by hand in Thalavadi · powered by chai and a little wanderlust
+            Built by digital nomads · last pin dropped in Thalavadi
           </span>
         </div>
       </div>
