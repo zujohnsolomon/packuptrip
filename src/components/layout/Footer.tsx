@@ -27,9 +27,9 @@ export function Footer() {
                 fontVariationSettings: "'opsz' 144",
               }}
             >
-              Travel together,
+              Go far,
               <span className="block italic" style={{ color: AMBER }}>
-                never alone.
+                go together.
               </span>
             </h2>
 
