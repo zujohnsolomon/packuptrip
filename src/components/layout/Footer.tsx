@@ -1,25 +1,37 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
+const GOLD = "#e3a857";
+
 export function Footer() {
   return (
     <footer className="bg-ink text-stone-300">
       {/* ── Editorial closing ── */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
-            · A note from the makers ·
-          </p>
+        <div className="mx-auto max-w-4xl px-6 py-24 text-center sm:py-32">
+          <span
+            className="inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em]"
+            style={{ color: GOLD }}
+          >
+            <span className="h-px w-7" style={{ backgroundColor: `${GOLD}66` }} />
+            A note from the makers
+            <span className="h-px w-7" style={{ backgroundColor: `${GOLD}66` }} />
+          </span>
+
           <h2
-            className="mt-5 font-serif font-medium leading-[1.05] tracking-tight text-white"
+            className="mt-7 font-serif font-medium leading-[1.0] tracking-tight text-stone-50"
             style={{
-              fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
+              fontSize: "clamp(2.4rem, 5.5vw, 4.25rem)",
               fontVariationSettings: "'opsz' 144",
             }}
           >
-            Travel together, never alone.
+            Travel together,
+            <span className="block italic" style={{ color: GOLD }}>
+              never alone.
+            </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl font-serif text-lg italic leading-relaxed text-stone-400">
+
+          <p className="mx-auto mt-7 max-w-md text-[15px] leading-[1.75] text-stone-400">
             Curated journeys and community trips — hand-picked, hand-led,
             and run by people who&rsquo;d rather know your name than your
             postcode.
@@ -79,7 +91,7 @@ export function Footer() {
       <section className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-stone-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <span>© {new Date().getFullYear()} Packuptrip</span>
-          <span className="font-serif italic">
+          <span className="font-serif italic text-stone-400">
             Made by humans in Chennai · with chai and a few too many maps
           </span>
         </div>
@@ -97,7 +109,10 @@ function FooterColumn({
 }) {
   return (
     <div className="lg:col-span-2">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+      <div
+        className="text-[11px] font-bold uppercase tracking-[0.18em]"
+        style={{ color: GOLD }}
+      >
         {title}
       </div>
       <ul className="mt-4 space-y-2.5 text-sm">
@@ -105,7 +120,7 @@ function FooterColumn({
           <li key={l.href}>
             <Link
               href={l.href}
-              className="text-stone-300 transition-colors hover:text-white"
+              className="text-stone-200 transition-colors hover:text-white"
             >
               {l.label}
             </Link>
