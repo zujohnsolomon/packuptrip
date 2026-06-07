@@ -68,7 +68,7 @@ export default async function VerifyPage() {
               Verify your identity
             </h1>
             <p className="mt-2 text-stone-500">
-              Upload a government ID and a quick selfie. Takes 2 minutes — earns trust that lasts.
+              Upload a government ID and a quick selfie. Takes about 2 minutes.
             </p>
           </div>
 

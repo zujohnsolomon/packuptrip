@@ -307,7 +307,7 @@ export function VerifyClient({ userId }: { userId: string }) {
       </div>
 
       {/* Step 1 — ID type + number */}
-      <div className={`rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] transition-opacity ${step !== 1 ? "opacity-50" : ""}`}>
+      <div className={`rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] transition-opacity ${step !== 1 ? "pointer-events-none opacity-40" : ""}`}>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-stone-400">
           Step 1 — Choose your ID type
         </h2>
@@ -382,7 +382,7 @@ export function VerifyClient({ userId }: { userId: string }) {
 
       {/* Step 2 — Upload ID document */}
       {step >= 2 && (
-        <div className={`rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ${step !== 2 ? "opacity-50" : ""}`}>
+        <div className={`rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ${step !== 2 ? "pointer-events-none opacity-40" : ""}`}>
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-stone-400">
             Step 2 — Upload your {selectedType?.label}
           </h2>
