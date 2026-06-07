@@ -20,6 +20,7 @@ type ProfileMini = {
   avatar_url: string | null;
   role: string;
   has_trips: boolean;
+  id_verified: boolean;
 };
 
 type Tab = "notifications" | "chat";
@@ -322,7 +323,7 @@ export function ProfilePanel({
 
     // Profile
     Promise.all([
-      supabase.from("profiles").select("name, avatar_url, role").eq("id", user.id).single(),
+      supabase.from("profiles").select("name, avatar_url, role, id_verified").eq("id", user.id).single(),
       supabase.from("trips").select("id", { count: "exact", head: true }).eq("host_id", user.id),
     ]).then(([{ data: p }, { count }]) => {
       if (p) {
@@ -331,6 +332,7 @@ export function ProfilePanel({
           avatar_url: p.avatar_url as string | null,
           role: p.role as string,
           has_trips: (count ?? 0) > 0,
+          id_verified: !!(p.id_verified),
         });
       }
     });
@@ -512,7 +514,18 @@ export function ProfilePanel({
               <PanelLink href="/account/payments" icon={<PaymentsIcon />} onClick={() => setOpen(false)} highlight>
                 Payments &amp; payouts
               </PanelLink>
-              <PanelLink href="/account/verify" icon={<VerifyIcon />} onClick={() => setOpen(false)}>Get verified</PanelLink>
+              {profile?.id_verified ? (
+                <div className="flex items-center gap-3 px-4 py-2.5 text-green-700">
+                  <span className="flex h-5 w-5 items-center justify-center text-green-500">
+                    <VerifyIcon />
+                  </span>
+                  <span className="text-sm font-medium">ID Verified ✓</span>
+                </div>
+              ) : (
+                <PanelLink href="/account/verify" icon={<VerifyIcon />} onClick={() => setOpen(false)}>
+                  Get verified
+                </PanelLink>
+              )}
             </div>
 
             {/* ── Nav group 3: Help + Admin ── */}
