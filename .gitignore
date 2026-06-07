@@ -52,3 +52,6 @@ next-env.d.ts
 
 # Preview tooling (local dev server config)
 .claude/launch.json
+
+# Face-api.js model weights are committed (280 KB) so they deploy to Vercel.
+# Re-download with: node scripts/download-face-models.mjs

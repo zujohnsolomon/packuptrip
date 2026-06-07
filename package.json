@@ -6,13 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:models": "node scripts/download-face-models.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.1",
     "date-fns": "^4.2.1",
+    "face-api.js": "^0.22.2",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-day-picker": "^10.0.1",

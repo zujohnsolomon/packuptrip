@@ -1,19 +1,67 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sendVerificationApprovedEmail, sendVerificationRejectedEmail } from "@/lib/email";
 import type { IdType, VerificationRequest } from "@/types/db";
 
+function hashIdNumber(normalized: string): string {
+  return crypto.createHash("sha256").update(`packt:id:${normalized}`).digest("hex");
+}
+
 /** Upsert a verification request after files are uploaded client-side. */
 export async function submitVerification(payload: {
   idType: IdType;
+  idNumber: string; // already normalised by client; hashed server-side
   idDocPath: string;
   selfiePath: string;
+  faceMatchScore?: number;
 }): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in" };
+
+  const idHash = hashIdNumber(payload.idNumber);
+
+  // Check if this ID number is already approved on a different account
+  const { data: duplicate } = await supabase
+    .from("id_verification_requests")
+    .select("user_id, status")
+    .eq("id_number_hash", idHash)
+    .eq("status", "approved")
+    .neq("user_id", user.id)
+    .maybeSingle();
+
+  if (duplicate) {
+    return { error: "This ID document is already linked to another verified account. If you believe this is an error, contact support." };
+  }
+
+  // Fetch profile age + previous request in one go
+  const [{ data: profile }, { data: prev }] = await Promise.all([
+    supabase.from("profiles").select("created_at").eq("id", user.id).single(),
+    supabase.from("id_verification_requests").select("status, updated_at").eq("user_id", user.id).maybeSingle(),
+  ]);
+
+  // Enforce 24-hour cooldown after rejection
+  if (prev?.status === "rejected" && prev.updated_at) {
+    const hoursSince = (Date.now() - new Date(prev.updated_at).getTime()) / 3_600_000;
+    if (hoursSince < 24) {
+      const hoursLeft = Math.ceil(24 - hoursSince);
+      return { error: `Please wait ${hoursLeft} more hour${hoursLeft === 1 ? "" : "s"} before resubmitting.` };
+    }
+  }
+
+  // Risk score: 0–100 based on observable signals (no external APIs)
+  let riskScore = 0;
+  if (profile?.created_at) {
+    const accountAgeDays = (Date.now() - new Date(profile.created_at).getTime()) / 86_400_000;
+    if (accountAgeDays < 1)  riskScore += 40; // brand-new account
+    else if (accountAgeDays < 7)  riskScore += 25;
+    else if (accountAgeDays < 30) riskScore += 10;
+  }
+  if (prev?.status === "rejected") riskScore += 25; // previously rejected
+  riskScore = Math.min(riskScore, 100);
 
   const { error } = await supabase
     .from("id_verification_requests")
@@ -23,10 +71,14 @@ export async function submitVerification(payload: {
         id_type: payload.idType,
         id_doc_path: payload.idDocPath,
         selfie_path: payload.selfiePath,
+        id_number_hash: idHash,
+        face_match_score: payload.faceMatchScore ?? null,
+        risk_score: riskScore,
         status: "pending",
         admin_notes: null,
         reviewed_at: null,
         reviewed_by: null,
+        updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }
     );

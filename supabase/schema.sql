@@ -376,6 +376,76 @@ create policy "messages_recipient_mark_read"
   with check (true);
 
 -- ──────────────────────────────────────────────────────────────────────────
+-- id_verification_requests
+-- ──────────────────────────────────────────────────────────────────────────
+create table if not exists public.id_verification_requests (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid        not null references public.profiles(id) on delete cascade,
+  id_type          text        not null check (id_type in ('aadhaar','pan','passport','driving_licence')),
+  id_doc_path      text        not null,
+  selfie_path      text        not null,
+  id_number_hash   text,              -- SHA-256 of normalised ID number for duplicate detection
+  face_match_score numeric(4,3),      -- 0–1 similarity score (future Phase 3)
+  risk_score       int default 0,     -- 0–100 computed risk score
+  status           text        not null default 'pending'
+                               check (status in ('pending','approved','rejected')),
+  admin_notes      text,
+  reviewed_at      timestamptz,
+  reviewed_by      uuid references public.profiles(id),
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now(),
+  unique (user_id)
+);
+
+-- One ID number cannot be approved on more than one account
+create unique index if not exists id_verification_unique_approved_hash
+  on public.id_verification_requests (id_number_hash)
+  where status = 'approved' and id_number_hash is not null;
+
+create index if not exists id_verification_status_idx on public.id_verification_requests (status);
+
+-- RLS
+alter table public.id_verification_requests enable row level security;
+
+-- Owners can read their own request
+create policy "verify_owner_select"
+  on public.id_verification_requests for select
+  using (auth.uid() = user_id);
+
+-- Owners can insert/update only their own row
+create policy "verify_owner_insert"
+  on public.id_verification_requests for insert
+  with check (auth.uid() = user_id);
+
+create policy "verify_owner_update"
+  on public.id_verification_requests for update
+  using (auth.uid() = user_id);
+
+-- Admins can do everything
+create policy "verify_admin_all"
+  on public.id_verification_requests for all
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- admin_set_id_verified RPC
+-- Direct UPDATE on profiles.id_verified is revoked for authenticated role.
+-- This SECURITY DEFINER function re-checks the caller is an admin.
+-- ──────────────────────────────────────────────────────────────────────────
+create or replace function public.admin_set_id_verified(p_user_id uuid, p_verified boolean)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if (select role from public.profiles where id = auth.uid()) <> 'admin' then
+    raise exception 'Unauthorized';
+  end if;
+  update public.profiles set id_verified = p_verified where id = p_user_id;
+end;
+$$;
+
+-- ──────────────────────────────────────────────────────────────────────────
 -- host_cancel_booking RPC  (T6.3)
 -- Atomically cancels a joiner's booking and restores the freed spot.
 -- SECURITY DEFINER so it can write bookings even though the host doesn't

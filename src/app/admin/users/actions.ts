@@ -54,12 +54,38 @@ export async function toggleUserVerified(formData: FormData) {
   const next = String(formData.get("verified") ?? "") === "1";
   if (!id) throw new Error("Missing user id.");
 
-  const { supabase } = await requireAdmin();
-  const { error } = await supabase
-    .from("profiles")
-    .update({ id_verified: next })
-    .eq("id", id);
-  if (error) throw error;
+  const { supabase, callerId } = await requireAdmin();
+
+  // Use the SECURITY DEFINER RPC — direct UPDATE on id_verified is revoked
+  // for the authenticated role to prevent privilege escalation.
+  const { error: rpcErr } = await supabase.rpc("admin_set_id_verified", {
+    p_user_id: id,
+    p_verified: next,
+  });
+  if (rpcErr) throw rpcErr;
+
+  // Write an audit record so every verification status change is traceable —
+  // even manual overrides by admins that bypass the normal review queue.
+  const { error: auditErr } = await supabase
+    .from("id_verification_requests")
+    .upsert(
+      {
+        user_id: id,
+        id_type: "aadhaar", // placeholder; manual approvals skip document choice
+        id_doc_path: "",
+        selfie_path: "",
+        status: next ? "approved" : "rejected",
+        admin_notes: next
+          ? "Manually approved by admin (no document submitted)"
+          : "Manually revoked by admin",
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: callerId,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+  if (auditErr) throw auditErr;
+
   revalidateUserSurfaces(id);
   redirect(`/admin/users/${id}?verified=${next ? 1 : 0}`);
 }

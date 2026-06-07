@@ -223,6 +223,9 @@ export type VerificationRequest = {
   id_type: IdType;
   id_doc_path: string;
   selfie_path: string;
+  id_number_hash: string | null;
+  face_match_score: number | null;
+  risk_score: number;
   status: VerificationStatus;
   admin_notes: string | null;
   reviewed_at: string | null;
