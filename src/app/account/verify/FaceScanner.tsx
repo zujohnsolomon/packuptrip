@@ -53,10 +53,14 @@ export function FaceScanner({ onCapture }: { onCapture: (blob: Blob) => void }) 
   const [status, setStatus] = useState<Status>("loading");
   const [capturedPreview, setCapturedPreview] = useState<string | null>(null);
   const [blinkDetected, setBlinkDetected] = useState(false);
+  const [blinkSeconds, setBlinkSeconds] = useState(0);
   const stopRef = useRef(false);
   const blinkRef = useRef(false);
-  const prevEarRef = useRef(1);
   const streamRef = useRef<MediaStream | null>(null);
+  // Adaptive blink detection state
+  const earHistoryRef = useRef<number[]>([]);
+  const blinkPhaseRef = useRef<"open" | "closing">("open");
+  const openFramesRef = useRef(0);
 
   const handleCapture = useCallback(
     (video: HTMLVideoElement) => {
@@ -136,7 +140,8 @@ export function FaceScanner({ onCapture }: { onCapture: (blob: Blob) => void }) 
         if (!det) {
           setStatus("no-face");
           blinkRef.current = false;
-          prevEarRef.current = 1;
+          blinkPhaseRef.current = "open";
+          openFramesRef.current = 0;
         } else {
           const vw = videoRef.current.videoWidth;
           const vh = videoRef.current.videoHeight;
@@ -156,17 +161,39 @@ export function FaceScanner({ onCapture }: { onCapture: (blob: Blob) => void }) 
             setStatus("off-center");
             blinkRef.current = false;
           } else {
-            // Good position — check blink via Eye Aspect Ratio
+            // Good position — adaptive blink detection via Eye Aspect Ratio
             const lm = det.landmarks;
             const left = lm.getLeftEye().map((p) => ({ x: p.x, y: p.y }));
             const right = lm.getRightEye().map((p) => ({ x: p.x, y: p.y }));
             const ear = (eyeAspectRatio(left) + eyeAspectRatio(right)) / 2;
 
-            if (prevEarRef.current > 0.22 && ear < 0.16) {
+            // Build rolling EAR history to learn this person's open-eye baseline
+            const history = earHistoryRef.current;
+            history.push(ear);
+            if (history.length > 40) history.shift();
+
+            // Baseline = 75th percentile of recent EARs (open-eye frames dominate)
+            const sorted = [...history].sort((a, b) => a - b);
+            const baseline = sorted[Math.floor(sorted.length * 0.75)] ?? 0.26;
+            // Close threshold: 70% of baseline (adapts to narrow/wide eyes, lighting)
+            const closeThresh = Math.max(baseline * 0.70, 0.13);
+            // Open threshold: 82% of baseline (with hysteresis so we don't flicker)
+            const openThresh = baseline * 0.82;
+
+            if (ear >= openThresh) {
+              openFramesRef.current = Math.min(openFramesRef.current + 1, 20);
+              blinkPhaseRef.current = "open";
+            } else if (
+              ear < closeThresh &&
+              blinkPhaseRef.current === "open" &&
+              openFramesRef.current >= 2 // eyes were stably open before closing
+            ) {
+              // Confirmed blink
               blinkRef.current = true;
               setBlinkDetected(true);
+              openFramesRef.current = 0;
+              blinkPhaseRef.current = "closing";
             }
-            prevEarRef.current = ear;
 
             if (!blinkRef.current) {
               setStatus("need-blink");
@@ -190,6 +217,13 @@ export function FaceScanner({ onCapture }: { onCapture: (blob: Blob) => void }) 
       streamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, [handleCapture]);
+
+  // Count seconds spent waiting for blink — show manual fallback after 8s
+  useEffect(() => {
+    if (status !== "need-blink") { setBlinkSeconds(0); return; }
+    const id = setInterval(() => setBlinkSeconds((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [status]);
 
   const isLoading = status === "loading";
   const isDone = status === "captured";
@@ -297,9 +331,26 @@ export function FaceScanner({ onCapture }: { onCapture: (blob: Blob) => void }) 
           {HINTS[status]}
         </p>
         {status === "need-blink" && (
-          <p className="mt-1 text-xs text-stone-400">
-            Confirms you are physically present — not a photo
-          </p>
+          <>
+            <p className="mt-1 text-xs text-stone-400">
+              Confirms you are physically present — not a photo
+            </p>
+            {blinkSeconds >= 8 && videoRef.current && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!videoRef.current) return;
+                  blinkRef.current = true;
+                  setBlinkDetected(true);
+                  stopRef.current = true;
+                  handleCapture(videoRef.current);
+                }}
+                className="mt-3 rounded-full border border-stone-300 bg-white px-4 py-1.5 text-xs font-medium text-stone-600 shadow-sm hover:bg-stone-50"
+              >
+                Can&apos;t blink? Capture manually →
+              </button>
+            )}
+          </>
         )}
         {status === "too-far" && (
           <p className="mt-1 text-xs text-stone-400">
