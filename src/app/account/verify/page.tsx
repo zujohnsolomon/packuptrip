@@ -79,7 +79,7 @@ export default async function VerifyPage() {
             </div>
           )}
 
-          <VerifyClient userId={user.id} />
+          <VerifyClient />
 
           {/* Privacy notice */}
           <p className="mt-6 text-center text-xs text-stone-400">

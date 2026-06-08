@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { compareFaces, type FaceCompareResult } from "./faceCompare";
-import { createClient } from "@/lib/supabase/client";
 import { submitVerification } from "@/actions/verification";
 import type { IdType } from "@/types/db";
 
@@ -163,7 +162,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-export function VerifyClient({ userId }: { userId: string }) {
+export function VerifyClient() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
   // Step 1
@@ -242,32 +241,17 @@ export function VerifyClient({ userId }: { userId: string }) {
     setError(null);
 
     try {
-      const supabase = createClient();
-
-      // Upload ID document
-      const idExt = idDocFile.name.split(".").pop() ?? "jpg";
-      const idPath = `${userId}/id-doc.${idExt}`;
-      const { error: idErr } = await supabase.storage
-        .from("id-documents")
-        .upload(idPath, idDocFile, { upsert: true, contentType: idDocFile.type });
-      if (idErr) throw new Error(idErr.message);
-
-      // Upload face scan
-      const selfiePath = `${userId}/selfie.jpg`;
-      const { error: selfieErr } = await supabase.storage
-        .from("id-documents")
-        .upload(selfiePath, faceBlob, { upsert: true, contentType: "image/jpeg" });
-      if (selfieErr) throw new Error(selfieErr.message);
-
-      // Submit to DB (server action hashes id_number and checks duplicates)
+      // Send everything to the server action — storage uploads happen server-side
+      // so there's no client-side auth dependency that could cause RLS errors.
       const normalized = selectedType.normalize(idNumber);
-      const { error: dbErr } = await submitVerification({
-        idType,
-        idNumber: normalized,
-        idDocPath: idPath,
-        selfiePath,
-        faceMatchScore: faceMatch?.score ?? undefined,
-      });
+      const fd = new FormData();
+      fd.set("idType", idType);
+      fd.set("idNumber", normalized);
+      fd.set("idDoc", idDocFile, idDocFile.name);
+      fd.set("selfie", new File([faceBlob], "selfie.jpg", { type: "image/jpeg" }));
+      if (faceMatch?.score != null) fd.set("faceMatchScore", String(faceMatch.score));
+
+      const { error: dbErr } = await submitVerification(fd);
       if (dbErr) throw new Error(dbErr);
 
       setDone(true);

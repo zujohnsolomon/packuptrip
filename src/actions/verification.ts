@@ -10,19 +10,50 @@ function hashIdNumber(normalized: string): string {
   return crypto.createHash("sha256").update(`packt:id:${normalized}`).digest("hex");
 }
 
-/** Upsert a verification request after files are uploaded client-side. */
-export async function submitVerification(payload: {
-  idType: IdType;
-  idNumber: string; // already normalised by client; hashed server-side
-  idDocPath: string;
-  selfiePath: string;
-  faceMatchScore?: number;
-}): Promise<{ error: string | null }> {
+/** Upload files and upsert a verification request. Accepts FormData so
+ *  file I/O stays entirely server-side — no client-side storage auth needed. */
+export async function submitVerification(formData: FormData): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in" };
 
-  const idHash = hashIdNumber(payload.idNumber);
+  const idType     = formData.get("idType")     as IdType | null;
+  const idNumber   = formData.get("idNumber")   as string | null;
+  const idDocFile  = formData.get("idDoc")      as File   | null;
+  const selfieFile = formData.get("selfie")     as File   | null;
+  const scoreStr   = formData.get("faceMatchScore") as string | null;
+
+  if (!idType || !idNumber || !idDocFile || !selfieFile) {
+    return { error: "Missing required fields" };
+  }
+
+  const faceMatchScore = scoreStr ? parseFloat(scoreStr) : undefined;
+
+  // Upload ID document server-side (auth context = server session, reliable)
+  const idExt  = idDocFile.name.split(".").pop() ?? "jpg";
+  const idPath = `${user.id}/id-doc.${idExt}`;
+  const { error: idUploadErr } = await supabase.storage
+    .from("id-documents")
+    .upload(idPath, idDocFile, { upsert: true, contentType: idDocFile.type });
+  if (idUploadErr) {
+    console.error("id-doc upload:", idUploadErr);
+    return { error: "Could not upload ID document. Please try again." };
+  }
+
+  // Upload selfie server-side
+  const selfiePath = `${user.id}/selfie.jpg`;
+  const { error: selfieUploadErr } = await supabase.storage
+    .from("id-documents")
+    .upload(selfiePath, selfieFile, { upsert: true, contentType: "image/jpeg" });
+  if (selfieUploadErr) {
+    console.error("selfie upload:", selfieUploadErr);
+    return { error: "Could not upload selfie. Please try again." };
+  }
+
+  const idHash = hashIdNumber(idNumber);
+
+  // Build a payload object for the shared logic below
+  const payload = { idType, idNumber, idDocPath: idPath, selfiePath, faceMatchScore };
 
   // Check if this ID number is already approved on a different account
   const { data: duplicate } = await supabase
